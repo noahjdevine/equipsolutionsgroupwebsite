@@ -137,29 +137,58 @@ design decision, not a cosmetic one. Don't do it as a side effect of a layout ch
    endpoint before launch.
 
 5. **Fonts load from Google.** Should be self-hosted before production — offline or
-   blocked, the fallback to Arial Narrow noticeably softens the whole design.
+ blocked, the fallback to Arial Narrow noticeably softens the whole design.
+
+6. **The active-nav indicator has never rendered.** `site.css` styles
+ `.nav-link[aria-current="page"]::after`, but no element in the nav has ever carried
+ `class="nav-link"` — the class exists only in the stylesheet. So the skewed
+ underline marking the current page has never appeared, in the static site or in
+ Astro. The `aria-current` attribute itself is correct and is now set at build time.
+ Adding the class would light up a marker that has never been there, which is a
+ visual change, so it was deliberately left alone during the migration. Decide
+ whether the current page should be marked, then either add `nav-link` to the nav
+ anchors or delete the dead rule.
 
 ---
 
 ## 5. Architecture
 
-**Current state:** seven standalone HTML files. The header and footer are
-copy-pasted into every one of them.
+**Current state:** Astro, static output. Migrated from seven standalone HTML files;
+the port was deliberately visual-neutral, so the rendered markup is equivalent to the
+static version apart from the changes listed below.
 
-**This is the main technical debt.** Any nav or footer change today means editing
-seven files identically. The first priority is extracting them into a single layout
-component.
+```
+src/layouts/BaseLayout.astro     doctype, head, skip link, header, slot, footer
+src/components/SiteHeader.astro  brand monogram + nav
+src/components/SiteFooter.astro  footer nav, disclaimer, copyright
+src/components/CtaBand.astro     heading + body props, slot for the buttons
+src/pages/*.astro                the seven pages, body content only
+src/styles/site.css              the one stylesheet, tokens at the top
+src/scripts/site.js              dropdown nav, mobile panel, form handoff
+public/assets/img/               photos go here, referenced as /assets/img/...
+```
 
-**Target:** Astro. The site is genuinely static, the existing HTML ports over nearly
-as-is, and the output ships almost no JavaScript. Next.js is the alternative if a CMS
-or authenticated area is coming, but nothing in the current scope requires it.
+**URLs.** `build.format: 'directory'`, so pages serve at `/swaploader/`, `/parts/`
+and so on. "Flat" here means no nesting — not `/products/swaploader` — and it was
+never a requirement that URLs omit a trailing slash. Directory format is Astro's
+default and the most portable across hosts. Internal links are written with the
+trailing slash to avoid a redirect hop.
 
-**After migration, these must still be true:**
-- Header and footer defined once
-- Design tokens live in one stylesheet
-- Every page still carries the footer disclaimer
-- URLs stay flat (`/swaploader`, `/parts`, not `/products/swaploader`) — nothing is
-  published yet, but keep them clean
+**These are true and must stay true:**
+- Header and footer defined once, in `src/components/`
+- Design tokens live in one stylesheet, `src/styles/site.css`
+- Every page carries the footer disclaimer — now structural, via the layout
+- URLs stay flat
+
+**What the migration changed on purpose** (nothing else changed):
+- `aria-current` on nav links is resolved at build time from `Astro.url.pathname`.
+ It used to be set by `site.js` from `location.pathname`, which cannot work without
+ `.html` extensions. Those six lines were removed from the script.
+- The copyright year is rendered at build time, so the per-page inline script is
+ gone. The year now reflects the last build rather than the visitor's clock.
+- `site.css` is bundled, minified and content-hashed by Astro. The minifier rewrites
+ `::before` to `:before`, `skewX(-20deg)` to the equivalent `skew(-20deg)`, and
+ merges rules sharing a declaration block. All 180 selectors survive.
 
 ---
 

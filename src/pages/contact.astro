@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaBand from '../components/CtaBand.astro';
+---
+
+<BaseLayout
+  title="Contact & Quote Request | Equip Solutions Group"
+  description="Request a quote for SwapLoader hooklifts, StarMix volumetric plants, parts or equipment sourcing. Call +1 515 720 0800 or send the details.">
+
+  <section class="page-hero">
+    <div class="wrap page-hero-inner">
+      <p class="eyebrow">Contact</p>
+      <h1>Request a Quote</h1>
+      <p>Equipment, parts or a sourcing request &mdash; the more detail you send, the faster a real number comes back. If a machine is down, call instead.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="split split--narrow">
+        <div>
+          <p class="eyebrow">Direct</p>
+          <ul class="contact-lines">
+            <li>
+              <div class="cl-label">Phone &amp; text</div>
+              <div class="cl-value"><a href="tel:+15157200800">+1 515 720 0800</a></div>
+            </li>
+            <li>
+              <div class="cl-label">Email</div>
+              <div class="cl-value" style="font-size:1.125rem;"><a href="mailto:paul@equipsolutionsgroup.com">paul@equipsolutionsgroup.com</a></div>
+            </li>
+            <li>
+              <div class="cl-label">Lines represented</div>
+              <div class="cl-value" style="font-size:1.125rem;">StarMix Industries &middot; SwapLoader &middot; Parts Solutions</div>
+            </li>
+          </ul>
+
+          <div class="plate" style="margin-top:2rem;">
+            <div class="plate-code">Fastest route</div>
+            <h3 style="font-size:1.5rem;">Down machine?</h3>
+            <p>Call or text a photo. Downtime requests go to the front of the queue &mdash; do not wait on a form response.</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow">Send the details</p>
+          <form data-quote-form novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label for="company">Company</label>
+                <input id="company" name="company" type="text" autocomplete="organization">
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required>
+              </div>
+              <div class="field">
+                <label for="phone">Phone</label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel">
+              </div>
+              <div class="field">
+                <label for="interest">What do you need</label>
+                <select id="interest" name="interest">
+                  <option>SwapLoader hooklift</option>
+                  <option>StarMix volumetric plant</option>
+                  <option>Parts &mdash; SwapLoader</option>
+                  <option>Parts &mdash; StarMix / SMI</option>
+                  <option>Parts &mdash; agriculture or other</option>
+                  <option>Used equipment sourcing</option>
+                  <option>Something else</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="timeline">Timeline</label>
+                <select id="timeline" name="timeline">
+                  <option>Machine is down &mdash; urgent</option>
+                  <option>Within 30 days</option>
+                  <option>1&ndash;3 months</option>
+                  <option>Budgeting / planning</option>
+                </select>
+              </div>
+              <div class="field field--full">
+                <label for="equipment">Chassis, model or part number</label>
+                <input id="equipment" name="equipment" type="text" placeholder="e.g. 2024 Peterbilt 536, 14&#39; bodies &mdash; or SMI-HM-50">
+              </div>
+              <div class="field field--full">
+                <label for="location">City and state</label>
+                <input id="location" name="location" type="text" placeholder="For freight and delivery">
+              </div>
+              <div class="field field--full">
+                <label for="message">Details</label>
+                <textarea id="message" name="message" placeholder="What the equipment has to do, what you already run, quantities, anything else that helps."></textarea>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn" type="submit">Send request</button>
+            </div>
+            <p class="small muted" style="margin-top:1rem;">Photos help &mdash; text them to +1 515 720 0800 or attach them to a reply once we are connected.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    heading="Prefer to just talk?"
+    body="Most of this gets settled faster on the phone than in writing.">
+    <a class="btn" href="tel:+15157200800">Call +1 515 720 0800</a>
+  </CtaBand>
+
+</BaseLayout>

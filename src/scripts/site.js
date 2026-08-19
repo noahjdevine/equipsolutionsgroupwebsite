@@ -87,13 +87,6 @@
     if (toggle) { toggle.setAttribute('aria-expanded', 'false'); toggle.textContent = 'Menu'; }
   });
 
-  // Mark the current page in the nav
-  var here = location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.nav a, .dropdown a').forEach(function (a) {
-    var href = a.getAttribute('href') || '';
-    if (href.split('#')[0] === here) a.setAttribute('aria-current', 'page');
-  });
-
   // Quote form — no backend yet. Hand off to email so nothing is silently lost.
   var form = document.querySelector('[data-quote-form]');
   if (form) {
