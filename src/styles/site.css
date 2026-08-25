@@ -7,12 +7,14 @@
   /* Color */
   --paper:      #F5F5F3;   /* cool near-white, matches the signature card */
   --paper-2:    #EDEDEA;   /* alternating band */
-  --ink:        #17191B;   /* headline / body black */
-  --graphite:   #4A5158;   /* secondary text */
-  --steel:      #8A9096;   /* tertiary text, captions */
-  --hairline:   #D6D6D1;   /* 1px rules */
-  --hairline-d: #33383D;   /* 1px rules on dark */
-  --signal:     #E8B21C;   /* the one accent. markers, rules, active states */
+  --ink:         #151C24;   /* headline / body; blue-shifted off neutral black */
+  --ink-hover:   #0B1219;   /* darker sibling of --ink; replaces pure #000 hovers */
+  --graphite:    #4A5158;   /* secondary text */
+  --steel:       #666D73;   /* tertiary text, captions */
+  --hairline:    #D6D6D1;   /* 1px rules */
+  --hairline-d:  #33383D;   /* 1px rules on dark */
+  --signal:      #E8B21C;   /* the brand accent. markers, rules, dark-context focus */
+  --signal-deep: #B4801A;   /* same hue, darker. light-background contrast only */
 
   /* Type */
   --display: "Barlow Condensed", "Arial Narrow", sans-serif;
@@ -61,8 +63,18 @@ h1, h2, h3, h4 {
 }
 
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--signal-deep);
   outline-offset: 3px;
+}
+.on-dark :focus-visible,
+.section--dark :focus-visible,
+.hero :focus-visible,
+.page-hero :focus-visible,
+.cta-band :focus-visible,
+.site-footer :focus-visible,
+.strip :focus-visible,
+.skip:focus-visible {
+  outline-color: var(--signal);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -211,7 +223,7 @@ h1, h2, h3, h4 {
   letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.9375rem;
   transition: background .18s ease;
 }
-.nav-cta:hover { background: #000; }
+.nav-cta:hover { background: var(--ink-hover); }
 
 /* --------------------------------------------------------------------------
    Buttons
@@ -225,13 +237,42 @@ h1, h2, h3, h4 {
   border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
   transition: background .18s ease, color .18s ease, border-color .18s ease;
 }
-.btn:hover { background: #000; border-color: #000; }
+.btn:hover { background: var(--ink-hover); border-color: var(--ink-hover); }
 .btn-ghost { background: transparent; color: var(--ink); }
 .btn-ghost:hover { background: var(--ink); color: var(--paper); }
-.on-dark .btn { background: var(--signal); border-color: var(--signal); color: var(--ink); }
-.on-dark .btn:hover { background: #F2C33C; border-color: #F2C33C; }
-.on-dark .btn-ghost { background: transparent; color: var(--paper); border-color: #5A6167; }
-.on-dark .btn-ghost:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+/* Paper fill on every dark context — not --signal. Yellow-on-black is Caterpillar. */
+.hero .btn,
+.page-hero .btn,
+.on-dark .btn,
+.cta-band .btn {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--ink);
+}
+.hero .btn:hover,
+.page-hero .btn:hover,
+.on-dark .btn:hover,
+.cta-band .btn:hover {
+  background: var(--paper-2);
+  border-color: var(--paper-2);
+  color: var(--ink);
+}
+.hero .btn-ghost,
+.page-hero .btn-ghost,
+.on-dark .btn-ghost,
+.cta-band .btn-ghost {
+  background: transparent;
+  color: var(--paper);
+  border-color: #697077;
+}
+.hero .btn-ghost:hover,
+.page-hero .btn-ghost:hover,
+.on-dark .btn-ghost:hover,
+.cta-band .btn-ghost:hover {
+  background: var(--paper);
+  color: var(--ink);
+  border-color: var(--paper);
+}
 .btn-row { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
 
 /* --------------------------------------------------------------------------
@@ -260,7 +301,7 @@ h1, h2, h3, h4 {
   color: var(--paper);
   position: relative;
   overflow: hidden;
-  border-bottom: 3px solid var(--signal);
+  border-bottom: 2px solid color-mix(in srgb, var(--signal) 50%, transparent);
 }
 /* diagonal hatch — the slash, at ambient volume */
 .hero::before {
@@ -280,7 +321,7 @@ h1, h2, h3, h4 {
 .hero p { color: #A9B0B6; font-size: var(--step-1); max-width: 56ch; margin: 1.5rem 0 0; line-height: 1.5; }
 
 /* Page hero (interior pages) — shorter */
-.page-hero { background: var(--ink); color: var(--paper); border-bottom: 3px solid var(--signal); position: relative; overflow: hidden; }
+.page-hero { background: var(--ink); color: var(--paper); border-bottom: 2px solid color-mix(in srgb, var(--signal) 50%, transparent); position: relative; overflow: hidden; }
 .page-hero::before {
   content: ""; position: absolute; inset: 0;
   background: repeating-linear-gradient(115deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 26px);
@@ -335,10 +376,14 @@ h1, h2, h3, h4 {
 .line-card li { font-size: 0.9375rem; color: var(--graphite); padding: 0.4rem 0 0.4rem 1.1rem; position: relative; border-top: 1px solid var(--hairline); }
 .line-card li:first-child { border-top: 0; }
 .line-card li::before { content: "/"; position: absolute; left: 0; color: var(--signal); font-weight: 700; }
-.line-card .card-link {
-  margin-top: auto; font-family: var(--display); font-weight: 600;
+.card-link {
+  font-family: var(--display); font-weight: 600;
   letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;
-  border-bottom: 2px solid var(--signal); align-self: flex-start; padding-bottom: 2px;
+  border-bottom: 2px solid var(--signal-deep);
+  padding-bottom: 2px;
+}
+.line-card .card-link {
+  margin-top: auto; align-self: flex-start;
 }
 
 /* --------------------------------------------------------------------------
@@ -442,21 +487,49 @@ table.specs tbody tr:hover { background: var(--paper-2); }
 /* Parts category grid */
 .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
 .cat { background: var(--paper); padding: 1.5rem; }
-.cat h4 { font-family: var(--display); font-size: 1.25rem; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 0.75rem; }
+.cat h3, .cat h4 {
+  font-family: var(--display); font-size: 1.25rem; text-transform: uppercase;
+  letter-spacing: 0.02em; margin-bottom: 0.75rem;
+}
 .cat ul { list-style: none; margin: 0; padding: 0; }
 .cat li { font-size: 0.9375rem; color: var(--graphite); padding: 0.28rem 0; }
+.cat p { font-size: 0.9375rem; color: var(--graphite); margin: 0; line-height: 1.5; }
 
 /* --------------------------------------------------------------------------
    CTA band
    -------------------------------------------------------------------------- */
-.cta-band { background: var(--signal); color: var(--ink); }
-.cta-band .wrap { padding-block: clamp(3rem, 6vw, 4.5rem); }
-.cta-band h2 { font-size: var(--step-3); text-transform: uppercase; max-width: 24ch; }
-.cta-band p { color: #4A3E14; max-width: 54ch; margin: 1rem 0 0; font-size: var(--step-1); }
-.cta-band .btn { background: var(--ink); border-color: var(--ink); color: var(--signal); }
-.cta-band .btn:hover { background: #000; border-color: #000; }
-.cta-band .btn-ghost { background: transparent; color: var(--ink); border-color: var(--ink); }
-.cta-band .btn-ghost:hover { background: var(--ink); color: var(--signal); }
+.cta-band {
+  background: var(--ink);
+  color: var(--paper);
+  border-top: 2px solid var(--signal);
+}
+.cta-band .wrap { padding-block: clamp(3.5rem, 8vw, 5.5rem); }
+.cta-band h2 {
+  font-size: var(--step-3);
+  text-transform: uppercase;
+  max-width: 24ch;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.cta-band h2::before {
+  content: "";
+  width: 9px; height: 9px;
+  background: var(--signal);
+  transform: skewX(-20deg);
+  flex: none;
+}
+.cta-band p { color: #A9B0B6; max-width: 54ch; margin: 1rem 0 0; font-size: var(--step-1); }
+.cta-band .cta-alt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1.35rem;
+  margin-top: 1.35rem;
+  font-size: var(--step--1);
+  max-width: none;
+}
+.cta-alt .spanish-note { margin: 0; }
 
 /* --------------------------------------------------------------------------
    Contact / form
@@ -474,7 +547,7 @@ table.specs tbody tr:hover { background: var(--paper-2); }
   border: 1px solid var(--hairline); background: #fff; color: var(--ink);
   border-radius: 0;
 }
-.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--ink); outline: 2px solid var(--signal); outline-offset: 0; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--ink); outline: 2px solid var(--signal-deep); outline-offset: 0; }
 .field textarea { min-height: 150px; resize: vertical; }
 
 .contact-lines { list-style: none; margin: 0; padding: 0; }
@@ -482,7 +555,26 @@ table.specs tbody tr:hover { background: var(--paper-2); }
 .contact-lines li:first-child { border-top: 0; }
 .contact-lines .cl-label { font-family: var(--display); font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--steel); }
 .contact-lines .cl-value { font-family: var(--display); font-size: 1.5rem; font-weight: 600; margin-top: 0.15rem; }
-.contact-lines a { text-decoration: none; border-bottom: 2px solid var(--signal); }
+.contact-lines a { text-decoration: none; border-bottom: 2px solid var(--signal-deep); }
+.contact-lines .wa-link { border-bottom: 0; }
+.contact-lines .wa-link-text { border-bottom: 2px solid var(--signal-deep); }
+.contact-lines .spanish-note {
+  margin: 0.4rem 0 0;
+  font-size: var(--step--1);
+  color: var(--graphite);
+  font-family: var(--body);
+  font-weight: 400;
+}
+
+/* Official glyph stays #25D366 — do not fill with a site token. */
+.wa-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+.wa-link svg { display: block; flex: none; width: 1.15em; height: 1.15em; }
+.wa-link-text { line-height: 1; }
 
 /* --------------------------------------------------------------------------
    Footer
@@ -502,9 +594,9 @@ table.specs tbody tr:hover { background: var(--paper-2); }
 .footer-bottom {
   margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--hairline-d);
   display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between;
-  font-size: 0.8125rem; color: #6E757C;
+  font-size: 0.8125rem; color: #7E858C;
 }
-.disclaimer { max-width: 78ch; font-size: 0.8125rem; color: #6E757C; margin-top: 1.25rem; line-height: 1.5; }
+.disclaimer { max-width: 78ch; font-size: 0.8125rem; color: #7E858C; margin-top: 1.25rem; line-height: 1.5; }
 
 /* --------------------------------------------------------------------------
    Responsive

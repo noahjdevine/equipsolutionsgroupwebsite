@@ -1,0 +1,12 @@
+---
+import { applications } from '../data/applications';
+---
+
+<div class="cats">
+  {applications.map((app) => (
+    <article class="cat" id={app.slug}>
+      <h3>{app.title}</h3>
+      <p>{app.body}</p>
+    </article>
+  ))}
+</div>

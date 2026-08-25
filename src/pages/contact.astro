@@ -1,17 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
+import WhatsAppLink from '../components/WhatsAppLink.astro';
 ---
 
 <BaseLayout
   title="Contact & Quote Request | Equip Solutions Group"
-  description="Request a quote for SwapLoader hooklifts, StarMix volumetric plants, parts or equipment sourcing. Call +1 515 720 0800 or send the details.">
+  description="Request a quote for a StarMix plant, SMI parts, or equipment sourcing. Call +1 515 720 0800 or send the details.">
 
   <section class="page-hero">
     <div class="wrap page-hero-inner">
       <p class="eyebrow">Contact</p>
       <h1>Request a Quote</h1>
-      <p>Equipment, parts or a sourcing request &mdash; the more detail you send, the faster a real number comes back. If a machine is down, call instead.</p>
+      <p>A StarMix plant, a part, or a sourcing request &mdash; the more detail you send, the faster a real number comes back. If a machine is down, call instead.</p>
     </div>
   </section>
 
@@ -26,19 +27,24 @@ import CtaBand from '../components/CtaBand.astro';
               <div class="cl-value"><a href="tel:+15157200800">+1 515 720 0800</a></div>
             </li>
             <li>
+              <div class="cl-label">WhatsApp</div>
+              <div class="cl-value"><WhatsAppLink /></div>
+              <p class="spanish-note">Se habla espa&ntilde;ol. Sales, training, and support in Spanish.</p>
+            </li>
+            <li>
               <div class="cl-label">Email</div>
               <div class="cl-value" style="font-size:1.125rem;"><a href="mailto:paul@equipsolutionsgroup.com">paul@equipsolutionsgroup.com</a></div>
             </li>
             <li>
               <div class="cl-label">Lines represented</div>
-              <div class="cl-value" style="font-size:1.125rem;">StarMix Industries &middot; SwapLoader &middot; Parts Solutions</div>
+              <div class="cl-value" style="font-size:1.125rem;">StarMix Industries &middot; Sourcing desk</div>
             </li>
           </ul>
 
           <div class="plate" style="margin-top:2rem;">
             <div class="plate-code">Fastest route</div>
             <h3 style="font-size:1.5rem;">Down machine?</h3>
-            <p>Call or text a photo. Downtime requests go to the front of the queue &mdash; do not wait on a form response.</p>
+            <p>Call, text, or WhatsApp a photo. Downtime requests go to the front of the queue &mdash; do not wait on a form response.</p>
           </div>
         </div>
 
@@ -65,12 +71,9 @@ import CtaBand from '../components/CtaBand.astro';
               <div class="field">
                 <label for="interest">What do you need</label>
                 <select id="interest" name="interest">
-                  <option>SwapLoader hooklift</option>
-                  <option>StarMix volumetric plant</option>
-                  <option>Parts &mdash; SwapLoader</option>
+                  <option>StarMix plant</option>
                   <option>Parts &mdash; StarMix / SMI</option>
-                  <option>Parts &mdash; agriculture or other</option>
-                  <option>Used equipment sourcing</option>
+                  <option>Equipment or parts sourcing</option>
                   <option>Something else</option>
                 </select>
               </div>
@@ -99,7 +102,7 @@ import CtaBand from '../components/CtaBand.astro';
             <div class="btn-row">
               <button class="btn" type="submit">Send request</button>
             </div>
-            <p class="small muted" style="margin-top:1rem;">Photos help &mdash; text them to +1 515 720 0800 or attach them to a reply once we are connected.</p>
+            <p class="small muted" style="margin-top:1rem;">Photos help &mdash; text or WhatsApp them to +1 515 720 0800, or attach them to a reply once we are connected.</p>
           </form>
         </div>
       </div>

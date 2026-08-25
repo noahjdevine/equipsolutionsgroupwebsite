@@ -1,11 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
+import { models, series } from '../data/models';
+import ApplicationsGrid from '../components/ApplicationsGrid.astro';
 ---
 
 <BaseLayout
-  title="StarMix Volumetric Concrete Plants | Equip Solutions Group"
-  description="StarMix volumetric concrete mixers and mobile batch plants for on-site production. Model specs, applications, operator training and genuine SMI parts.">
+  title="StarMix on-site concrete plants | Equip Solutions Group"
+  description="Independent US representative for StarMix plants. Specs, genuine SMI parts, operator training, and bilingual support. Se habla español.">
 
   <section class="page-hero">
     <div class="wrap page-hero-inner">
@@ -47,32 +49,40 @@ import CtaBand from '../components/CtaBand.astro';
         <p>Figures below are manufacturer-published for representative units. Configurations vary by chassis, market and options &mdash; every quote confirms the exact build.</p>
       </div>
 
-      <div class="plate-grid">
-        <div class="plate">
-          <div class="plate-code">Model 850-S</div>
-          <h3>High-volume mobile plant</h3>
-          <p>Built for large on-site pours where the constraint is how fast you can place, not how fast the truck can arrive.</p>
-          <dl class="dl">
-            <dt>Batch capacity</dt><dd>11 yd&sup3;</dd>
-            <dt>Production rate</dt><dd>Up to 60 yd&sup3;/hr</dd>
-            <dt>Best for</dt><dd>Large-scale placement</dd>
-          </dl>
-        </div>
-        <div class="plate">
-          <div class="plate-code">Model 880-S</div>
-          <h3>Top of the line</h3>
-          <p>The largest unit in the range, with digital metering and dual admixture dosing for jobs that demand both volume and precision.</p>
-          <dl class="dl">
-            <dt>Hopper capacity</dt><dd>8 m&sup3; &asymp; 10.5 yd&sup3;</dd>
-            <dt>Production rate</dt><dd>Up to 80 m&sup3;/hr</dd>
-            <dt>Cement hopper</dt><dd>3.5 t</dd>
-            <dt>Water tank</dt><dd>3,000 L, lined steel</dd>
-            <dt>Metering</dt><dd>DCC digital control</dd>
-            <dt>Admixture</dt><dd>Dual dosing (high / low flow)</dd>
-          </dl>
-        </div>
+      <div class="plate-grid plate-grid--3">
+        {models.map((model) => (
+          <div class="plate">
+            <div class="plate-code">Series {model.series}</div>
+            <h3>{model.name}</h3>
+            <p>{series[model.series].blurb}</p>
+            <dl class="dl">
+              <dt>Bin capacity</dt>
+              <dd>{model.binCapacityYd3 != null ? `${model.binCapacityYd3} yd³` : 'Not published'}</dd>
+              <dt>Production rate</dt>
+              <dd>{model.productionYd3Hr != null ? `Up to ${model.productionYd3Hr} yd³/hr` : 'Not published'}</dd>
+              {model.components?.cementHopper && (
+                <>
+                  <dt>Cement hopper</dt>
+                  <dd>{model.components.cementHopper}</dd>
+                </>
+              )}
+              {model.components?.waterTank && (
+                <>
+                  <dt>Water tank</dt>
+                  <dd>{model.components.waterTank}</dd>
+                </>
+              )}
+              {model.components?.notes?.map((note) => (
+                <>
+                  <dt>Also</dt>
+                  <dd>{note}</dd>
+                </>
+              ))}
+            </dl>
+          </div>
+        ))}
       </div>
-      <p class="small muted" style="margin-top:1rem;">Cement silos, batch plants, dispensers and trailer-mounted configurations are available alongside the truck-mounted units. Metric figures reflect the manufacturer's published specification.</p>
+      <p class="small muted" style="margin-top:1rem;">Figures are manufacturer-published on the StarMix US pages. Configurations vary by chassis, market and options &mdash; every quote confirms the exact build. 740 K has no published bin or production figures; do not treat a blank as a zero.</p>
     </div>
   </section>
 
@@ -82,56 +92,7 @@ import CtaBand from '../components/CtaBand.astro';
         <p class="eyebrow">Where it earns</p>
         <h2>Jobs that punish ready-mix</h2>
       </div>
-      <div class="cats">
-        <div class="cat">
-          <h4>Remote &amp; restricted sites</h4>
-          <ul>
-            <li>Long haul from the nearest plant</li>
-            <li>Limited access or narrow entries</li>
-            <li>Mining and tunnel support work</li>
-          </ul>
-        </div>
-        <div class="cat">
-          <h4>Unpredictable quantities</h4>
-          <ul>
-            <li>Repairs and structural patching</li>
-            <li>Footings where the count moves</li>
-            <li>Multiple small pours in one day</li>
-          </ul>
-        </div>
-        <div class="cat">
-          <h4>Multiple mix designs</h4>
-          <ul>
-            <li>Different strengths on one visit</li>
-            <li>Self-consolidating and specialty mixes</li>
-            <li>Dry-cast through high-slump</li>
-          </ul>
-        </div>
-        <div class="cat">
-          <h4>Infrastructure</h4>
-          <ul>
-            <li>Roads, bridges and paving</li>
-            <li>Curb, gutter and flatwork</li>
-            <li>Industrial floors</li>
-          </ul>
-        </div>
-        <div class="cat">
-          <h4>Residential &amp; commercial</h4>
-          <ul>
-            <li>Slabs, drives and foundations</li>
-            <li>Small commercial builds</li>
-            <li>Precast yard support</li>
-          </ul>
-        </div>
-        <div class="cat">
-          <h4>Ready-mix producers</h4>
-          <ul>
-            <li>Covering low-volume orders profitably</li>
-            <li>Reaching customers outside plant radius</li>
-            <li>Off-hours and weekend work</li>
-          </ul>
-        </div>
-      </div>
+      <ApplicationsGrid />
     </div>
   </section>
 

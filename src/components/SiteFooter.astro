@@ -1,4 +1,6 @@
 ---
+import WhatsAppLink from './WhatsAppLink.astro';
+
 const year = new Date().getFullYear();
 ---
 
@@ -7,20 +9,18 @@ const year = new Date().getFullYear();
     <div class="footer-top">
       <div class="footer-brand">
         <span class="brand-name">Equip Solutions Group</span>
-        <p>Independent equipment sales and parts procurement. Hooklift hoists, volumetric concrete plants, and the parts that keep both running.</p>
+        <p>Independent StarMix representative and a sourcing desk for equipment and parts. One person from the first spec through the first parts call.</p>
       </div>
       <div>
         <h4>Equipment</h4>
         <ul>
-          <li><a href="/swaploader/">SwapLoader Hooklifts</a></li>
-          <li><a href="/starmix/">StarMix Volumetric Plants</a></li>
+          <li><a href="/starmix/">StarMix</a></li>
           <li><a href="/sourcing/">Equipment Sourcing</a></li>
         </ul>
       </div>
       <div>
         <h4>Parts</h4>
         <ul>
-          <li><a href="/parts/#swaploader">SwapLoader Parts</a></li>
           <li><a href="/parts/#starmix">StarMix / SMI Parts</a></li>
           <li><a href="/parts/#agriculture">Agriculture Parts</a></li>
           <li><a href="/parts/#request">Request Parts</a></li>
@@ -31,13 +31,15 @@ const year = new Date().getFullYear();
         <ul>
           <li><a href="tel:+15157200800">+1 515 720 0800</a></li>
           <li><a href="mailto:paul@equipsolutionsgroup.com">paul@equipsolutionsgroup.com</a></li>
+          <li><WhatsAppLink /></li>
+          <li>Se habla espa&ntilde;ol. Sales, training, and support.</li>
           <li><a href="/about/">About</a></li>
           <li><a href="/contact/">Request a Quote</a></li>
         </ul>
       </div>
     </div>
 
-    <p class="disclaimer">Equip Solutions Group is an independent sales representative and parts supplier. It is not owned by, and does not speak for, SwapLoader USA, Ltd., StarMix Industries, or any other manufacturer named on this site. All product names, model designations, and trademarks are the property of their respective owners and are used here to identify the equipment represented. Specifications are published by the manufacturers and are subject to change &mdash; confirm all figures on the written quote before ordering.</p>
+    <p class="disclaimer">Equip Solutions Group is an independent sales representative and parts supplier. It is not owned by, and does not speak for, StarMix Industries or any other manufacturer named on this site. All product names, model designations, and trademarks are the property of their respective owners and are used here to identify the equipment represented. Specifications are published by the manufacturers and are subject to change &mdash; confirm all figures on the written quote before ordering.</p>
 
     <div class="footer-bottom">
       <span>&copy; {year} Equip Solutions Group</span>

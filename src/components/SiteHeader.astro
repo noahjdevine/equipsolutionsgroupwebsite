@@ -24,31 +24,21 @@ const current = (path: string) => (path === here ? 'page' : undefined);
 
     <nav class="nav" id="primary-nav" data-nav aria-label="Primary">
       <ul class="nav-list">
-        <li class="nav-item has-dropdown">
-          <button class="nav-trigger" aria-expanded="false">Equipment <span class="caret"></span></button>
-          <ul class="dropdown">
-            <li><a href="/swaploader/" aria-current={current('/swaploader/')}>SwapLoader Hooklifts<span class="dd-note">12,000&ndash;50,000 lb hoists &amp; trailers</span></a></li>
-            <li><a href="/starmix/" aria-current={current('/starmix/')}>StarMix Volumetric Plants<span class="dd-note">Mobile on-site concrete production</span></a></li>
-            <li><a href="/sourcing/" aria-current={current('/sourcing/')}>Equipment Sourcing<span class="dd-note">Used units and hard-to-find machines</span></a></li>
-          </ul>
+        <li class="nav-item">
+          <a class="nav-link" href="/starmix/" aria-current={current('/starmix/')}>StarMix</a>
         </li>
         <li class="nav-item has-dropdown">
           <button class="nav-trigger" aria-expanded="false">Parts <span class="caret"></span></button>
           <ul class="dropdown">
-            <li><a href="/parts/#swaploader" aria-current={current('/parts/')}>SwapLoader Parts<span class="dd-note">Hoist, subframe and hydraulic components</span></a></li>
             <li><a href="/parts/#starmix" aria-current={current('/parts/')}>StarMix / SMI Parts<span class="dd-note">Genuine and cross-compatible components</span></a></li>
-            <li><a href="/parts/#agriculture" aria-current={current('/parts/')}>Agriculture Parts<span class="dd-note">Sourced by part number or photo</span></a></li>
             <li><a href="/parts/#request" aria-current={current('/parts/')}>Request Parts</a></li>
           </ul>
         </li>
-        <li class="nav-item has-dropdown">
-          <button class="nav-trigger" aria-expanded="false">Company <span class="caret"></span></button>
-          <ul class="dropdown">
-            <li><a href="/" aria-current={current('/')}>Home</a></li>
-            <li><a href="/about/" aria-current={current('/about/')}>About Paul Devine</a></li>
-            <li><a href="/about/#how" aria-current={current('/about/')}>How I Work</a></li>
-            <li><a href="/contact/" aria-current={current('/contact/')}>Contact</a></li>
-          </ul>
+        <li class="nav-item">
+          <a class="nav-link" href="/sourcing/" aria-current={current('/sourcing/')}>Sourcing</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about/" aria-current={current('/about/')}>About</a>
         </li>
       </ul>
       <a class="nav-cta" href="/contact/" aria-current={current('/contact/')}>Request a Quote</a>
