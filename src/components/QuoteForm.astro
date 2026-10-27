@@ -1,0 +1,236 @@
+---
+import { applications } from '../data/applications';
+import { models } from '../data/models';
+import {
+  CHASSIS_OPTIONS,
+  MIX_TYPES,
+  MIXER_TIMELINES,
+  MODEL_NOT_SURE,
+  PARTS_URGENCY,
+  POUR_SIZE_STEPS,
+  POURS_PER_WEEK_STEPS,
+  PREFERRED_CONTACT,
+  PREFERRED_LANGUAGE,
+  SOURCING_TIMELINES,
+} from '../data/lead';
+---
+
+<form class="quote-form" data-quote-form action="/api/lead" method="post" novalidate>
+  <p class="hp" aria-hidden="true">
+    <label for="website">Website</label>
+    <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+  </p>
+
+  <fieldset>
+    <legend>What can we help with?</legend>
+    <div class="choice-list" role="radiogroup" aria-required="true">
+      <label class="choice">
+        <input type="radio" name="intent" id="intent-mixer" value="mixer" required>
+        <span>Buying a volumetric mixer</span>
+      </label>
+      <label class="choice">
+        <input type="radio" name="intent" id="intent-parts" value="parts">
+        <span>Parts for an existing machine</span>
+      </label>
+      <label class="choice">
+        <input type="radio" name="intent" id="intent-sourcing" value="sourcing">
+        <span>Equipment or parts sourcing</span>
+      </label>
+    </div>
+    <p class="field-error" data-error-for="intent" hidden></p>
+  </fieldset>
+
+  <fieldset class="branch branch--mixer" data-branch="mixer">
+    <legend>The pour</legend>
+    <div class="form-grid">
+      <div class="field field--full">
+        <label for="applicationSlug">Type of work</label>
+        <select id="applicationSlug" name="applicationSlug">
+          <option value="">Select type of work</option>
+          {applications.map((app) => (
+            <option value={app.slug}>{app.title}</option>
+          ))}
+        </select>
+        <p class="field-error" data-error-for="applicationSlug" hidden></p>
+      </div>
+      <div class="field">
+        <label for="pourSizeYd3">Typical pour size</label>
+        <select id="pourSizeYd3" name="pourSizeYd3">
+          <option value="">Select pour size</option>
+          {POUR_SIZE_STEPS.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <p class="field-error" data-error-for="pourSizeYd3" hidden></p>
+      </div>
+      <div class="field">
+        <label for="poursPerWeek">Pours per week</label>
+        <select id="poursPerWeek" name="poursPerWeek">
+          <option value="">Select pours / week</option>
+          {POURS_PER_WEEK_STEPS.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <p class="field-error" data-error-for="poursPerWeek" hidden></p>
+      </div>
+      <div class="field field--full">
+        <span class="field-label" id="mixTypes-label">Mix types</span>
+        <div class="choice-list" role="group" aria-labelledby="mixTypes-label">
+          {MIX_TYPES.map((o) => (
+            <label class="choice">
+              <input type="checkbox" name="mixTypes" value={o.value}>
+              <span>{o.label}</span>
+            </label>
+          ))}
+        </div>
+        <p class="field-error" data-error-for="mixTypes" hidden></p>
+      </div>
+      <div class="field field--full">
+        <span class="field-label" id="chassis-label">Do you already have a chassis?</span>
+        <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="chassis-label">
+          {CHASSIS_OPTIONS.map((o) => (
+            <label class="choice">
+              <input type="radio" name="chassis" value={o.value}>
+              <span>{o.label}</span>
+            </label>
+          ))}
+        </div>
+        <p class="field-error" data-error-for="chassis" hidden></p>
+      </div>
+      <div class="field field--full">
+        <label for="mixer-timeline">Timeline</label>
+        <select id="mixer-timeline" name="timeline">
+          <option value="">Select timeline</option>
+          {MIXER_TIMELINES.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <p class="field-error" data-error-for="timeline" hidden></p>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="branch branch--parts" data-branch="parts">
+    <legend>The part</legend>
+    <div class="form-grid">
+      <div class="field">
+        <label for="modelId">Model</label>
+        <select id="modelId" name="modelId">
+          <option value="">Select model</option>
+          {models.map((m) => (
+            <option value={m.id}>{m.name}</option>
+          ))}
+          <option value={MODEL_NOT_SURE}>Not sure</option>
+        </select>
+        <p class="field-error" data-error-for="modelId" hidden></p>
+      </div>
+      <div class="field">
+        <label for="urgency">Urgency</label>
+        <select id="urgency" name="urgency">
+          <option value="">Select urgency</option>
+          {PARTS_URGENCY.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <p class="field-error" data-error-for="urgency" hidden></p>
+      </div>
+      <div class="field field--full">
+        <label for="partNeeded">Part needed</label>
+        <textarea id="partNeeded" name="partNeeded" placeholder="Number, description, or what it does on the machine."></textarea>
+        <p class="field-error" data-error-for="partNeeded" hidden></p>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="branch branch--sourcing" data-branch="sourcing">
+    <legend>The request</legend>
+    <div class="form-grid">
+      <div class="field field--full">
+        <label for="whatSought">What is sought</label>
+        <textarea id="whatSought" name="whatSought" placeholder="Machine, part, or category. Include any numbers you have."></textarea>
+        <p class="field-error" data-error-for="whatSought" hidden></p>
+      </div>
+      <div class="field">
+        <label for="quantity">Quantity</label>
+        <input id="quantity" name="quantity" type="text">
+        <p class="field-error" data-error-for="quantity" hidden></p>
+      </div>
+      <div class="field">
+        <label for="sourcing-timeline">Timeline</label>
+        <select id="sourcing-timeline" name="sourcingTimeline">
+          <option value="">Select timeline</option>
+          {SOURCING_TIMELINES.map((o) => (
+            <option value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        <p class="field-error" data-error-for="sourcingTimeline" hidden></p>
+      </div>
+      <div class="field field--full">
+        <label for="destinationRegion">Destination region</label>
+        <input id="destinationRegion" name="destinationRegion" type="text" placeholder="State or region for freight">
+        <p class="field-error" data-error-for="destinationRegion" hidden></p>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="branch branch--contact" data-branch="contact">
+    <legend>How to reach you</legend>
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" autocomplete="name">
+        <p class="field-error" data-error-for="name" hidden></p>
+      </div>
+      <div class="field">
+        <label for="company">Company</label>
+        <input id="company" name="company" type="text" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email">
+        <p class="field-error" data-error-for="email" hidden></p>
+      </div>
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel">
+        <p class="field-error" data-error-for="phone" hidden></p>
+      </div>
+      <div class="field">
+        <label for="state">State</label>
+        <input id="state" name="state" type="text" autocomplete="address-level1">
+      </div>
+      <div class="field">
+        <span class="field-label" id="preferredContact-label">Preferred contact</span>
+        <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="preferredContact-label">
+          {PREFERRED_CONTACT.map((o) => (
+            <label class="choice">
+              <input type="radio" name="preferredContact" value={o.value}>
+              <span>{o.label}</span>
+            </label>
+          ))}
+        </div>
+        <p class="field-error" data-error-for="preferredContact" hidden></p>
+      </div>
+      <div class="field field--full">
+        <span class="field-label" id="preferredLanguage-label">Preferred language</span>
+        <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="preferredLanguage-label">
+          {PREFERRED_LANGUAGE.map((o) => (
+            <label class="choice">
+              <input type="radio" name="preferredLanguage" value={o.value}>
+              <span>{o.label}</span>
+            </label>
+          ))}
+        </div>
+        <p class="field-error" data-error-for="preferredLanguage" hidden></p>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <div class="form-live" aria-live="polite" aria-atomic="true"></div>
+    <div class="btn-row">
+      <button class="btn" type="submit" data-submit>Send my request.</button>
+    </div>
+    <p class="small muted" style="margin-top:1rem;">Photos help &mdash; text or WhatsApp them to +1 515 720 0800, or attach them to a reply once we are connected.</p>
+  </div>
+</form>

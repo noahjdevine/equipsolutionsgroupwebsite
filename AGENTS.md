@@ -211,14 +211,15 @@ design decision, not a cosmetic one. Don't do it as a side effect of a layout ch
    circle with a diagonal — built to echo the P/D mark on the signature. If a real
    logo file exists, swap it in.
 
-4. **The contact form is still `mailto:`.** `src/scripts/site.js` packages fields
-   into an email so nothing is silently lost. The form markup will be rebuilt
-   (branched by intent). The backend is an Astro API route + Resend (`/api/lead`),
-   not Netlify Forms — host is Vercel. Until that route ships, do not pretend the
-   form POSTs successfully. Tonight's from-address, when Resend ships: Resend
-   onboarding/unverified sender with `Reply-To: paul@equipsolutionsgroup.com`.
-   Do not send as `paul@` until the domain is verified in Resend. Do not edit
-   DNS as a side effect of site work.
+4. **The quote form posts to `/api/lead`.** Markup is branched by intent in
+   `QuoteForm.astro`. The mailto handler in `site.js` is gone — do not restore it.
+   Backend is Resend via `src/pages/api/lead.ts` (`prerender = false`). From-address
+   is Resend’s onboarding sender (`onboarding@resend.dev`); Reply-To is
+   `paul@equipsolutionsgroup.com`. Do not send as `paul@` until the domain is
+   verified in Resend. Do not edit DNS as a side effect of site work. Local key
+   lives in `.env` as `RESEND_API_KEY` (no `PUBLIC_` prefix). `.env.example` is the
+   placeholder. On Resend failure the form shows an inline error, never a fake
+   success.
 
 5. **Fonts load from Google.** Should be self-hosted before production — offline or
    blocked, the fallback to Arial Narrow noticeably softens the whole design.
@@ -241,21 +242,20 @@ design decision, not a cosmetic one. Don't do it as a side effect of a layout ch
 
 ## 5. Architecture
 
-**Current state:** Astro 7, static output (`output: 'static'` — the default).
-Astro 7 has no `output: 'hybrid'`; that value throws. Mixed rendering, when
-needed, is static plus `export const prerender = false` on the opt-in route, plus
-the Vercel adapter. The adapter is **not** installed until the `/api/lead` route
-exists. Marketing pages stay prerendered HTML.
+**Current state:** Astro 7, `output: 'static'`, adapter `@astrojs/vercel`.
+Astro 7 has no `output: 'hybrid'`; that value throws. Marketing pages stay
+prerendered HTML. The only server route is `/api/lead` (`export const prerender
+= false`).
 
 `astro.config.mjs` sets `site: 'https://equipsolutionsgroup.com'` (required for
 canonicals and the sitemap). `@astrojs/sitemap` is installed and filters
 `/swaploader`, `/swaploader.html`, and `/api/`. The layout links to
 `/sitemap-index.xml`. Do not add a hand-maintained `public/sitemap.xml`.
 
-Host: **Vercel**. Redirect *entries* live in `astro.config.mjs` (`/swaploader` and
-`/swaploader.html` → `/`, 301). The page file is un-routed (`src/archive/swaploader.astro`).
-Without the Vercel adapter, a static build emits HTML redirects, not HTTP status
-codes — real 301s arrive when the adapter ships.
+Host: **Vercel** (project `equipsolutionsgroupwebsite`). Redirect *entries* live
+in `astro.config.mjs` (`/swaploader` and `/swaploader.html` → `/`, 301). The page
+file is un-routed (`src/archive/swaploader.astro`). The adapter emits real HTTP
+301s. Do not point `equipsolutionsgroup.com` DNS until launch.
 
 Migrated from seven standalone HTML files; the port was deliberately
 visual-neutral, so the rendered markup is equivalent to the static version apart
@@ -268,13 +268,15 @@ src/components/SiteFooter.astro  footer nav, disclaimer, copyright
 src/components/CtaBand.astro     heading + body props; default slot for buttons;
                                  named `under` slot for WhatsApp + Spanish
 src/components/WhatsAppLink.astro official glyph + generic wa.me href
+src/components/QuoteForm.astro   branched quote form (mixer / parts / sourcing)
 src/pages/*.astro                live routes (body content only)
+src/pages/api/lead.ts            Resend POST handler; prerender = false
 src/archive/swaploader.astro     un-routed; kept for /es/ later
 src/styles/site.css              the one stylesheet, tokens at the top
-src/scripts/site.js              dropdown nav, mobile panel, form handoff
+src/scripts/site.js              dropdown nav, mobile panel, quote-form fetch
 src/data/models.ts               StarMix lineup + manufacturer claims (source of truth)
-src/data/applications.ts         type-of-work taxonomy (home, /starmix/, later form)
-src/data/                        lead schema still to be added
+src/data/applications.ts         type-of-work taxonomy (home, /starmix/, quote form)
+src/data/lead.ts                 quote payload schema; source: 'quote-form'
 public/assets/img/               photos go here, referenced as /assets/img/...
 ```
 
@@ -333,8 +335,8 @@ redirect loops.
 - **Real semantics.** One `<h1>` per page, `<th scope>` on spec tables, labels bound
   to inputs.
 - **No UI library, CSS framework, or animation library.** Infra packages are
-  allowed: `@astrojs/sitemap` now; `@astrojs/vercel` and `resend` when `/api/lead`
-  ships. Don't add a component kit to solve something CSS already handles.
+  allowed: `@astrojs/sitemap`, `@astrojs/vercel`, `resend`. Don't add a component
+  kit to solve something CSS already handles.
 
 ---
 

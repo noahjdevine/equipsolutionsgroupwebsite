@@ -87,21 +87,150 @@
     if (toggle) { toggle.setAttribute('aria-expanded', 'false'); toggle.textContent = 'Menu'; }
   });
 
-  // Quote form — no backend yet. Hand off to email so nothing is silently lost.
   var form = document.querySelector('[data-quote-form]');
   if (form) {
+    var live = form.querySelector('.form-live');
+    var submit = form.querySelector('[data-submit]');
+    var branches = Array.prototype.slice.call(form.querySelectorAll('[data-branch]'));
+
+    function selectedIntent() {
+      var checked = form.querySelector('[name="intent"]:checked');
+      return checked ? checked.value : '';
+    }
+
+    function syncBranches() {
+      var intent = selectedIntent();
+      branches.forEach(function (fs) {
+        var key = fs.getAttribute('data-branch');
+        var show = !!intent && (key === intent || key === 'contact');
+        fs.hidden = !show;
+        fs.disabled = !show;
+      });
+      var actions = form.querySelector('.form-actions');
+      if (actions) actions.hidden = !intent;
+    }
+
+    function clearErrors() {
+      Array.prototype.forEach.call(form.querySelectorAll('.field-error'), function (el) {
+        el.hidden = true;
+        el.textContent = '';
+      });
+      Array.prototype.forEach.call(form.querySelectorAll('[aria-invalid]'), function (el) {
+        el.removeAttribute('aria-invalid');
+      });
+      if (live) {
+        live.className = 'form-live';
+        live.textContent = '';
+      }
+    }
+
+    function showErrors(errors) {
+      var first = null;
+      (errors || []).forEach(function (err) {
+        var el = null;
+        Array.prototype.forEach.call(form.querySelectorAll('[data-error-for="' + err.field + '"]'), function (node) {
+          if (!node.closest('[hidden]')) el = node;
+        });
+        if (el) {
+          el.hidden = false;
+          el.textContent = err.message;
+          if (!first) first = el;
+        }
+        var field = null;
+        Array.prototype.forEach.call(form.querySelectorAll('[name="' + err.field + '"]'), function (node) {
+          if (!node.closest('[hidden]')) field = node;
+        });
+        if (field) {
+          field.setAttribute('aria-invalid', 'true');
+        }
+      });
+      if (live) {
+        live.className = 'form-live form-live--error';
+        live.textContent = (errors && errors[0] && errors[0].message) || 'Fix the highlighted fields and send again.';
+      }
+      if (first && first.previousElementSibling) {
+        var focusable = first.parentElement && first.parentElement.querySelector('input, select, textarea');
+        if (focusable) focusable.focus();
+      }
+    }
+
+    function payloadFromForm() {
+      var data = new FormData(form);
+      var out = { source: 'quote-form' };
+      data.forEach(function (value, key) {
+        if (typeof value !== 'string') return;
+        if (key === 'mixTypes') {
+          if (!Array.isArray(out.mixTypes)) out.mixTypes = [];
+          out.mixTypes.push(value);
+          return;
+        }
+        out[key] = value;
+      });
+      return out;
+    }
+
+    form.addEventListener('change', function (e) {
+      if (e.target && e.target.name === 'intent') {
+        clearErrors();
+        syncBranches();
+      }
+    });
+
+    syncBranches();
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var data = new FormData(form);
-      var lines = [];
-      data.forEach(function (value, key) {
-        if (String(value).trim()) lines.push(key.replace(/_/g, ' ') + ': ' + value);
-      });
-      var subject = 'Quote request — ' + (data.get('interest') || 'General');
-      window.location.href =
-        'mailto:paul@equipsolutionsgroup.com?subject=' +
-        encodeURIComponent(subject) +
-        '&body=' + encodeURIComponent(lines.join('\n'));
+      clearErrors();
+      if (!selectedIntent()) {
+        showErrors([{ field: 'intent', message: 'Choose what we can help with.' }]);
+        return;
+      }
+      if (submit) {
+        submit.disabled = true;
+        submit.setAttribute('aria-busy', 'true');
+      }
+      fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payloadFromForm()),
+      })
+        .then(function (res) {
+          return res.json().then(function (body) {
+            return { ok: res.ok, status: res.status, body: body };
+          });
+        })
+        .then(function (result) {
+          if (result.body && result.body.ok) {
+            if (live) {
+              live.className = 'form-live form-live--ok';
+              live.textContent = 'Request sent. Paul follows up within one business day.';
+            }
+            form.querySelectorAll('fieldset').forEach(function (fs) {
+              if (!fs.classList.contains('branch--contact') && fs.getAttribute('data-branch') !== null) {
+                fs.disabled = true;
+              }
+            });
+            var intentSet = form.querySelector('fieldset');
+            if (intentSet) intentSet.disabled = true;
+            var contact = form.querySelector('.branch--contact');
+            if (contact) contact.disabled = true;
+            if (submit) submit.hidden = true;
+            return;
+          }
+          var errors = (result.body && result.body.errors) || [{ field: 'form', message: 'The request could not be sent. Call or email instead.' }];
+          showErrors(errors);
+          if (submit) {
+            submit.disabled = false;
+            submit.removeAttribute('aria-busy');
+          }
+        })
+        .catch(function () {
+          showErrors([{ field: 'form', message: 'The request could not be sent. Call or email instead.' }]);
+          if (submit) {
+            submit.disabled = false;
+            submit.removeAttribute('aria-busy');
+          }
+        });
     });
   }
 })();

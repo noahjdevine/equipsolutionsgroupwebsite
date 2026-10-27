@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
 import WhatsAppLink from '../components/WhatsAppLink.astro';
+import QuoteForm from '../components/QuoteForm.astro';
 ---
 
 <BaseLayout
@@ -50,60 +51,7 @@ import WhatsAppLink from '../components/WhatsAppLink.astro';
 
         <div>
           <p class="eyebrow">Send the details</p>
-          <form data-quote-form novalidate>
-            <div class="form-grid">
-              <div class="field">
-                <label for="name">Name</label>
-                <input id="name" name="name" type="text" autocomplete="name" required>
-              </div>
-              <div class="field">
-                <label for="company">Company</label>
-                <input id="company" name="company" type="text" autocomplete="organization">
-              </div>
-              <div class="field">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" autocomplete="email" required>
-              </div>
-              <div class="field">
-                <label for="phone">Phone</label>
-                <input id="phone" name="phone" type="tel" autocomplete="tel">
-              </div>
-              <div class="field">
-                <label for="interest">What do you need</label>
-                <select id="interest" name="interest">
-                  <option>StarMix plant</option>
-                  <option>Parts &mdash; StarMix / SMI</option>
-                  <option>Equipment or parts sourcing</option>
-                  <option>Something else</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="timeline">Timeline</label>
-                <select id="timeline" name="timeline">
-                  <option>Machine is down &mdash; urgent</option>
-                  <option>Within 30 days</option>
-                  <option>1&ndash;3 months</option>
-                  <option>Budgeting / planning</option>
-                </select>
-              </div>
-              <div class="field field--full">
-                <label for="equipment">Chassis, model or part number</label>
-                <input id="equipment" name="equipment" type="text" placeholder="e.g. 2024 Peterbilt 536, 14&#39; bodies &mdash; or SMI-HM-50">
-              </div>
-              <div class="field field--full">
-                <label for="location">City and state</label>
-                <input id="location" name="location" type="text" placeholder="For freight and delivery">
-              </div>
-              <div class="field field--full">
-                <label for="message">Details</label>
-                <textarea id="message" name="message" placeholder="What the equipment has to do, what you already run, quantities, anything else that helps."></textarea>
-              </div>
-            </div>
-            <div class="btn-row">
-              <button class="btn" type="submit">Send request</button>
-            </div>
-            <p class="small muted" style="margin-top:1rem;">Photos help &mdash; text or WhatsApp them to +1 515 720 0800, or attach them to a reply once we are connected.</p>
-          </form>
+          <QuoteForm />
         </div>
       </div>
     </div>

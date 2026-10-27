@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.2.4"
+    "@astrojs/vercel": "^11.0.16",
+    "astro": "^7.2.4",
+    "resend": "^6.34.1"
   }
 }
