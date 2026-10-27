@@ -197,6 +197,8 @@ design decision, not a cosmetic one. Don't do it as a side effect of a layout ch
 
 ## 4. Known placeholders — these are TODOs, not finished work
 
+Items 1–3 and 5–7 are still open. Item 4 is settled.
+
 1. **Territory is intentionally blank.** The phone is a 515 area code; the business
    has Texas ties. Nobody has decided the coverage story. **Do not invent a service
    area** and do not put DFW, Dallas, Texas, or any city on the page as coverage.
@@ -211,15 +213,16 @@ design decision, not a cosmetic one. Don't do it as a side effect of a layout ch
    circle with a diagonal — built to echo the P/D mark on the signature. If a real
    logo file exists, swap it in.
 
-4. **The quote form posts to `/api/lead`.** Markup is branched by intent in
-   `QuoteForm.astro`. The mailto handler in `site.js` is gone — do not restore it.
-   Backend is Resend via `src/pages/api/lead.ts` (`prerender = false`). From-address
-   is Resend’s onboarding sender (`onboarding@resend.dev`); Reply-To is
-   `paul@equipsolutionsgroup.com`. Do not send as `paul@` until the domain is
-   verified in Resend. Do not edit DNS as a side effect of site work. Local key
-   lives in `.env` as `RESEND_API_KEY` (no `PUBLIC_` prefix). `.env.example` is the
-   placeholder. On Resend failure the form shows an inline error, never a fake
-   success.
+4. **Quote mail is live.** The form posts to `/api/lead`. Markup is branched by
+   intent in `QuoteForm.astro`. The mailto handler in `site.js` is gone — do not
+   restore it. Backend is Resend via `src/pages/api/lead.ts` (`prerender = false`).
+   `equipsolutionsgroup.com` is verified in Resend and sending as
+   `paul@equipsolutionsgroup.com` is confirmed working. From is
+   `Equip Solutions Group <paul@equipsolutionsgroup.com>`; To and Reply-To are the
+   same address. Do not switch From back to `onboarding@resend.dev`. Do not edit
+   DNS as a side effect of unrelated site work. Local key lives in `.env` as
+   `RESEND_API_KEY` (no `PUBLIC_` prefix). `.env.example` is the placeholder. On
+   Resend failure the form shows an inline error, never a fake success.
 
 5. **Fonts load from Google.** Should be self-hosted before production — offline or
    blocked, the fallback to Arial Narrow noticeably softens the whole design.
@@ -270,7 +273,8 @@ src/components/CtaBand.astro     heading + body props; default slot for buttons;
 src/components/WhatsAppLink.astro official glyph + generic wa.me href
 src/components/QuoteForm.astro   branched quote form (mixer / parts / sourcing)
 src/pages/*.astro                live routes (body content only)
-src/pages/api/lead.ts            Resend POST handler; prerender = false
+src/pages/api/lead.ts            Resend POST handler; prerender = false;
+                                 From paul@equipsolutionsgroup.com
 src/archive/swaploader.astro     un-routed; kept for /es/ later
 src/styles/site.css              the one stylesheet, tokens at the top
 src/scripts/site.js              dropdown nav, mobile panel, quote-form fetch
