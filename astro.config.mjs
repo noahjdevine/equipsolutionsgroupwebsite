@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel';
 
 // Flat, extensionless URLs: /starmix/, /parts/ — no nesting.
 // 'directory' is Astro's default and the most portable across hosts.
@@ -7,6 +8,8 @@ import sitemap from '@astrojs/sitemap';
 // Do not set output: 'hybrid' — Astro 7 only accepts 'static' | 'server'.
 export default defineConfig({
   site: 'https://equipsolutionsgroup.com',
+  output: 'static',
+  adapter: vercel(),
   build: { format: 'directory' },
   integrations: [
     sitemap({
@@ -20,8 +23,7 @@ export default defineConfig({
       },
     }),
   ],
-  // Page file is in src/archive/. These win in the static build as HTML
-  // redirects until @astrojs/vercel ships (then they become HTTP 301).
+  // Page file is in src/archive/. HTTP 301s via the Vercel adapter.
   redirects: {
     '/swaploader': { status: 301, destination: '/' },
     '/swaploader.html': { status: 301, destination: '/' },
