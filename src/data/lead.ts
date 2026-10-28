@@ -1,12 +1,15 @@
 /**
- * Quote-form payload. Mixer field names are the sizing-tool subset — keep them.
- * source is always 'quote-form' from this site.
+ * Quote payload. Mixer field names are the sizing-tool subset — keep them.
+ * source is quote-form from the quote form, or mixer-guide from /job/.
  */
 
 import { applications } from './applications';
-import { models } from './models';
+import { fitModel } from './fit';
+import { modelById, models } from './models';
 
-export const LEAD_SOURCE = 'quote-form' as const;
+export const LEAD_SOURCES = ['quote-form', 'mixer-guide'] as const;
+export type LeadSource = (typeof LEAD_SOURCES)[number];
+export const LEAD_SOURCE = 'quote-form' satisfies LeadSource;
 
 export const INTENTS = ['mixer', 'parts', 'sourcing'] as const;
 export type LeadIntent = (typeof INTENTS)[number];
@@ -110,7 +113,7 @@ export interface SourcingFields {
 }
 
 export interface LeadPayload extends LeadContact {
-  source: typeof LEAD_SOURCE;
+  source: LeadSource;
   intent: LeadIntent;
   mixer?: MixerFields;
   parts?: PartsFields;
@@ -173,6 +176,10 @@ export function parseLead(input: unknown): ParseResult {
   }
 
   const errors: FieldError[] = [];
+  const sourceRaw = str(raw.source);
+  const source = oneOf(sourceRaw || LEAD_SOURCE, LEAD_SOURCES);
+  if (!source) errors.push({ field: 'source', message: 'The request could not be sent. Call or email instead.' });
+
   const intent = oneOf(str(raw.intent), INTENTS);
   if (!intent) errors.push({ field: 'intent', message: 'Choose what we can help with.' });
 
@@ -265,7 +272,11 @@ export function parseLead(input: unknown): ParseResult {
     }
   }
 
-  if (errors.length || !intent || !preferredContact || !preferredLanguage) {
+  if (source === 'mixer-guide' && intent && intent !== 'mixer') {
+    errors.push({ field: 'intent', message: 'Choose what we can help with.' });
+  }
+
+  if (errors.length || !intent || !source || !preferredContact || !preferredLanguage) {
     return { ok: false, errors };
   }
 
@@ -273,7 +284,7 @@ export function parseLead(input: unknown): ParseResult {
     ok: true,
     spam: false,
     lead: {
-      source: LEAD_SOURCE,
+      source,
       intent,
       name,
       company: str(raw.company),
@@ -327,6 +338,15 @@ export function formatLeadEmail(lead: LeadPayload): { subject: string; text: str
       `Chassis: ${chassis?.label ?? lead.mixer.chassis}`,
       `Timeline: ${timeline?.label ?? lead.mixer.timeline}`,
     );
+    if (lead.source === 'mixer-guide') {
+      const fit = fitModel(lead.mixer);
+      const primary = modelById(fit.primaryId);
+      const alternate = fit.alternateId ? modelById(fit.alternateId) : undefined;
+      lines.push(
+        `Guide primary: ${primary?.name ?? fit.primaryId}`,
+        `Guide alternate: ${alternate?.name ?? '—'}`,
+      );
+    }
   }
 
   if (lead.parts) {
@@ -356,8 +376,12 @@ export function formatLeadEmail(lead: LeadPayload): { subject: string; text: str
     );
   }
 
+  const subject = lead.source === 'mixer-guide'
+    ? `Quote request — mixer guide — ${lead.name}`
+    : `Quote request — ${intentLabel} — ${lead.name}`;
+
   return {
-    subject: `Quote request — ${intentLabel} — ${lead.name}`,
+    subject,
     text: lines.join('\n'),
   };
 }

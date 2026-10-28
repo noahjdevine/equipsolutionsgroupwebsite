@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vercel": "^11.0.16",
+    "ai": "^7.0.154",
     "astro": "^7.2.4",
     "resend": "^6.34.1"
   }

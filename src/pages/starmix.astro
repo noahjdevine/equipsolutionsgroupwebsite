@@ -47,6 +47,7 @@ import ApplicationsGrid from '../components/ApplicationsGrid.astro';
         <p class="eyebrow">Representative models</p>
         <h2>Output sized to the work</h2>
         <p>Figures below are manufacturer-published for representative units. Configurations vary by chassis, market and options &mdash; every quote confirms the exact build.</p>
+        <p class="guide-entry"><a class="card-link" href="/job/">Not sure which model?</a></p>
       </div>
 
       <div class="plate-grid plate-grid--3">
@@ -54,6 +55,7 @@ import ApplicationsGrid from '../components/ApplicationsGrid.astro';
           <div class="plate">
             <div class="plate-code">Series {model.series}</div>
             <h3>{model.name}</h3>
+            <img class="model-image" src={model.image.src} width={model.image.width} height={model.image.height} alt={model.image.alt} loading="lazy" decoding="async">
             <p>{series[model.series].blurb}</p>
             <dl class="dl">
               <dt>Bin capacity</dt>
@@ -82,7 +84,7 @@ import ApplicationsGrid from '../components/ApplicationsGrid.astro';
           </div>
         ))}
       </div>
-      <p class="small muted" style="margin-top:1rem;">Figures are manufacturer-published on the StarMix US pages. Configurations vary by chassis, market and options &mdash; every quote confirms the exact build. 740 K has no published bin or production figures; do not treat a blank as a zero.</p>
+      <p class="small muted" style="margin-top:1rem;">Figures and model images are from the <a href="https://starmixindustries.com/" target="_blank" rel="noopener noreferrer">StarMix US website</a>. Configurations vary by chassis, market and options &mdash; every quote confirms the exact build.</p>
     </div>
   </section>
 
