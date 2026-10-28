@@ -5,6 +5,7 @@
 
 import { fitModel, type GuideAnswers } from '../data/fit';
 import { scriptedClose } from '../data/guide';
+import type { ModelId } from '../data/models';
 
 const BEATS = ['work', 'pour', 'week', 'chassis'] as const;
 const PHONE = '+1 515 720 0800';
@@ -46,8 +47,9 @@ export function startGuide(): void {
     const poursPerWeek = bind('week')?.value || '';
     const chassis = bind('chassis')?.value || '';
     if (!applicationSlug || !pourSizeYd3 || !poursPerWeek || !chassis) return null;
-    const mixTypes = Array.prototype.map
-      .call(form!.querySelectorAll<HTMLInputElement>('[name="mixTypes"]:checked'), (input: HTMLInputElement) => input.value)
+    const mixTypes = Array.from(
+      form!.querySelectorAll<HTMLInputElement>('[name="mixTypes"]:checked'), (input) => input.value,
+    )
       .filter((value: string) =>
         ['standard', 'rapid-set', 'latex-modified', 'shotcrete-gunite', 'fiber-reinforced', 'other'].includes(value),
       );
@@ -101,7 +103,7 @@ export function startGuide(): void {
     plates.forEach((plate) => {
       plate.hidden = true;
     });
-    const order = [result.primaryId, result.alternateId].filter((id): id is string => Boolean(id));
+    const order = [result.primaryId, result.alternateId].filter((id): id is ModelId => Boolean(id));
     order.forEach((id, index) => {
       const plate = grid!.querySelector<HTMLElement>(`[data-model-plate="${id}"]`);
       if (!plate) return;
@@ -193,7 +195,7 @@ export function startGuide(): void {
 
   function showErrors(errors: { field: string; message: string }[]): void {
     let first: HTMLElement | null = null;
-    errors.forEach((err) => {
+    for (const err of errors) {
       const el = form!.querySelector<HTMLElement>(`[data-error-for="${err.field}"]`);
       if (el) {
         el.hidden = false;
@@ -202,7 +204,7 @@ export function startGuide(): void {
       }
       const field = form!.querySelector<HTMLElement>(`[name="${err.field}"]`);
       if (field) field.setAttribute('aria-invalid', 'true');
-    });
+    }
     if (live) {
       live.className = 'form-live form-live--error';
       const message = (errors[0] && errors[0].message) || 'The request could not be sent. Call or email instead.';

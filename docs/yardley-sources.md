@@ -82,8 +82,8 @@ The owner explicitly confirmed in the planning conversation:
 - The additional cement/flyash bin is a special additional cement bin for any
   model, not standard equipment. Final truck/trailer integration is reviewed by Paul.
 
-The catalog encodes these facts. The broader fitter upgrade that consumes them is
-tracked separately in implementation stage 2. Other unlisted combinations remain
+The catalog encodes these facts, and the stage 2 fitter now consumes them before
+ranking candidates. Other unlisted combinations remain
 unconfirmed, rather than being marked compatible or unavailable.
 
 ## Manufacturer image manifest

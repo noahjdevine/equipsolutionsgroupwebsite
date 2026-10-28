@@ -7,8 +7,8 @@ parts sourcing. Astro 7 prerenders marketing pages; Vercel runs /api/lead and
 Read [AGENTS.md](AGENTS.md) before changes. It defines source, design, content and
 working rules. The [Yardley implementation checklist](docs/yardley-implementation-plan.md)
 records the approved mixer-guide enhancement, file-by-file tasks and completion
-status. Planning and stage 1 (model facts, options and images) are complete;
-the remaining Yardley stages are pending.
+status. Planning and stages 1–2 (sourced data, job validation, estimates and fitting)
+are complete locally. The new conversation interface and AI connection are pending.
 
 ## Local development
 
@@ -17,6 +17,8 @@ npm install
 npm run dev      # localhost:4321
 npm run build    # dist/ plus adapter output
 npm run preview
+npm run check    # strict TypeScript checks for TS modules
+npm test         # Node test runner + tsx; no paid model or email calls
 ```
 
 Copy the placeholders from .env.example into a local .env and configure only
@@ -34,13 +36,16 @@ workflow; saving a local file does not publish it.
 
 - `src/pages/`: Home, StarMix, Parts, Sourcing, About, Contact and /job/ guide.
 - `src/pages/api/lead.ts`: shared quote/guide email endpoint.
-- `src/pages/api/guide.ts`: current guide rephrase endpoint; planned Yardley conversation.
+- `src/pages/api/guide.ts`: bounded, scripted fit endpoint; planned grounded conversation.
 - `src/components/`: shared header, footer, CTA, applications and quote form.
 - `src/data/models.ts`: model specs and attributed manufacturer claims.
 - `src/data/options.ts`: sourced option catalog and confirmed compatibility rules.
+- `src/data/yardley-job.ts`: versioned, validated job state and legacy adapter.
+- `src/lib/yardley/volume.ts`: estimates from supplied customer job dimensions.
 - `src/data/applications.ts`: shared work-type taxonomy.
 - `src/data/fit.ts`, `src/data/guide.ts`, `src/scripts/job.ts`: current guide behavior.
 - `src/data/lead.ts`: validation and formatting for submitted inquiries.
+- `tests/yardley/`: job, volume, fit, lead-contract and API regression tests.
 - `src/styles/site.css`: design tokens and site styles.
 - `public/assets/img/`: local image assets.
 

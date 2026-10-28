@@ -1,3 +1,9 @@
 {
-  "extends": "astro/tsconfigs/base"
+  "extends": "astro/tsconfigs/base",
+  "compilerOptions": {
+    "strict": true,
+    "types": ["astro/client", "node"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts", ".astro/types.d.ts"],
+  "exclude": ["node_modules", "dist", ".vercel"]
 }

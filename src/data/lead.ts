@@ -4,8 +4,13 @@
  */
 
 import { applications } from './applications';
-import { fitModel } from './fit';
+import { fitModel, fitJob, type FitResult } from './fit';
 import { modelById, models } from './models';
+import { z } from 'zod';
+import { explainFit } from './guide';
+import { MIX_TYPES, yardleyJobSchema, type MixType, type YardleyJob, type JobError } from './yardley-job';
+
+export { MIX_TYPES, type MixType } from './yardley-job';
 
 export const LEAD_SOURCES = ['quote-form', 'mixer-guide'] as const;
 export type LeadSource = (typeof LEAD_SOURCES)[number];
@@ -13,16 +18,6 @@ export const LEAD_SOURCE = 'quote-form' satisfies LeadSource;
 
 export const INTENTS = ['mixer', 'parts', 'sourcing'] as const;
 export type LeadIntent = (typeof INTENTS)[number];
-
-export const MIX_TYPES = [
-  { value: 'standard', label: 'Standard' },
-  { value: 'rapid-set', label: 'Rapid-set' },
-  { value: 'latex-modified', label: 'Latex-modified' },
-  { value: 'shotcrete-gunite', label: 'Shotcrete / gunite' },
-  { value: 'fiber-reinforced', label: 'Fiber-reinforced' },
-  { value: 'other', label: 'Other' },
-] as const;
-export type MixType = (typeof MIX_TYPES)[number]['value'];
 
 export const POUR_SIZE_STEPS = [
   { value: 'under-5', label: 'Under 5 yd³' },
@@ -72,7 +67,7 @@ export const PREFERRED_LANGUAGE = [
 ] as const;
 
 export const applicationSlugs = applications.map((a) => a.slug);
-export const modelIds = models.map((m) => m.id);
+export const modelIds: readonly string[] = models.map((m) => m.id);
 export const MODEL_NOT_SURE = 'not-sure';
 
 export interface FieldError {
@@ -340,11 +335,13 @@ export function formatLeadEmail(lead: LeadPayload): { subject: string; text: str
     );
     if (lead.source === 'mixer-guide') {
       const fit = fitModel(lead.mixer);
-      const primary = modelById(fit.primaryId);
+      const primary = fit.primaryId ? modelById(fit.primaryId) : undefined;
       const alternate = fit.alternateId ? modelById(fit.alternateId) : undefined;
       lines.push(
-        `Guide primary: ${primary?.name ?? fit.primaryId}`,
+        `Guide status: ${fit.status}`,
+        `Guide primary: ${primary?.name ?? 'Pending clarification / configuration review'}`,
         `Guide alternate: ${alternate?.name ?? '—'}`,
+        `Guide notes: ${explainFit(fit)}`,
       );
     }
   }
@@ -384,4 +381,18 @@ export function formatLeadEmail(lead: LeadPayload): { subject: string; text: str
     subject,
     text: lines.join('\n'),
   };
+}
+
+/** Prepared contract for the new review step; legacy parseLead is unchanged. */
+const yardleyBriefInputSchema = z.strictObject({ version: z.literal(1), job: yardleyJobSchema });
+export interface YardleyBrief { version: 1; job: YardleyJob; fit: FitResult }
+
+export function prepareYardleyBrief(input: unknown):
+  | { ok: true; brief: YardleyBrief }
+  | { ok: false; errors: JobError[] } {
+  const parsed = yardleyBriefInputSchema.safeParse(input);
+  if (!parsed.success) return {
+    ok: false, errors: parsed.error.issues.map((issue) => ({ field: issue.path.join('.'), message: issue.message })),
+  };
+  return { ok: true, brief: { version: 1, job: parsed.data.job, fit: fitJob(parsed.data.job) } };
 }

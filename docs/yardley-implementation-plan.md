@@ -16,17 +16,19 @@ below are intentional and do not imply that those modules already exist.
 - [x] Publish this file-by-file checklist in the repository and link it from the
   project instructions and README.
 - [x] 1. Reconcile model facts, options and manufacturer images.
-- [ ] 2. Build validated job state, quantity estimates and deterministic fitting.
+- [x] 2. Build validated job state, quantity estimates and deterministic fitting.
 - [ ] 3. Build the Yardley interface and entry points using scripted responses.
 - [ ] 4. Connect grounded conversation and enforce spend controls.
 - [ ] 5. Complete the visitor-reviewed handoff to Paul.
 - [ ] 6. Verify the full flow locally and in a Vercel preview, then release.
 
-Stage 1 is implemented locally: shared model facts, images and source metadata,
-the eight-option catalog, application followup prompts, and removal of the old
-740 K range behavior. The current interface and fitter are still the MVP. Catalog
-constraints will be connected to fitting in stage 2; the new interface, AI
-connection and actual budget settings remain pending. Nothing has been deployed.
+Stages 1 and 2 are implemented locally: sourced model/options/image data, validated
+version-1 job state, customer-dimension estimates and deterministic fit with option,
+mount and rate constraints. The existing page uses a transitional adapter; the
+new conversation interface, AI connection, budget settings and full reviewed-brief
+submission remain pending. The guide endpoint is deliberately scripted until
+stage 4 so generated prose cannot remove authoritative qualifications. These
+stages form a feature-branch review checkpoint; production release remains pending.
 Evidence is recorded in [the verification log](yardley-verification.md).
 
 Work in this order, with a reviewable diff and relevant checks at each stage.
@@ -165,19 +167,19 @@ images are identified, and no public surface retains the obsolete 740 K range.
 
 ## 2. Job state, estimates and deterministic recommendations
 
-- [ ] **`src/data/yardley-job.ts` — new.** Define shared serializable types,
+- [x] **`src/data/yardley-job.ts` — new.** Define shared serializable types,
   runtime validation and a versioned request contract independent of email and
   AI libraries. Capture work types, mix/process, required options, known or
   estimated quantity, dimensions, placement window, replenishment, weekly use,
   mounting preference, timeline and open questions. Distinguish customer-reported,
   calculated, proposed-for-confirmation and unknown values. Validate numbers,
   enum values, lengths and allowed units; never turn unknown into zero.
-- [ ] **`src/lib/yardley/volume.ts` — new.** Pure geometry functions for supported
+- [x] **`src/lib/yardley/volume.ts` — new.** Pure geometry functions for supported
   simple shapes. For rectangular work, use supplied feet × feet × inches / 324
   to estimate yd³. Require the specified thickness; assume neither thickness
   nor waste allowance. Return inputs, units and calculation provenance. This
   estimates a customer's job; it never converts a manufacturer model spec.
-- [ ] **`src/data/fit.ts` — existing.** Consume validated job state. Filter hard
+- [x] **`src/data/fit.ts` — existing.** Consume validated job state. Filter hard
   option/mount constraints before ranking; “not sure” must not mean truck-only.
   Return ready/needs-clarification/configuration-review status, primary and
   optional alternate, reason IDs, caveats and missing information. Separate
@@ -185,24 +187,33 @@ images are identified, and no public surface retains the obsolete 740 K range.
   rate. Never promise a single load from the old under-5 or 5–10 ranges. Weekly
   job count alone must not force an 880 S. Do not force a candidate when filters
   leave none. Use the same logic in browser preview and authoritative server work.
-- [ ] **`src/data/guide.ts` — existing.** Replace Paul's impersonated scripted
+- [x] **`src/data/guide.ts` — existing.** Replace Paul's impersonated scripted
   lines with Yardley's concise question/help/confirmation/fallback copy. Map fit
   reason IDs to approved explanations and comparison text. Keep required caveats,
   model identity and spec values controlled by application data.
-- [ ] **`src/data/lead.ts` — existing, contract preparation.** Add a distinct
+- [x] **`src/data/lead.ts` — existing, contract preparation.** Add a distinct
   versioned Yardley brief while preserving legacy quote-form validation. Do not
   force missing guide information into old required fields or create a runtime
   import cycle between fit, job schema and lead formatting.
-- [ ] **`package.json` / `package-lock.json` / `tsconfig.json` — existing.** Add
+- [x] **`package.json` / `package-lock.json` / `tsconfig.json` — existing.** Add
   the smallest suitable type-check/test setup compatible with this Astro project
   and deployment runtime. Inspect installed tooling before choosing dependencies.
   Keep scripts documented; avoid a UI framework or general app rewrite.
-- [ ] **`tests/yardley/volume.test.ts` — new.** Verify units, known geometric
+- [x] **`tests/yardley/volume.test.ts` — new.** Verify units, known geometric
   examples, zero/negative/nonfinite input, missing thickness, and estimate labels.
-- [ ] **`tests/yardley/fit.test.ts` — new.** Verify capacity boundaries, reload
+- [x] **`tests/yardley/fit.test.ts` — new.** Verify capacity boundaries, reload
   caveats, explicit/unknown mounting, mixed work, required latex/chopper exclusion
   for both recommendation slots, conflicting constraints, empty candidate sets,
   and no automatic maximum-model upsell from frequency alone.
+
+Stage 2 also adds `tests/yardley/job.test.ts`, `lead.test.ts`, `api.test.ts` and
+shared `fixtures.ts`. Zod validates the runtime contract; TypeScript checks TS
+modules; Node's test runner with `tsx` runs the tests. The existing page/script
+have minimal adapter/copy changes, and `/api/guide` accepts both legacy and v1
+job requests with bounded JSON input. Full conversation remains stage 4.
+`prepareYardleyBrief` builds a versioned, validated brief but is not yet accepted
+by `/api/lead`; stage 5 connects that new submission contract. Existing lead
+contracts remain usable and legacy guide email now includes fit qualifications.
 
 **Application acceptance scenarios:** small driveways/sidewalks/patios begin with
 327 K Towable or 425 S as appropriate, but large flatwork does not get forced
@@ -377,6 +388,8 @@ receipt matches the submitted brief; email failure cannot produce success UI.
 all required options constrain both recommendation slots; factual content is
 sourced; scripted fallback and the real budget are verified; Paul approves the
 sales brief and provisional recommendations; preview integration checks pass.
+Review and remediate the dependency advisories recorded in the verification log
+before release; do not apply an unreviewed forced adapter downgrade.
 
 ## Local files and Cursor continuity
 
@@ -387,6 +400,6 @@ Localhost reflects source changes through the development server, or after a
 restart if configuration/dependencies change. Preview and production change only
 through their deployment workflow. A checklist update does not publish the site.
 
-Next concrete stage: **section 2 — validated job state, quantity estimates and
-deterministic recommendations**. Do not begin the conversational UI or model
-integration before these compatibility foundations are verified.
+Next concrete stage: **section 3 — Yardley interface and discovery**. The new UI
+should consume the validated job state and structured fit reasons, questions and
+caveats, rather than maintaining separate selection rules.

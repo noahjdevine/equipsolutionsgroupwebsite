@@ -1,143 +1,61 @@
 /**
- * Closing paragraph for /job/ only.
- * The matcher has already picked the unit. This route may rephrase that note.
- * It may not add a model, a number, a price, a lead time, or a region.
- * Missing key, missing model id, or a failed call returns the scripted paragraph.
+ * Authoritative scripted fit endpoint during the Yardley rebuild.
+ * Accepts version-1 job state or the legacy five-field guide request.
+ * Grounded model conversation returns in stage 4; generated prose cannot remove caveats.
  */
-
 import type { APIRoute } from 'astro';
-import { createGateway, generateText } from 'ai';
-import { fitModel, type GuideAnswers } from '../../data/fit';
-import { scriptedClose } from '../../data/guide';
-import {
-  CHASSIS_OPTIONS,
-  MIX_TYPES,
-  POUR_SIZE_STEPS,
-  POURS_PER_WEEK_STEPS,
-  applicationSlugs,
-  type MixType,
-} from '../../data/lead';
-import { models } from '../../data/models';
+import { fitJob, fitModel } from '../../data/fit';
+import { explainFit, QUESTION_COPY } from '../../data/guide';
+import { legacyGuideSchema, parseYardleyJob } from '../../data/yardley-job';
 
 export const prerender = false;
-
-const MODEL_NAMES = models.map((model) => model.name);
-const BANNED =
-  /\$|³|²|\b(price|prices|priced|usd|dollar|dollars|lead time|gallon|gallons|liter|liters|litre|ton|tons|tonne|yd|dallas|texas|dfw|iowa|midwest|nationwide|service area)\b/i;
+const MAX_BODY_BYTES = 32_768;
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 }
 
-function str(value: unknown): string {
-  return typeof value === 'string' ? value.trim() : '';
-}
-
-function oneOf<T extends string>(value: string, allowed: readonly T[]): T | '' {
-  return (allowed as readonly string[]).includes(value) ? (value as T) : '';
-}
-
-function asRecord(input: unknown): Record<string, unknown> {
-  if (input && typeof input === 'object' && !Array.isArray(input)) {
-    return input as Record<string, unknown>;
-  }
-  return {};
-}
-
-function parseGuide(input: unknown): GuideAnswers | null {
-  const raw = asRecord(input);
-  const applicationSlug = str(raw.applicationSlug);
-  if (!applicationSlugs.includes(applicationSlug)) return null;
-  const pourSizeYd3 = oneOf(str(raw.pourSizeYd3), POUR_SIZE_STEPS.map((o) => o.value));
-  const poursPerWeek = oneOf(str(raw.poursPerWeek), POURS_PER_WEEK_STEPS.map((o) => o.value));
-  const chassis = oneOf(str(raw.chassis), CHASSIS_OPTIONS.map((o) => o.value));
-  if (!pourSizeYd3 || !poursPerWeek || !chassis) return null;
-  const mixRaw = raw.mixTypes;
-  const mixList = Array.isArray(mixRaw) ? mixRaw.map(str) : mixRaw ? [str(mixRaw)] : [];
-  const mixTypes = mixList.filter((value): value is MixType => MIX_TYPES.some((o) => o.value === value));
-  return { applicationSlug, pourSizeYd3, poursPerWeek, chassis, mixTypes };
-}
-
-function compact(name: string): string {
-  return name.replace(/\s+/g, '');
-}
-
-function mentions(text: string, name: string): boolean {
-  return text.includes(name) || text.includes(compact(name));
-}
-
-/** Reject a rephrase that adds a unit, a figure, a price, or a region. */
-export function acceptRephrase(text: string, scripted: string): string | null {
-  const cleaned = text.replace(/\s+/g, ' ').trim();
-  if (cleaned.length < 20 || cleaned.length > 700) return null;
-  if (/[<>]/.test(cleaned)) return null;
-  const sentences = cleaned.split(/[.!?]+/).map((part) => part.trim()).filter(Boolean);
-  if (sentences.length > 6) return null;
-
-  for (const name of MODEL_NAMES) {
-    if (mentions(cleaned, name) && !mentions(scripted, name)) return null;
-  }
-
-  let rest = cleaned;
-  for (const name of MODEL_NAMES) {
-    if (!mentions(scripted, name)) continue;
-    rest = rest.split(name).join(' ').split(compact(name)).join(' ');
-  }
-  if (/\d/.test(rest) || BANNED.test(rest)) return null;
-  return cleaned;
-}
-
-function envValue(vite: unknown, fromNode: string | undefined): string {
-  if (typeof vite === 'string' && vite.trim()) return vite.trim();
-  if (typeof fromNode === 'string' && fromNode.trim()) return fromNode.trim();
-  return '';
-}
-
-async function rephrase(scripted: string): Promise<string> {
-  const apiKey = envValue(import.meta.env.AI_GATEWAY_API_KEY, process.env.AI_GATEWAY_API_KEY);
-  const modelId = envValue(import.meta.env.AI_GATEWAY_MODEL, process.env.AI_GATEWAY_MODEL);
-  if (!apiKey || !modelId) return scripted;
-
+async function readJson(request: Request): Promise<{ raw: unknown; status?: number }> {
+  if (!request.headers.get('content-type')?.includes('application/json')) return { raw: null, status: 415 };
+  const reader = request.body?.getReader();
+  if (!reader) return { raw: null, status: 400 };
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let text = '';
   try {
-    const gateway = createGateway({ apiKey });
-    const { text } = await generateText({
-      model: gateway(modelId),
-      system: [
-        'You are Paul Devine, an independent StarMix representative.',
-        'Rewrite the note in his voice: plain, first person, two or three short sentences.',
-        'You may rephrase.',
-        'You may not add a model, a number, a price, a lead time, or a region.',
-        'You may not name a unit that is not already in the note.',
-        'If you cannot do that, return the note unchanged.',
-      ].join(' '),
-      prompt: `Note:\n${scripted}`,
-      maxOutputTokens: 160,
-      maxRetries: 0,
-      timeout: 8000,
-    });
-    return acceptRephrase(text, scripted) ?? scripted;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_BODY_BYTES) {
+        await reader.cancel();
+        return { raw: null, status: 413 };
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+    return { raw: JSON.parse(text) };
   } catch {
-    return scripted;
+    return { raw: null, status: 400 };
+  } finally {
+    reader.releaseLock();
   }
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  let raw: unknown = null;
-  try {
-    raw = await request.json();
-  } catch {
-    raw = null;
+  const { raw, status } = await readJson(request);
+  if (status) return json({ note: QUESTION_COPY['job-details'], errors: [{ field: 'job', message: 'Send valid job details as JSON.' }] }, status);
+  if (raw && typeof raw === 'object' && 'version' in raw) {
+    const parsed = parseYardleyJob(raw);
+    if (!parsed.ok) return json({ note: QUESTION_COPY['job-details'], errors: parsed.errors }, 400);
+    const fit = fitJob(parsed.job);
+    return json({ version: 1, note: explainFit(fit), fit });
   }
-
-  const answers = parseGuide(raw);
-  if (!answers) {
-    return json({ note: 'I will match this on a call.' });
-  }
-
-  const scripted = scriptedClose(answers, fitModel(answers));
-  const note = await rephrase(scripted);
-  return json({ note });
+  const legacy = legacyGuideSchema.safeParse(raw);
+  if (!legacy.success) return json({ note: QUESTION_COPY['job-details'] }, 400);
+  const fit = fitModel(legacy.data);
+  return json({ version: 1, note: explainFit(fit), fit });
 };

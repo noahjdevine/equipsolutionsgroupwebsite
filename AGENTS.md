@@ -289,7 +289,8 @@ src/components/QuoteForm.astro   branched quote form (mixer / parts / sourcing)
 src/pages/*.astro                live routes (body content only)
 src/pages/api/lead.ts            Resend POST handler; prerender = false;
                                  From paul@equipsolutionsgroup.com
-src/pages/api/guide.ts           closing paragraph for /job/; prerender = false
+src/pages/api/guide.ts           scripted v1/legacy job fit; prerender = false;
+                                 grounded conversation planned for stage 4
 src/pages/job.astro              mixer guide desk
 src/archive/swaploader.astro     un-routed; kept for /es/ later
 src/styles/site.css              the one stylesheet, tokens at the top
@@ -297,6 +298,8 @@ src/scripts/site.js              dropdown nav, mobile panel, quote-form fetch
 src/scripts/job.ts               /job/ page script only
 src/data/models.ts               StarMix lineup + manufacturer claims (source of truth)
 src/data/options.ts              sourced options and owner-confirmed candidate compatibility
+src/data/yardley-job.ts           versioned job validation, answer provenance, legacy adapter
+src/lib/yardley/volume.ts         estimates from supplied customer dimensions only
 src/data/applications.ts         type-of-work taxonomy (home, /starmix/, quote form, /job/)
 src/data/fit.ts                  deterministic mixer shortlist
 src/data/guide.ts                scripted lines for /job/
@@ -316,7 +319,8 @@ read from it. Do not put a figure on the page that is not in that file or `claim
 
 The owner approved replacing the fixed four-beat, closing-paragraph-only MVP with
 **Yardley**, a text-first AI mixer guide. These decisions supersede those older
-restrictions. Application changes remain pending as tracked in
+restrictions. The data and fitting foundations are implemented; interface and AI
+work remain pending as tracked in
 [the implementation checklist](docs/yardley-implementation-plan.md).
 
 `/job/` remains mixer-only and English only. Add a visible introduction immediately
@@ -345,8 +349,9 @@ Owner-confirmed October 28, 2026:
 - An additional cement/flyash bin is a special addition for any model, not standard
   equipment. Other option compatibility is unconfirmed unless sourced explicitly.
 - The option catalog records all eight entries from the sheet's OPTIONS tab;
-  distinguish standard equipment from optional equipment per model. Stage 2 must
-  connect catalog constraints to the fitter; the current MVP does not yet use them.
+  distinguish standard equipment from optional equipment per model. `fitJob`
+  now enforces catalog restrictions before ranking. Unconfirmed option/model
+  combinations require configuration review rather than a forced recommendation.
 - Manufacturer model images may be used. Match the actual model/variant and retain
   source URLs; no invented machine imagery.
 
@@ -359,6 +364,17 @@ critical model/spec/option/caveat content from application data. Use a small rev
 FAQ and structured lookup first; no vector RAG or live web search in release 1.
 Keep the scripted path usable when credentials are missing, generation fails or
 the budget is exhausted. Implement real spend/rate controls; budget is not yet set.
+During the rebuild, `/api/guide` is scripted only and supports both the current
+page's legacy request and version-1 job state. Do not restore the old regex-based
+rephrase call: it could remove required qualifications. Stage 4 adds bounded,
+grounded conversation using the validated contract.
+
+Job state distinguishes unknown, customer-reported and proposed answers. Proposed
+answers cannot drive fitting until confirmed. Estimates are computed from inputs;
+browser-supplied calculated totals are rejected. Daily quantity is not a peak
+placement quantity. `prepareYardleyBrief` prepares the new reviewed brief; its
+submission integration remains stage 5. Run `npm run check`, `npm test` and the
+build after material changes to these modules.
 
 No application-side transcript persistence. Review provider logging separately.
 The visitor reviews a job brief before explicitly submitting to `/api/lead` with
