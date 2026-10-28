@@ -1,0 +1,227 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { applications } from '../data/applications';
+import { beatLine } from '../data/guide';
+import {
+  CHASSIS_OPTIONS,
+  MIX_TYPES,
+  MIXER_TIMELINES,
+  POUR_SIZE_STEPS,
+  POURS_PER_WEEK_STEPS,
+  PREFERRED_CONTACT,
+  PREFERRED_LANGUAGE,
+} from '../data/lead';
+import { binDisplay, models, mountLabel, productionDisplay } from '../data/models';
+
+const beats = [
+  {
+    id: 'work',
+    step: '01',
+    question: 'What kind of work is it?',
+    choices: applications.map((app) => ({
+      value: app.slug,
+      label: app.title,
+      line: beatLine('work', app.slug),
+    })),
+  },
+  {
+    id: 'pour',
+    step: '02',
+    question: 'What is a typical pour?',
+    choices: POUR_SIZE_STEPS.map((option) => ({
+      value: option.value,
+      label: option.label,
+      line: beatLine('pour', option.value),
+    })),
+  },
+  {
+    id: 'week',
+    step: '03',
+    question: 'How many pours in a week?',
+    choices: POURS_PER_WEEK_STEPS.map((option) => ({
+      value: option.value,
+      label: option.label,
+      line: beatLine('week', option.value),
+    })),
+  },
+  {
+    id: 'chassis',
+    step: '04',
+    question: 'Do you already have a chassis?',
+    choices: CHASSIS_OPTIONS.map((option) => ({
+      value: option.value,
+      label: option.label,
+      line: beatLine('chassis', option.value),
+    })),
+  },
+] as const;
+---
+
+<BaseLayout
+  title="Tell me the pour | Equip Solutions Group"
+  description="Start with Yardley, the AI mixer guide. Share the job details and prepare a provisional StarMix shortlist for Paul to confirm.">
+
+  <section class="section section--alt">
+    <div class="wrap guide-desk" data-guide>
+      <p class="eyebrow">Yardley · AI mixer guide</p>
+      <h1>Tell me the pour.</h1>
+      <p class="lede">Start with the job. Yardley compares the published line and flags what Paul still needs to confirm.</p>
+
+      <noscript>
+        <p class="guide-entry">This page needs JavaScript to walk the questions. Call <a class="card-link" href="tel:+15157200800">+1 515 720 0800</a> or <a class="card-link" href="/contact/">request a quote</a>.</p>
+      </noscript>
+
+      <button class="guide-back" type="button" data-back hidden>Back</button>
+      <p class="guide-said" data-said hidden></p>
+      <p class="step-n" data-progress>01</p>
+
+      {beats.map((beat, index) => (
+        <div data-beat={beat.id} hidden={index > 0}>
+          <h2 class="guide-q" id={`guide-q-${beat.id}`} tabindex="-1">{beat.question}</h2>
+          <div class="guide-choices" role="group" aria-labelledby={`guide-q-${beat.id}`}>
+            {beat.choices.map((choice) => (
+              <button
+                class="guide-choice"
+                type="button"
+                data-choice
+                data-value={choice.value}
+                data-line={choice.line}
+                aria-pressed="false"
+              >{choice.label}</button>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <div data-close hidden>
+        <h2 class="guide-q" id="guide-q-close" tabindex="-1">Your starting point.</h2>
+        <form class="guide-form" data-guide-form action="/api/lead" method="post" novalidate>
+          <p class="hp" aria-hidden="true">
+            <label for="job-website">Website</label>
+            <input id="job-website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </p>
+          <input type="hidden" name="source" value="mixer-guide">
+          <input type="hidden" name="intent" value="mixer">
+          <input type="hidden" name="applicationSlug" data-bind="work" value="">
+          <input type="hidden" name="pourSizeYd3" data-bind="pour" value="">
+          <input type="hidden" name="poursPerWeek" data-bind="week" value="">
+          <input type="hidden" name="chassis" data-bind="chassis" value="">
+
+          <div class="field field--full">
+            <span class="field-label" id="job-mix-label">Mix types</span>
+            <div class="choice-list" role="group" aria-labelledby="job-mix-label">
+              {MIX_TYPES.map((option) => (
+                <label class="choice">
+                  <input type="checkbox" name="mixTypes" value={option.value}>
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
+            <p class="field-error" data-error-for="mixTypes" hidden></p>
+          </div>
+
+          <div class="field field--full">
+            <label for="job-timeline">Timeline</label>
+            <select id="job-timeline" name="timeline">
+              <option value="">Select timeline</option>
+              {MIXER_TIMELINES.map((option) => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+            <p class="field-error" data-error-for="timeline" hidden></p>
+          </div>
+
+          <p class="guide-note" data-note></p>
+
+          <div class="plate-grid" data-plate-grid>
+            {models.map((model) => (
+              <article class="plate" data-model-plate={model.id} hidden>
+                <div class="plate-code"><span data-plate-role></span> · Series {model.series}</div>
+                <h3>{model.name}</h3>
+                <img class="model-image" src={model.image.src} width={model.image.width} height={model.image.height} alt={model.image.alt} loading="lazy" decoding="async">
+                <dl class="dl">
+                  <dt>Mount</dt>
+                  <dd>{mountLabel(model)}</dd>
+                  <dt>Bin capacity</dt>
+                  <dd>{binDisplay(model)}</dd>
+                  <dt>Production rate</dt>
+                  <dd>{productionDisplay(model)}</dd>
+                  <dt>Options</dt>
+                  <dd>{model.options}</dd>
+                </dl>
+              </article>
+            ))}
+          </div>
+          <p class="small muted">From published specs. Paul confirms the unit on the quote.</p>
+
+          <fieldset>
+            <legend>How to reach you</legend>
+            <div class="form-grid">
+              <div class="field">
+                <label for="job-name">Name</label>
+                <input id="job-name" name="name" type="text" autocomplete="name">
+                <p class="field-error" data-error-for="name" hidden></p>
+              </div>
+              <div class="field">
+                <label for="job-phone">Phone</label>
+                <input id="job-phone" name="phone" type="tel" autocomplete="tel">
+                <p class="field-error" data-error-for="phone" hidden></p>
+              </div>
+              <div class="field field--full">
+                <label for="job-email">Email</label>
+                <input id="job-email" name="email" type="email" autocomplete="email">
+                <p class="field-error" data-error-for="email" hidden></p>
+              </div>
+              <div class="field field--full">
+                <span class="field-label" id="job-contact-label">Preferred contact</span>
+                <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="job-contact-label">
+                  {PREFERRED_CONTACT.map((option) => (
+                    <label class="choice">
+                      <input type="radio" name="preferredContact" value={option.value}>
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+                <p class="field-error" data-error-for="preferredContact" hidden></p>
+              </div>
+              <div class="field field--full">
+                <span class="field-label" id="job-language-label">Preferred language</span>
+                <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="job-language-label">
+                  {PREFERRED_LANGUAGE.map((option) => (
+                    <label class="choice">
+                      <input type="radio" name="preferredLanguage" value={option.value}>
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+                <p class="field-error" data-error-for="preferredLanguage" hidden></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <div class="form-live" aria-live="polite" aria-atomic="true"></div>
+            <p class="field-error" data-error-for="form" hidden></p>
+            <div class="btn-row">
+              <button class="btn" type="submit" data-submit>Send my request.</button>
+            </div>
+            <p class="guide-call">Or call <a href="tel:+15157200800">+1 515 720 0800</a>.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand
+    heading="Rather talk it through?"
+    body="The shortlist is a starting point. The quote confirms the unit.">
+    <a class="btn" href="tel:+15157200800">Call +1 515 720 0800</a>
+  </CtaBand>
+
+</BaseLayout>
+
+<script>
+  import { startGuide } from '../scripts/job';
+  startGuide();
+</script>

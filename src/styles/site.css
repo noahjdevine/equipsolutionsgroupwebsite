@@ -406,6 +406,7 @@ h1, h2, h3, h4 {
   text-transform: uppercase; color: var(--steel); margin-bottom: 0.4rem;
 }
 .plate p { color: var(--graphite); font-size: 1rem; }
+.model-image { display: block; width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: contain; margin: 1rem 0; }
 .plate-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
 .plate-grid--3 { grid-template-columns: repeat(3, 1fr); }
 
@@ -649,6 +650,98 @@ table.specs tbody tr:hover { background: var(--paper-2); }
   font-size: 0.8125rem; color: #7E858C;
 }
 .disclaimer { max-width: 78ch; font-size: 0.8125rem; color: #7E858C; margin-top: 1.25rem; line-height: 1.5; }
+
+/* --------------------------------------------------------------------------
+   Mixer guide — /job/. Sharp choice plates. No chat chrome.
+   -------------------------------------------------------------------------- */
+.guide-desk { max-width: 40rem; }
+.guide-desk h1 {
+  font-size: var(--step-4);
+  text-transform: uppercase;
+  max-width: 14ch;
+}
+.guide-desk .plate-grid { grid-template-columns: 1fr; }
+.guide-q {
+  font-size: var(--step-3);
+  text-transform: uppercase;
+  max-width: 18ch;
+  margin: 0 0 1.25rem;
+}
+.guide-said,
+.guide-note {
+  margin: 0 0 1.5rem;
+  max-width: 42rem;
+  font-size: var(--step-1);
+  line-height: 1.45;
+  color: var(--ink);
+}
+.guide-choices { display: grid; gap: 0.75rem; }
+.guide-choice {
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: left;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: var(--step-1);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+.guide-choice:hover { background: var(--paper-2); }
+.guide-choice[aria-pressed="true"] {
+  border-color: var(--ink);
+  border-left: 3px solid var(--signal);
+}
+.guide-back[hidden],
+.guide-desk .step-n[hidden] {
+  display: none;
+}
+.guide-back {
+  display: inline-block;
+  margin: 0 0 1.25rem;
+  padding: 0 0 2px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid var(--signal-deep);
+  border-radius: 0;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.guide-entry { margin: 1.25rem 0 0; }
+.quote-form .guide-entry { margin: 0 0 1.25rem; }
+.guide-form > .field + .field { margin-top: 1.25rem; }
+.guide-form fieldset {
+  border: 0;
+  margin: 1.75rem 0 0;
+  padding: 0;
+}
+.guide-form legend {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+.guide-call { margin: 1rem 0 0; }
+.guide-call a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 2px solid var(--signal-deep);
+}
+.guide-desk .step-n { margin-top: 1.75rem; }
 
 /* --------------------------------------------------------------------------
    Responsive

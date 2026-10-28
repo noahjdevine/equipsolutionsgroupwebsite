@@ -1,86 +1,60 @@
 # equipsolutionsgroup.com
 
-Seven-page static site, built with Astro. Static output, no runtime framework — the
-shipped page is one stylesheet, one small script, and the font load.
+Equip Solutions Group's US site: StarMix mixers, with secondary equipment and
+parts sourcing. Astro 7 prerenders marketing pages; Vercel runs /api/lead and
+/api/guide. Quote delivery uses Resend.
 
-```
+Read [AGENTS.md](AGENTS.md) before changes. It defines source, design, content and
+working rules. The [Yardley implementation checklist](docs/yardley-implementation-plan.md)
+records the approved mixer-guide enhancement, file-by-file tasks and completion
+status. Planning and stages 1–2 (sourced data, job validation, estimates and fitting)
+are complete locally. The new conversation interface and AI connection are pending.
+
+## Local development
+
+```sh
 npm install
 npm run dev      # localhost:4321
-npm run build    # -> dist/
-npm run preview  # serve dist/
+npm run build    # dist/ plus adapter output
+npm run preview
+npm run check    # strict TypeScript checks for TS modules
+npm test         # Node test runner + tsx; no paid model or email calls
 ```
 
-```
-src/pages/index.astro       Home — the three lines, process, who he works with
-src/pages/swaploader.astro  SwapLoader hooklifts + full model spec table
-src/pages/starmix.astro     StarMix volumetric plants + applications + training
-src/pages/sourcing.astro    Independent used-equipment sourcing desk
-src/pages/parts.astro       SwapLoader parts / SMI parts / agriculture parts / request
-src/pages/about.astro       Paul, how he works, what "independent" means
-src/pages/contact.astro     Quote request form
+Copy the placeholders from .env.example into a local .env and configure only
+the credentials needed for the flow being tested. Keep keys server-side and out
+of Git. Check server routes in the development server and an actual Vercel preview;
+static preview alone does not establish that deployed APIs work.
 
-src/layouts/BaseLayout.astro     Head, skip link, header, footer — defined once
-src/components/SiteHeader.astro  Brand monogram + dropdown nav
-src/components/SiteFooter.astro  Footer nav, disclaimer, copyright
-src/components/CtaBand.astro     The closing CTA band, on every page
+Codex and Cursor edit the same source files when opened in this folder. There is
+no separate copy to synchronize. Configuration or dependency changes can require
+a dev-server restart. Local environment values do not automatically configure
+Vercel. Remote Git and hosted deployments update through their usual push/deploy
+workflow; saving a local file does not publish it.
 
-src/styles/site.css   One stylesheet, tokens at the top
-src/scripts/site.js   Dropdown nav, mobile panel, form handoff
-public/assets/img/    Empty — drop photos here, reference as /assets/img/...
-```
+## Main files
 
-Pages serve at `/`, `/swaploader/`, `/parts/` and so on. Links are written with the
-trailing slash to avoid a redirect hop.
+- `src/pages/`: Home, StarMix, Parts, Sourcing, About, Contact and /job/ guide.
+- `src/pages/api/lead.ts`: shared quote/guide email endpoint.
+- `src/pages/api/guide.ts`: bounded, scripted fit endpoint; planned grounded conversation.
+- `src/components/`: shared header, footer, CTA, applications and quote form.
+- `src/data/models.ts`: model specs and attributed manufacturer claims.
+- `src/data/options.ts`: sourced option catalog and confirmed compatibility rules.
+- `src/data/yardley-job.ts`: versioned, validated job state and legacy adapter.
+- `src/lib/yardley/volume.ts`: estimates from supplied customer job dimensions.
+- `src/data/applications.ts`: shared work-type taxonomy.
+- `src/data/fit.ts`, `src/data/guide.ts`, `src/scripts/job.ts`: current guide behavior.
+- `src/data/lead.ts`: validation and formatting for submitted inquiries.
+- `tests/yardley/`: job, volume, fit, lead-contract and API regression tests.
+- `src/styles/site.css`: design tokens and site styles.
+- `public/assets/img/`: local image assets.
 
-## Design tokens
+Keep source changes here rather than editing generated output. SwapLoader is
+archived and redirected, not a live US product page. English remains at the root;
+future /es/ work is outside the current scope. Preserve the independent-rep
+footer disclaimer and prelaunch noindex setting.
 
-Everything derives from the `:root` block in `site.css`. Change these and the whole
-site moves together.
-
-| Token | Value | Role |
-|---|---|---|
-| `--paper` | `#F5F5F3` | Cool near-white, matched to the signature card |
-| `--ink` | `#17191B` | Headlines and body |
-| `--graphite` | `#4A5158` | Secondary text |
-| `--signal` | `#E8B21C` | The one accent — markers, rules, active nav, CTA band |
-| `--display` | Barlow Condensed | Headlines, model numbers, labels, buttons |
-| `--body` | Barlow | Body copy, and the wide-tracked wordmark at weight 300 |
-
-The slash from the P/D monogram is the recurring device: it's the nav hover underline,
-the skewed square before every eyebrow label, the `/` bullet in lists, and the ambient
-hatch in the dark panels. If you cut one thing, don't cut that.
-
-## Before this goes live — things to edit
-
-1. **Territory.** Nothing on the site claims a coverage area, because the 515 number
-   and a Texas base point different directions. Decide the story and add it to the
-   footer and the About page.
-2. **Logo.** `public/assets/img/` is empty. The header uses an inline SVG monogram
-   (`E/S` in a circle) built to match the P/D mark on the signature. Swap in the real
-   file if there is one — it lives in `src/components/SiteHeader.astro`, once.
-3. **Photos.** Every dashed placeholder is a `<div class="ph">` with the recommended
-   dimensions in the label. Replace each with `<img src="/assets/img/....jpg" alt="...">`.
-   Highest value first: a hoist mid-swap on `swaploader.astro`, a plant discharging on
-   `starmix.astro`, and a portrait of Paul on `about.astro` and the home page.
-4. **The form has no backend.** `src/scripts/site.js` packages the fields into a
-   `mailto:` so nothing is silently lost. Replace with Formspree, Basin, or an Astro
-   endpoint. The submit handler is the last block in the file.
-5. **The active-nav indicator has never rendered.** `site.css` styles
-   `.nav-link[aria-current="page"]::after`, but nothing in the nav carries
-   `class="nav-link"`. `aria-current` is set correctly at build time; the marker just
-   has no matching selector. Either add the class or delete the rule — see AGENTS.md
-   section 4, item 6.
-
-## Content sourcing
-
-SwapLoader specs (SL-110, SL-112, ST-1614, SL-214, SL-240, SL-2418, SL-520X) are
-manufacturer-published as of this build. StarMix figures come from the 850-S and 880-S
-model pages; the 880-S is specified in metric and shown with approximate conversions.
-The SMI parts taxonomy on `parts.astro` mirrors the manufacturer's own categories.
-Re-verify before print, and note the disclaimer already in the footer.
-
-## Quality floor
-
-Responsive to 360px. Keyboard-navigable dropdowns with `aria-expanded` and Escape to
-close. Visible focus rings. `prefers-reduced-motion` respected. Skip link. No runtime
-dependencies except Google Fonts.
+Manufacturer US figures govern model specs; never estimate or convert them.
+See the implementation checklist for the completed 740 K correction and recorded
+sheet/site discrepancies. All pending launch items, including territory, photos,
+logo and font hosting, remain governed by AGENTS.md.

@@ -1,25 +1,23 @@
 /**
- * Quote-form payload. Mixer field names are the sizing-tool subset — keep them.
- * source is always 'quote-form' from this site.
+ * Quote payload. Mixer field names are the sizing-tool subset — keep them.
+ * source is quote-form from the quote form, or mixer-guide from /job/.
  */
 
 import { applications } from './applications';
-import { models } from './models';
+import { fitModel, fitJob, type FitResult } from './fit';
+import { modelById, models } from './models';
+import { z } from 'zod';
+import { explainFit } from './guide';
+import { MIX_TYPES, yardleyJobSchema, type MixType, type YardleyJob, type JobError } from './yardley-job';
 
-export const LEAD_SOURCE = 'quote-form' as const;
+export { MIX_TYPES, type MixType } from './yardley-job';
+
+export const LEAD_SOURCES = ['quote-form', 'mixer-guide'] as const;
+export type LeadSource = (typeof LEAD_SOURCES)[number];
+export const LEAD_SOURCE = 'quote-form' satisfies LeadSource;
 
 export const INTENTS = ['mixer', 'parts', 'sourcing'] as const;
 export type LeadIntent = (typeof INTENTS)[number];
-
-export const MIX_TYPES = [
-  { value: 'standard', label: 'Standard' },
-  { value: 'rapid-set', label: 'Rapid-set' },
-  { value: 'latex-modified', label: 'Latex-modified' },
-  { value: 'shotcrete-gunite', label: 'Shotcrete / gunite' },
-  { value: 'fiber-reinforced', label: 'Fiber-reinforced' },
-  { value: 'other', label: 'Other' },
-] as const;
-export type MixType = (typeof MIX_TYPES)[number]['value'];
 
 export const POUR_SIZE_STEPS = [
   { value: 'under-5', label: 'Under 5 yd³' },
@@ -69,7 +67,7 @@ export const PREFERRED_LANGUAGE = [
 ] as const;
 
 export const applicationSlugs = applications.map((a) => a.slug);
-export const modelIds = models.map((m) => m.id);
+export const modelIds: readonly string[] = models.map((m) => m.id);
 export const MODEL_NOT_SURE = 'not-sure';
 
 export interface FieldError {
@@ -110,7 +108,7 @@ export interface SourcingFields {
 }
 
 export interface LeadPayload extends LeadContact {
-  source: typeof LEAD_SOURCE;
+  source: LeadSource;
   intent: LeadIntent;
   mixer?: MixerFields;
   parts?: PartsFields;
@@ -173,6 +171,10 @@ export function parseLead(input: unknown): ParseResult {
   }
 
   const errors: FieldError[] = [];
+  const sourceRaw = str(raw.source);
+  const source = oneOf(sourceRaw || LEAD_SOURCE, LEAD_SOURCES);
+  if (!source) errors.push({ field: 'source', message: 'The request could not be sent. Call or email instead.' });
+
   const intent = oneOf(str(raw.intent), INTENTS);
   if (!intent) errors.push({ field: 'intent', message: 'Choose what we can help with.' });
 
@@ -265,7 +267,11 @@ export function parseLead(input: unknown): ParseResult {
     }
   }
 
-  if (errors.length || !intent || !preferredContact || !preferredLanguage) {
+  if (source === 'mixer-guide' && intent && intent !== 'mixer') {
+    errors.push({ field: 'intent', message: 'Choose what we can help with.' });
+  }
+
+  if (errors.length || !intent || !source || !preferredContact || !preferredLanguage) {
     return { ok: false, errors };
   }
 
@@ -273,7 +279,7 @@ export function parseLead(input: unknown): ParseResult {
     ok: true,
     spam: false,
     lead: {
-      source: LEAD_SOURCE,
+      source,
       intent,
       name,
       company: str(raw.company),
@@ -327,6 +333,17 @@ export function formatLeadEmail(lead: LeadPayload): { subject: string; text: str
       `Chassis: ${chassis?.label ?? lead.mixer.chassis}`,
       `Timeline: ${timeline?.label ?? lead.mixer.timeline}`,
     );
+    if (lead.source === 'mixer-guide') {
+      const fit = fitModel(lead.mixer);
+      const primary = fit.primaryId ? modelById(fit.primaryId) : undefined;
+      const alternate = fit.alternateId ? modelById(fit.alternateId) : undefined;
+      lines.push(
+        `Guide status: ${fit.status}`,
+        `Guide primary: ${primary?.name ?? 'Pending clarification / configuration review'}`,
+        `Guide alternate: ${alternate?.name ?? '—'}`,
+        `Guide notes: ${explainFit(fit)}`,
+      );
+    }
   }
 
   if (lead.parts) {
@@ -356,8 +373,26 @@ export function formatLeadEmail(lead: LeadPayload): { subject: string; text: str
     );
   }
 
+  const subject = lead.source === 'mixer-guide'
+    ? `Quote request — mixer guide — ${lead.name}`
+    : `Quote request — ${intentLabel} — ${lead.name}`;
+
   return {
-    subject: `Quote request — ${intentLabel} — ${lead.name}`,
+    subject,
     text: lines.join('\n'),
   };
+}
+
+/** Prepared contract for the new review step; legacy parseLead is unchanged. */
+const yardleyBriefInputSchema = z.strictObject({ version: z.literal(1), job: yardleyJobSchema });
+export interface YardleyBrief { version: 1; job: YardleyJob; fit: FitResult }
+
+export function prepareYardleyBrief(input: unknown):
+  | { ok: true; brief: YardleyBrief }
+  | { ok: false; errors: JobError[] } {
+  const parsed = yardleyBriefInputSchema.safeParse(input);
+  if (!parsed.success) return {
+    ok: false, errors: parsed.error.issues.map((issue) => ({ field: issue.path.join('.'), message: issue.message })),
+  };
+  return { ok: true, brief: { version: 1, job: parsed.data.job, fit: fitJob(parsed.data.job) } };
 }

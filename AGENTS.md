@@ -3,6 +3,11 @@
 Read this before making changes. It records *why* things are the way they are, so
 that fixing one thing doesn't quietly undo another.
 
+**Yardley implementation:** see [the file-by-file checklist](docs/yardley-implementation-plan.md)
+for the approved scope, sequence and completion status. Yardley rules below
+describe the approved target; the checklist records what is actually implemented.
+Codex and Cursor use this same repository and these same instructions.
+
 ---
 
 ## 1. What this is
@@ -165,9 +170,13 @@ Verified lineup (single source of truth: `src/data/models.ts`):
 | 750 L | L | 10 yd³ | 60 yd³/hr |
 | 425 S | S | 5.5 yd³ | 30 yd³/hr |
 | 327 K | K | 4 yd³ | 30 yd³/hr |
-| 740 K | K | not published | not published |
+| 740 K | K | 10 yd³ | 60 yd³/hr |
 
-**Six models, three series.** 740 K stays in the file; do not invent figures for it.
+**Six models, three series.** Use the US website as requested by the owner. The
+740 K now publishes 10 yd³ and 60 yd³/hr at starmixindustries.com/740k; `models.ts`
+and its displays now use these figures. The old guide-only sheet range is removed.
+Keep the current
+327 K record scoped to the towable variant; do not silently expand the lineup.
 
 Published component specs may be stored on those models where the US pages state
 them (750 L water tank / cement hopper / cooler; 880 S water tank / lids / cement
@@ -175,8 +184,12 @@ hopper). Manufacturer claims (7 seconds, cascade feed, sub-100 L wash, 47%+
 emissions, etc.) live as attributed `claims` in the same module, in the
 manufacturer's units — do not convert liters to gallons.
 
-If a figure is not in `models.ts` / `claims`, it does not go on the page. Flag it
-for Paul rather than filling it in.
+Model figures must come from `models.ts` / `claims`. Approved option figures
+belong in `src/data/options.ts`, with website/sheet/owner provenance.
+Flag missing specifications for Paul rather than filling them in. Customer job
+volume may be calculated from their supplied dimensions and specified thickness,
+with the inputs and estimate label visible. This is not permission to estimate or
+convert manufacturer specifications; do not assume thickness or waste allowance.
 
 **The footer disclaimer is not optional.** Paul is an independent rep, not the
 manufacturer. The paragraph stating that, disclaiming trademark ownership, and
@@ -204,8 +217,9 @@ Items 1–3 and 5–7 are still open. Item 4 is settled.
    area** and do not put DFW, Dallas, Texas, or any city on the page as coverage.
    When Paul decides, it goes in the footer and on the About page.
 
-2. **All photos are placeholders.** Every `.ph` div is a dashed box labeled with the
-   recommended dimensions. Replace with real `<img>` and real `alt` text. Priority
+2. **Editorial photos remain placeholders.** Model photos are installed in
+   `public/assets/img/starmix/` and reused by the lineup and guide. Remaining `.ph`
+   divs are dashed boxes labeled with recommended dimensions. Priority
    order: plant discharging (`starmix` + home), portrait of Paul (`about` + home).
    No hoist shot on this site.
 
@@ -247,7 +261,7 @@ Items 1–3 and 5–7 are still open. Item 4 is settled.
 
 **Current state:** Astro 7, `output: 'static'`, adapter `@astrojs/vercel`.
 Astro 7 has no `output: 'hybrid'`; that value throws. Marketing pages stay
-prerendered HTML. The only server route is `/api/lead` (`export const prerender
+prerendered HTML. Server routes are `/api/lead` and `/api/guide` (`export const prerender
 = false`).
 
 `astro.config.mjs` sets `site: 'https://equipsolutionsgroup.com'` (required for
@@ -275,12 +289,21 @@ src/components/QuoteForm.astro   branched quote form (mixer / parts / sourcing)
 src/pages/*.astro                live routes (body content only)
 src/pages/api/lead.ts            Resend POST handler; prerender = false;
                                  From paul@equipsolutionsgroup.com
+src/pages/api/guide.ts           scripted v1/legacy job fit; prerender = false;
+                                 grounded conversation planned for stage 4
+src/pages/job.astro              mixer guide desk
 src/archive/swaploader.astro     un-routed; kept for /es/ later
 src/styles/site.css              the one stylesheet, tokens at the top
 src/scripts/site.js              dropdown nav, mobile panel, quote-form fetch
+src/scripts/job.ts               /job/ page script only
 src/data/models.ts               StarMix lineup + manufacturer claims (source of truth)
-src/data/applications.ts         type-of-work taxonomy (home, /starmix/, quote form)
-src/data/lead.ts                 quote payload schema; source: 'quote-form'
+src/data/options.ts              sourced options and owner-confirmed candidate compatibility
+src/data/yardley-job.ts           versioned job validation, answer provenance, legacy adapter
+src/lib/yardley/volume.ts         estimates from supplied customer dimensions only
+src/data/applications.ts         type-of-work taxonomy (home, /starmix/, quote form, /job/)
+src/data/fit.ts                  deterministic mixer shortlist
+src/data/guide.ts                scripted lines for /job/
+src/data/lead.ts                 quote payload; source quote-form or mixer-guide
 public/assets/img/               photos go here, referenced as /assets/img/...
 ```
 
@@ -291,6 +314,87 @@ not in the header.
 
 Verified lineup lives in `src/data/models.ts`. Homepage stats and `/starmix/` plates
 read from it. Do not put a figure on the page that is not in that file or `claims`.
+
+### Mixer guide — approved Yardley enhancement
+
+The owner approved replacing the fixed four-beat, closing-paragraph-only MVP with
+**Yardley**, a text-first AI mixer guide. These decisions supersede those older
+restrictions. The data and fitting foundations are implemented; interface and AI
+work remain pending as tracked in
+[the implementation checklist](docs/yardley-implementation-plan.md).
+
+`/job/` remains mixer-only and English only. Add a visible introduction immediately
+below the homepage hero and on `/starmix/`, plus the mixer quote-form link. Quote
+and Call stay primary; no third hero button. Use quick choices and a persistent
+text box, unknown answers, relevant followups and an editable job summary. Explain
+terms to beginners. No voice or unsolicited popup; a small static identity mark
+is optional. Identify Yardley as AI and do not impersonate Paul.
+
+`src/data/fit.ts` owns the provisional primary and at most one alternate. It may
+request clarification or configuration review instead of forcing a model. Required
+options and mounting constraints filter candidates before ranking. Weekly use alone
+does not force a larger model; unknown chassis does not exclude the trailer. Distinguish
+job volume, one-bin capacity, replenishment and required placement rate. No single-load
+promise from a coarse range. Ask wet versus dry process for shotcrete/gunite; do not
+certify a setup or estimate a pool shell from water volume. Paul confirms the final fit.
+
+Owner-confirmed October 28, 2026:
+
+- **Latex and fiber chopper use the same eligible set:** 740 K, 750 L, 850 S and
+  880 S. Exclude 327 K and 425 S from both primary and alternate when either is
+  required, including small jobs and light weeks.
+- The chopper requires high-volume air and may require an additional truck air
+  tank. Do not invent air specifications or transfer this restriction to the
+  separate fiber feeder. Distinct polymer requirements remain to be confirmed.
+- An additional cement/flyash bin is a special addition for any model, not standard
+  equipment. Other option compatibility is unconfirmed unless sourced explicitly.
+- The option catalog records all eight entries from the sheet's OPTIONS tab;
+  distinguish standard equipment from optional equipment per model. `fitJob`
+  now enforces catalog restrictions before ranking. Unconfirmed option/model
+  combinations require configuration review rather than a forced recommendation.
+- Manufacturer model images may be used. Match the actual model/variant and retain
+  source URLs; no invented machine imagery.
+
+The approved model connection is `openai/gpt-6-luna` through the existing Gateway,
+subject to availability verification at implementation, with a $20 monthly AI
+budget. `/api/guide` may interpret answers, ask followups and explain deterministic
+fit using validated job state and approved facts. The model cannot choose the unit,
+invent specs, prices, availability, lead times or territory, or send email. Render
+critical model/spec/option/caveat content from application data. Use a small reviewed
+FAQ and structured lookup first; no vector RAG or live web search in release 1.
+Keep the scripted path usable when credentials are missing, generation fails or
+the budget is exhausted. Implement real spend/rate controls; budget is not yet set.
+During the rebuild, `/api/guide` is scripted only and supports both the current
+page's legacy request and version-1 job state. Do not restore the old regex-based
+rephrase call: it could remove required qualifications. Stage 4 adds bounded,
+grounded conversation using the validated contract.
+
+Job state distinguishes unknown, customer-reported and proposed answers. Proposed
+answers cannot drive fitting until confirmed. Estimates are computed from inputs;
+browser-supplied calculated totals are rejected. Daily quantity is not a peak
+placement quantity. `prepareYardleyBrief` prepares the new reviewed brief; its
+submission integration remains stage 5. Run `npm run check`, `npm test` and the
+build after material changes to these modules.
+
+No application-side transcript persistence. Review provider logging separately.
+The visitor reviews a job brief before explicitly submitting to `/api/lead` with
+`source: mixer-guide`. Include estimates and their inputs, required options,
+unresolved questions and provisional fit reasons. Revalidate and recompute on the
+server; do not trust browser model IDs. Preserve Resend addresses, honeypot, honest
+inline failures and phone access. A success receipt must match the submitted snapshot.
+
+Sheet/site discrepancies — keep provenance rather than silently merging figures:
+
+- 327 K: US site 4 yd³ and 30 yd³/hr; sheet 3.2 yd and 27.3 yd³/hr.
+- 425 S: established US lineup 30 yd³/hr; detail page 32.7; sheet 27.3. Retain 30
+  until manufacturer clarification. Bin agrees at 5.5 yd³.
+- 740 K: use the now-published US 10 yd³ and 60 yd³/hr, replacing the old sheet range.
+- Do not use or convert the 880 S metric production copy for the US rate.
+- Sand and stone columns are a 40/60 mix split, not bin sizes or ranking inputs.
+
+Mount: the offered 327 K record is towable; the other five records are truck-mounted.
+Do not invent chassis specifications or interpret base-model eligibility as approval
+of every final truck/trailer configuration.
 
 Type of work lives in `src/data/applications.ts` and renders on the homepage and
 `/starmix/` from `ApplicationsGrid.astro`. Slugs: `bridge-deck`, `rapid-set`,
