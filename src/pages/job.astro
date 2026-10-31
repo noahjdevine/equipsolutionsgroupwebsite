@@ -1,226 +1,50 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
-import { applications } from '../data/applications';
-import { beatLine } from '../data/guide';
-import {
-  CHASSIS_OPTIONS,
-  MIX_TYPES,
-  MIXER_TIMELINES,
-  POUR_SIZE_STEPS,
-  POURS_PER_WEEK_STEPS,
-  PREFERRED_CONTACT,
-  PREFERRED_LANGUAGE,
-} from '../data/lead';
-import { binDisplay, models, mountLabel, productionDisplay } from '../data/models';
-
-const beats = [
-  {
-    id: 'work',
-    step: '01',
-    question: 'What kind of work is it?',
-    choices: applications.map((app) => ({
-      value: app.slug,
-      label: app.title,
-      line: beatLine('work', app.slug),
-    })),
-  },
-  {
-    id: 'pour',
-    step: '02',
-    question: 'What is a typical pour?',
-    choices: POUR_SIZE_STEPS.map((option) => ({
-      value: option.value,
-      label: option.label,
-      line: beatLine('pour', option.value),
-    })),
-  },
-  {
-    id: 'week',
-    step: '03',
-    question: 'How many pours in a week?',
-    choices: POURS_PER_WEEK_STEPS.map((option) => ({
-      value: option.value,
-      label: option.label,
-      line: beatLine('week', option.value),
-    })),
-  },
-  {
-    id: 'chassis',
-    step: '04',
-    question: 'Do you already have a chassis?',
-    choices: CHASSIS_OPTIONS.map((option) => ({
-      value: option.value,
-      label: option.label,
-      line: beatLine('chassis', option.value),
-    })),
-  },
-] as const;
 ---
-
-<BaseLayout
-  title="Tell me the pour | Equip Solutions Group"
-  description="Start with Yardley, the AI mixer guide. Share the job details and prepare a provisional StarMix shortlist for Paul to confirm.">
-
-  <section class="section section--alt">
-    <div class="wrap guide-desk" data-guide>
-      <p class="eyebrow">Yardley · AI mixer guide</p>
-      <h1>Tell me the pour.</h1>
-      <p class="lede">Start with the job. Yardley compares the published line and flags what Paul still needs to confirm.</p>
-
-      <noscript>
-        <p class="guide-entry">This page needs JavaScript to walk the questions. Call <a class="card-link" href="tel:+15157200800">+1 515 720 0800</a> or <a class="card-link" href="/contact/">request a quote</a>.</p>
-      </noscript>
-
-      <button class="guide-back" type="button" data-back hidden>Back</button>
-      <p class="guide-said" data-said hidden></p>
-      <p class="step-n" data-progress>01</p>
-
-      {beats.map((beat, index) => (
-        <div data-beat={beat.id} hidden={index > 0}>
-          <h2 class="guide-q" id={`guide-q-${beat.id}`} tabindex="-1">{beat.question}</h2>
-          <div class="guide-choices" role="group" aria-labelledby={`guide-q-${beat.id}`}>
-            {beat.choices.map((choice) => (
-              <button
-                class="guide-choice"
-                type="button"
-                data-choice
-                data-value={choice.value}
-                data-line={choice.line}
-                aria-pressed="false"
-              >{choice.label}</button>
-            ))}
-          </div>
-        </div>
-      ))}
-
-      <div data-close hidden>
-        <h2 class="guide-q" id="guide-q-close" tabindex="-1">Your starting point.</h2>
-        <form class="guide-form" data-guide-form action="/api/lead" method="post" novalidate>
-          <p class="hp" aria-hidden="true">
-            <label for="job-website">Website</label>
-            <input id="job-website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
-          </p>
-          <input type="hidden" name="source" value="mixer-guide">
-          <input type="hidden" name="intent" value="mixer">
-          <input type="hidden" name="applicationSlug" data-bind="work" value="">
-          <input type="hidden" name="pourSizeYd3" data-bind="pour" value="">
-          <input type="hidden" name="poursPerWeek" data-bind="week" value="">
-          <input type="hidden" name="chassis" data-bind="chassis" value="">
-
-          <div class="field field--full">
-            <span class="field-label" id="job-mix-label">Mix types</span>
-            <div class="choice-list" role="group" aria-labelledby="job-mix-label">
-              {MIX_TYPES.map((option) => (
-                <label class="choice">
-                  <input type="checkbox" name="mixTypes" value={option.value}>
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-            <p class="field-error" data-error-for="mixTypes" hidden></p>
-          </div>
-
-          <div class="field field--full">
-            <label for="job-timeline">Timeline</label>
-            <select id="job-timeline" name="timeline">
-              <option value="">Select timeline</option>
-              {MIXER_TIMELINES.map((option) => (
-                <option value={option.value}>{option.label}</option>
-              ))}
-            </select>
-            <p class="field-error" data-error-for="timeline" hidden></p>
-          </div>
-
-          <p class="guide-note" data-note></p>
-
-          <div class="plate-grid" data-plate-grid>
-            {models.map((model) => (
-              <article class="plate" data-model-plate={model.id} hidden>
-                <div class="plate-code"><span data-plate-role></span> · Series {model.series}</div>
-                <h3>{model.name}</h3>
-                <img class="model-image" src={model.image.src} width={model.image.width} height={model.image.height} alt={model.image.alt} loading="lazy" decoding="async">
-                <dl class="dl">
-                  <dt>Mount</dt>
-                  <dd>{mountLabel(model)}</dd>
-                  <dt>Bin capacity</dt>
-                  <dd>{binDisplay(model)}</dd>
-                  <dt>Production rate</dt>
-                  <dd>{productionDisplay(model)}</dd>
-                  <dt>Options</dt>
-                  <dd>{model.options}</dd>
-                </dl>
-              </article>
-            ))}
-          </div>
-          <p class="small muted">From published specs. Paul confirms the unit on the quote.</p>
-
-          <fieldset>
-            <legend>How to reach you</legend>
-            <div class="form-grid">
-              <div class="field">
-                <label for="job-name">Name</label>
-                <input id="job-name" name="name" type="text" autocomplete="name">
-                <p class="field-error" data-error-for="name" hidden></p>
-              </div>
-              <div class="field">
-                <label for="job-phone">Phone</label>
-                <input id="job-phone" name="phone" type="tel" autocomplete="tel">
-                <p class="field-error" data-error-for="phone" hidden></p>
-              </div>
-              <div class="field field--full">
-                <label for="job-email">Email</label>
-                <input id="job-email" name="email" type="email" autocomplete="email">
-                <p class="field-error" data-error-for="email" hidden></p>
-              </div>
-              <div class="field field--full">
-                <span class="field-label" id="job-contact-label">Preferred contact</span>
-                <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="job-contact-label">
-                  {PREFERRED_CONTACT.map((option) => (
-                    <label class="choice">
-                      <input type="radio" name="preferredContact" value={option.value}>
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-                <p class="field-error" data-error-for="preferredContact" hidden></p>
-              </div>
-              <div class="field field--full">
-                <span class="field-label" id="job-language-label">Preferred language</span>
-                <div class="choice-list choice-list--row" role="radiogroup" aria-labelledby="job-language-label">
-                  {PREFERRED_LANGUAGE.map((option) => (
-                    <label class="choice">
-                      <input type="radio" name="preferredLanguage" value={option.value}>
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-                <p class="field-error" data-error-for="preferredLanguage" hidden></p>
-              </div>
-            </div>
-          </fieldset>
-
-          <div class="form-actions">
-            <div class="form-live" aria-live="polite" aria-atomic="true"></div>
-            <p class="field-error" data-error-for="form" hidden></p>
-            <div class="btn-row">
-              <button class="btn" type="submit" data-submit>Send my request.</button>
-            </div>
-            <p class="guide-call">Or call <a href="tel:+15157200800">+1 515 720 0800</a>.</p>
-          </div>
-        </form>
+<BaseLayout title="Yardley — work out your mixer fit | Equip Solutions Group" description="Talk through the work, compare provisional StarMix options and prepare a job brief for Paul. No yardage? Start with what you know.">
+  <section class="yardley" data-yardley>
+    <div class="wrap">
+      <div class="yardley-intro">
+        <div class="yardley-identity"><span class="yardley-mark" aria-hidden="true">Y<span>/</span></span><p class="yardley-label">Yardley <span>AI mixer guide · guided mode</span></p></div>
+        <h1>Let’s talk concrete.</h1>
+        <p>Tell me what you build. We’ll work out the details, compare a starting point, and get your questions ready for Paul.</p>
+        <div class="yardley-intro-meta"><span>No model numbers needed.</span><a href="tel:+15157200800">Rather talk? Call Paul ↗</a></div>
       </div>
+      <noscript><p class="yardley-notice">Turn on JavaScript for the guided questions, or <a href="/contact/">request a quote</a> and tell Paul what you know.</p></noscript>
+      <div class="yardley-workspace" data-workspace hidden>
+        <div class="yardley-conversation">
+          <div class="yardley-panel-head"><span class="yardley-label">The job comes first</span><div><a href="#yardley-message" class="yardley-text-button" data-type>Type instead ↓</a><button type="button" class="yardley-text-button" data-back disabled>Back</button><button type="button" class="yardley-text-button" data-reset>Start over</button></div></div>
+          <div class="yardley-reset" data-reset-confirm hidden><p>Clear this job and conversation? This cannot be undone.</p><button type="button" class="yardley-text-button" data-reset-yes>Yes, start fresh</button><button type="button" class="yardley-text-button" data-reset-no>Keep this job</button></div>
+          <div class="yardley-exchange" data-exchange aria-label="Recent conversation"></div>
+          <div class="yardley-question" data-question></div>
+          <form class="yardley-composer" data-composer>
+            <label for="yardley-message">Tell me in your own words</label>
+            <div class="yardley-composer-row"><textarea id="yardley-message" name="message" rows="2" maxlength="2000" placeholder="“I’m starting with driveways and patios…”" aria-describedby="yardley-text-help"></textarea><button class="btn" type="submit">Send <span aria-hidden="true">↗</span></button></div>
+            <p id="yardley-text-help">Guided mode recognizes simple job details for you to confirm. Other notes stay in your brief for Paul. Enter sends; Shift + Enter adds a line.</p>
+          </form>
+          <p class="yardley-status" data-status role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
+        <aside class="yardley-sidebar" aria-label="Your job summary">
+          <details class="yardley-summary" data-summary open>
+            <summary><span>Your job, so far</span><span class="yardley-summary-toggle">Show / hide</span></summary>
+            <div class="yardley-summary-body"><p class="small muted">Change any detail. Unsure is a useful answer.</p><dl data-summary-rows></dl><label for="yardley-notes">Notes & questions for Paul</label><textarea id="yardley-notes" rows="3" maxlength="2000" data-notes placeholder="Anything else Paul should know?"></textarea><p class="small muted">Kept on this page until you leave or start over.</p><button class="btn" type="button" data-review>Review my job brief</button></div>
+          </details>
+          <p class="yardley-paul">The final call is Paul’s.<br><a href="tel:+15157200800">+1 515 720 0800</a><br><span>Se habla español.</span></p>
+        </aside>
+      </div>
+      <section class="yardley-results" data-results hidden aria-labelledby="yardley-results-title">
+        <div class="yardley-section-head"><div><p class="eyebrow">The starting point</p><h2 id="yardley-results-title" tabindex="-1">Fit the machine to the work.</h2></div><p>Published figures help narrow the field. Paul confirms the machine and configuration on the written quote.</p></div>
+        <p class="yardley-fit-status" data-fit-status></p><div data-reasons></div><div class="yardley-models" data-models></div><p class="yardley-comparison" data-comparison hidden></p><div class="yardley-qualifications" data-qualifications></div>
+      </section>
+      <section class="yardley-review" data-review-panel hidden aria-labelledby="yardley-review-title">
+        <div class="yardley-section-head"><div><p class="eyebrow">Ready for a conversation</p><h2 id="yardley-review-title" tabindex="-1">Here’s what Paul should know.</h2></div><button class="yardley-text-button" type="button" data-return>Edit my answers ↑</button></div>
+        <div class="yardley-review-grid"><div><dl data-review-rows></dl><div class="yardley-review-notes"><h3>Your notes & questions</h3><p data-review-notes></p></div><div data-review-questions></div></div><div class="yardley-review-actions"><p class="yardley-label">Take the next step</p><p>Your details have not been sent. Copy this brief to keep it, then call Paul or request a quote to start the conversation.</p><button class="btn btn-ghost" type="button" data-copy>Copy my job brief</button><p class="small" data-copy-status role="status" aria-live="polite"></p><a class="btn" href="/contact/">Request a quote</a><a class="card-link" href="tel:+15157200800">Call +1 515 720 0800 ↗</a></div></div>
+      </section>
     </div>
   </section>
-
-  <CtaBand
-    heading="Rather talk it through?"
-    body="The shortlist is a starting point. The quote confirms the unit.">
-    <a class="btn" href="tel:+15157200800">Call +1 515 720 0800</a>
-  </CtaBand>
-
+  <CtaBand heading="Some jobs are easier to talk through." body="Bring what you know. Paul can help with the rest."><a class="btn" href="tel:+15157200800">Call +1 515 720 0800</a><a class="btn btn-ghost" href="/contact/">Request a quote</a></CtaBand>
 </BaseLayout>
-
 <script>
   import { startGuide } from '../scripts/job';
   startGuide();

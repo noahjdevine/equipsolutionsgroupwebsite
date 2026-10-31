@@ -1,0 +1,18 @@
+---
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+---
+{compact ? (
+  <p class="yardley-entry-compact">Still working out the details? <a class="card-link" href="/job/">Meet Yardley, your AI mixer guide →</a></p>
+) : (
+  <aside class="yardley-entry" aria-label="Meet Yardley">
+    <div class="wrap yardley-entry-inner">
+      <span class="yardley-mark" aria-hidden="true">Y<span>/</span></span>
+      <div>
+        <p class="yardley-label">Meet Yardley <span>AI mixer guide</span></p>
+        <p>Know the job, but not the mixer? Start there. We’ll work through the details for Paul.</p>
+      </div>
+      <a class="card-link" href="/job/">Work out my fit <span aria-hidden="true">↗</span></a>
+    </div>
+  </aside>
+)}

@@ -652,97 +652,161 @@ table.specs tbody tr:hover { background: var(--paper-2); }
 .disclaimer { max-width: 78ch; font-size: 0.8125rem; color: #7E858C; margin-top: 1.25rem; line-height: 1.5; }
 
 /* --------------------------------------------------------------------------
-   Mixer guide — /job/. Sharp choice plates. No chat chrome.
+   Mixer guide — /job/. Yardley workspace and shared discovery entry.
    -------------------------------------------------------------------------- */
-.guide-desk { max-width: 40rem; }
-.guide-desk h1 {
-  font-size: var(--step-4);
-  text-transform: uppercase;
-  max-width: 14ch;
+.yardley [hidden] { display: none !important; }
+.yardley-entry { border-bottom: 1px solid var(--hairline); background: var(--paper-2); }
+.yardley-entry-inner { display: flex; gap: 1.5rem; align-items: center; padding-block: 1.6rem; }
+.yardley-entry-inner > div { flex: 1; }
+.yardley-entry p { margin: 0.15rem 0 0; max-width: 70ch; }
+.yardley-entry .card-link { flex: none; }
+.yardley-label { font-family: var(--display); font-weight: 600; font-size: 0.875rem; letter-spacing: 0.11em; text-transform: uppercase; }
+.yardley-label > span { font-weight: 500; color: var(--steel); font-size: 0.75rem; letter-spacing: 0.09em; margin-left: 0.75rem; }
+.yardley-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; flex: none; color: var(--paper); background: var(--ink); font-family: var(--display); font-size: 1.7rem; font-weight: 600; }
+.yardley-mark > span { color: var(--signal); margin-left: 0.06em; font-weight: 400; }
+.yardley-entry-compact { padding: 1rem 0; margin: 0 0 1.5rem; border-block: 1px solid var(--hairline); color: var(--graphite); }
+.yardley-entry-compact a { display: inline; }
+.yardley { padding-block: 1.75rem 5rem; }
+.yardley-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 2rem; margin-bottom: 1.75rem; align-items: center; }
+.yardley-identity { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.25rem; }
+.yardley-identity p { margin: 0; }
+.yardley-intro h1 { font-size: clamp(2.65rem, 5vw, 4.1rem); line-height: 0.99; letter-spacing: -0.01em; }
+.yardley-intro > p { font-size: 1.1rem; color: var(--graphite); max-width: 59ch; margin: 0; }
+.yardley-intro-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; column-gap: 2rem; row-gap: 0.25rem; color: var(--graphite); font-size: 0.9rem; }
+.yardley-intro-meta a { text-underline-offset: 4px; }
+.yardley-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.48fr); align-items: start; gap: 1.5rem; }
+.yardley-conversation { min-width: 0; border: 1px solid var(--hairline); background: var(--paper); }
+.yardley-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.5rem 1rem; padding: 0.85rem 1.5rem; border-bottom: 1px solid var(--hairline); }
+.yardley-panel-head > div { display: flex; gap: 1rem; flex: none; }
+.yardley-text-button { border: 0; border-radius: 0; background: none; color: var(--graphite); font: inherit; font-size: 0.9rem; text-decoration: underline; text-underline-offset: 4px; padding: 0.3rem 0; cursor: pointer; }
+.yardley-text-button:hover { color: var(--ink); }
+.yardley-text-button:disabled { color: var(--steel); cursor: default; text-decoration: none; }
+.yardley-reset { margin: 1rem; padding: 1rem; border: 1px solid var(--hairline); background: var(--paper-2); }
+.yardley-reset p { margin: 0 0 0.25rem; }
+.yardley-reset button + button { margin-left: 1.25rem; }
+.yardley-exchange { padding: 1.3rem 1.5rem 0; }
+.yardley-message { border-left: 2px solid var(--signal); padding-left: 1rem; overflow-wrap: anywhere; }
+.yardley-message p { margin: 0.35rem 0 0; color: var(--graphite); }
+.yardley-message--you { border-left-color: var(--hairline); }
+.yardley-earlier { margin-bottom: 1rem; }
+.yardley-earlier > summary { cursor: pointer; color: var(--steel); font-size: 0.85rem; }
+.yardley-earlier .yardley-message { margin-block: 1rem; }
+.yardley-question { padding: 1.5rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
+.yardley-question-title { font-size: clamp(1.7rem, 3vw, 2.25rem); line-height: 1.1; }
+.yardley-question > p { margin: 0.8rem 0 1rem; color: var(--graphite); }
+.yardley-answer-form { margin-top: 1rem; }
+.yardley-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+.yardley-choice { position: relative; min-height: 3.5rem; text-align: left; padding: 0.8rem 1rem; border: 1px solid var(--hairline); background: var(--paper); color: var(--ink); border-radius: 0; line-height: 1.25; cursor: pointer; }
+.yardley-choice > span { display: block; font-weight: 500; }
+.yardley-choice > small { display: block; color: var(--steel); line-height: 1.3; font-size: 0.8125rem; margin-top: 0.3rem; }
+.yardley-choice:hover { background: var(--paper-2); border-color: var(--graphite); }
+.yardley-choice[aria-pressed='true'] { border-color: var(--ink); border-left: 3px solid var(--signal); background: var(--paper-2); }
+.yardley-answer-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem 1.5rem; margin-top: 1.25rem; }
+.yardley .btn { min-height: 2.9rem; font-size: 0.9rem; padding: 0.8rem 1.1rem; }
+.yardley input, .yardley select, .yardley textarea { width: 100%; min-width: 0; background: var(--paper); color: var(--ink); border: 1px solid var(--hairline); border-radius: 0; padding: 0.8rem; font: inherit; font-size: 1rem; line-height: 1.4; }
+.yardley textarea { resize: vertical; scroll-margin-top: calc(var(--header-h) + 1rem); }
+.yardley textarea::placeholder { color: var(--steel); }
+.yardley label { display: block; font-size: 0.875rem; color: var(--graphite); font-weight: 500; margin-bottom: 0.4rem; }
+.yardley-field { min-width: 0; margin-bottom: 1rem; }
+.yardley-input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
+.yardley-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.yardley-chip { font-size: 0.9rem; padding: 0.35rem 0.7rem; border: 1px solid var(--hairline); border-radius: 0; background: var(--paper-2); color: var(--ink); cursor: pointer; }
+.yardley-composer { border-top: 1px solid var(--hairline); padding: 1rem 1.5rem; background: var(--paper-2); }
+.yardley-composer-row { display: flex; align-items: stretch; gap: 0.65rem; }
+.yardley-composer textarea { flex: 1; }
+.yardley-composer .btn { align-self: flex-end; flex: none; }
+.yardley-composer p { margin: 0.5rem 0 0; color: var(--steel); font-size: 0.8rem; line-height: 1.4; }
+.yardley-status { padding-inline: 1.5rem; font-size: 0.9rem; color: var(--graphite); }
+.yardley-status:empty { margin: 0; }
+.yardley-sidebar { position: sticky; top: calc(var(--header-h) + 1rem); min-width: 0; }
+.yardley-summary { background: var(--paper-2); border: 1px solid var(--hairline); }
+.yardley-summary > summary { padding: 1rem 1.25rem; cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 1.25rem; }
+.yardley-summary-toggle { float: right; font-family: var(--body); font-weight: 400; font-size: 0.75rem; margin-top: 0.3rem; }
+.yardley-summary-body { border-top: 1px solid var(--hairline); padding: 0.25rem 1.25rem 1.25rem; max-height: calc(100dvh - var(--header-h) - 8rem); overflow-y: auto; scrollbar-gutter: stable; }
+.yardley-summary-row { border-top: 1px solid var(--hairline); padding-block: 0.55rem; }
+.yardley-summary dt { font-size: 0.75rem; color: var(--steel); font-family: var(--display); text-transform: uppercase; letter-spacing: 0.1em; }
+.yardley-summary dd { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 0; font-size: 0.9rem; line-height: 1.35; }
+.yardley-summary dd span { overflow-wrap: anywhere; }
+.yardley-summary dd button { font-size: 0.75rem; flex: none; }
+.yardley-summary .btn { width: 100%; }
+.yardley-paul { font-size: 0.9rem; color: var(--graphite); padding-inline: 1.25rem; line-height: 1.55; }
+.yardley-paul a { color: var(--ink); text-underline-offset: 4px; }
+.yardley-paul span { font-size: 0.8rem; }
+.yardley-results, .yardley-review { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--hairline); }
+.yardley-section-head { display: flex; justify-content: space-between; gap: 2rem; align-items: end; margin-bottom: 1.5rem; }
+.yardley-section-head h2 { font-size: clamp(2rem, 4vw, 3rem); scroll-margin-top: calc(var(--header-h) + 1rem); }
+.yardley-section-head > p { max-width: 37ch; color: var(--graphite); font-size: 0.9375rem; margin: 0; }
+.yardley-section-head .eyebrow { margin-bottom: 0.75rem; }
+.yardley-fit-status { font-size: 1.15rem; font-weight: 500; }
+.yardley-reason-list { display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; list-style: none; padding: 0; margin: 0 0 1.5rem; color: var(--graphite); font-size: 0.9rem; }
+.yardley-reason-list li { max-width: 48ch; }
+.yardley-reason-list li::before { content: '/'; color: var(--signal-deep); padding-right: 0.5rem; }
+.yardley-models { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.yardley-model h3 { font-size: 2.5rem; }
+.yardley-model .model-image { height: 12.5rem; aspect-ratio: auto; object-fit: contain; }
+.yardley-model .card-link { margin-top: 1rem; font-size: 0.85rem; }
+.yardley-comparison { font-size: 1.05rem; color: var(--graphite); max-width: 90ch; margin-block: 1.5rem; }
+.yardley-qualifications { max-width: 90ch; }
+.yardley-qualifications h3, .yardley-review h3 { font-size: 1.35rem; margin-top: 1.5rem; }
+.yardley-notice { border-left: 2px solid var(--signal); background: var(--paper-2); padding: 0.75rem 1rem; color: var(--graphite); }
+.yardley-open-questions { padding-left: 1.25rem; color: var(--graphite); }
+.yardley-open-questions li { margin-bottom: 0.5rem; }
+.yardley-proposals { padding-left: 1.25rem; overflow-wrap: anywhere; }
+.yardley-option-help { margin-bottom: 1rem; font-size: 0.9rem; color: var(--graphite); }
+.yardley-option-help summary { cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+.yardley-option-help h3 { font-size: 1.2rem; margin-top: 1rem; }
+.yardley-option-help p { margin-block: 0.4rem; }
+.yardley-review-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.5fr); gap: 2rem; }
+.yardley-review-row { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr) auto; align-items: baseline; gap: 1rem; border-bottom: 1px solid var(--hairline); padding-block: 0.6rem; }
+.yardley-review-row dt { font-size: 0.875rem; color: var(--steel); }
+.yardley-review-row dd { margin: 0; overflow-wrap: anywhere; }
+.yardley-review-notes p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.yardley-review-actions { padding: 1.5rem; background: var(--paper-2); align-self: start; border-top: 2px solid var(--signal); }
+.yardley-review-actions > p:first-child { margin-top: 0; }
+.yardley-review-actions .btn { display: flex; justify-content: center; margin-bottom: 0.8rem; width: 100%; }
+@media (max-width: 900px) {
+  .yardley-workspace, .yardley-review-grid { grid-template-columns: minmax(0, 1fr); }
+  .yardley-sidebar { position: static; grid-row: 1; }
+  .yardley-summary-body { max-height: none; overflow: visible; }
+  .yardley-summary > summary { padding-block: 0.8rem; }
+  .yardley-text-button { min-height: 2.75rem; display: inline-flex; align-items: center; }
+  .yardley-paul { display: none; }
+  .yardley-entry-inner { flex-wrap: wrap; gap: 0.75rem 1rem; }
+  .yardley-entry-inner > div { flex-basis: calc(100% - 4rem); }
+  .yardley-entry .card-link { margin-left: 4rem; }
 }
-.guide-desk .plate-grid { grid-template-columns: 1fr; }
-.guide-q {
-  font-size: var(--step-3);
-  text-transform: uppercase;
-  max-width: 18ch;
-  margin: 0 0 1.25rem;
+@media (max-width: 620px) {
+  .yardley { padding-top: 1.5rem; }
+  .yardley-intro { display: block; margin-bottom: 1.5rem; }
+  .yardley-identity { margin-bottom: 1rem; }
+  .yardley-intro h1 { font-size: 2.6rem; }
+  .yardley-intro > p { font-size: 1.05rem; margin-block: 0.75rem; }
+  .yardley-identity .yardley-label > span { display: block; margin-left: 0; }
+  .yardley-panel-head { flex-wrap: wrap; padding: 0.7rem 1rem; }
+  .yardley-panel-head .yardley-label { font-size: 0.75rem; }
+  .yardley-panel-head > div { gap: 0.8rem; }
+  .yardley-question, .yardley-exchange, .yardley-composer { padding-inline: 1rem; }
+  .yardley-choices, .yardley-input-grid, .yardley-models { grid-template-columns: minmax(0, 1fr); }
+  .yardley-choice { min-height: 3rem; padding-block: 0.75rem; }
+  .yardley-composer-row { flex-wrap: wrap; }
+  .yardley-composer textarea { flex-basis: 100%; }
+  .yardley-composer .btn { width: 100%; }
+  .yardley-section-head { display: block; }
+  .yardley-section-head > p { margin-top: 1rem; }
+  .yardley-review-row { grid-template-columns: minmax(0, 1fr) auto; gap: 0 0.75rem; }
+  .yardley-review-row dt { grid-column: 1 / -1; }
+  .yardley-review-actions { padding: 1.25rem; }
+  .yardley-entry-inner { padding-block: 1.25rem; }
+  .yardley-entry .yardley-label > span { display: block; margin-left: 0; }
+  /* Keep the original navigation and active-page behavior; let the brand fit beside Menu. */
+  .site-header .header-inner { gap: 0.75rem; }
+  .site-header .brand { min-width: 0; flex: 1; gap: 0.65rem; }
+  .site-header .brand > span { min-width: 0; }
+  .site-header .brand-name { white-space: normal; display: block; max-width: 22ch; font-size: 0.75rem; letter-spacing: 0.2em; }
+  .site-header .brand br { display: none; }
+  .site-header .brand svg { width: 34px; height: 34px; }
+  .site-header .nav-toggle { flex: none; }
 }
-.guide-said,
-.guide-note {
-  margin: 0 0 1.5rem;
-  max-width: 42rem;
-  font-size: var(--step-1);
-  line-height: 1.45;
-  color: var(--ink);
-}
-.guide-choices { display: grid; gap: 0.75rem; }
-.guide-choice {
-  display: block;
-  width: 100%;
-  margin: 0;
-  text-align: left;
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--hairline);
-  border-radius: 0;
-  padding: 0.9rem 1rem;
-  cursor: pointer;
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: var(--step-1);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  line-height: 1.2;
-}
-.guide-choice:hover { background: var(--paper-2); }
-.guide-choice[aria-pressed="true"] {
-  border-color: var(--ink);
-  border-left: 3px solid var(--signal);
-}
-.guide-back[hidden],
-.guide-desk .step-n[hidden] {
-  display: none;
-}
-.guide-back {
-  display: inline-block;
-  margin: 0 0 1.25rem;
-  padding: 0 0 2px;
-  background: none;
-  border: 0;
-  border-bottom: 2px solid var(--signal-deep);
-  border-radius: 0;
-  color: var(--ink);
-  cursor: pointer;
-  font-family: var(--display);
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.guide-entry { margin: 1.25rem 0 0; }
-.quote-form .guide-entry { margin: 0 0 1.25rem; }
-.guide-form > .field + .field { margin-top: 1.25rem; }
-.guide-form fieldset {
-  border: 0;
-  margin: 1.75rem 0 0;
-  padding: 0;
-}
-.guide-form legend {
-  font-family: var(--display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--ink);
-  margin-bottom: 1rem;
-}
-.guide-call { margin: 1rem 0 0; }
-.guide-call a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 2px solid var(--signal-deep);
-}
-.guide-desk .step-n { margin-top: 1.75rem; }
-
 /* --------------------------------------------------------------------------
    Responsive
    -------------------------------------------------------------------------- */
