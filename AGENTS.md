@@ -286,12 +286,13 @@ src/components/CtaBand.astro     heading + body props; default slot for buttons;
                                  named `under` slot for WhatsApp + Spanish
 src/components/WhatsAppLink.astro official glyph + generic wa.me href
 src/components/QuoteForm.astro   branched quote form (mixer / parts / sourcing)
+src/components/YardleyEntry.astro shared discovery invitation, compact quote variant
 src/pages/*.astro                live routes (body content only)
 src/pages/api/lead.ts            Resend POST handler; prerender = false;
                                  From paul@equipsolutionsgroup.com
 src/pages/api/guide.ts           scripted v1/legacy job fit; prerender = false;
                                  grounded conversation planned for stage 4
-src/pages/job.astro              mixer guide desk
+src/pages/job.astro              Yardley conversational workspace, summary and review
 src/archive/swaploader.astro     un-routed; kept for /es/ later
 src/styles/site.css              the one stylesheet, tokens at the top
 src/scripts/site.js              dropdown nav, mobile panel, quote-form fetch
@@ -300,6 +301,7 @@ src/data/models.ts               StarMix lineup + manufacturer claims (source of
 src/data/options.ts              sourced options and owner-confirmed candidate compatibility
 src/data/yardley-job.ts           versioned job validation, answer provenance, legacy adapter
 src/lib/yardley/volume.ts         estimates from supplied customer dimensions only
+src/lib/yardley/intake.ts         scripted intake, text proposals, confirmation and summary
 src/data/applications.ts         type-of-work taxonomy (home, /starmix/, quote form, /job/)
 src/data/fit.ts                  deterministic mixer shortlist
 src/data/guide.ts                scripted lines for /job/
@@ -319,11 +321,11 @@ read from it. Do not put a figure on the page that is not in that file or `claim
 
 The owner approved replacing the fixed four-beat, closing-paragraph-only MVP with
 **Yardley**, a text-first AI mixer guide. These decisions supersede those older
-restrictions. The data and fitting foundations are implemented; interface and AI
-work remain pending as tracked in
+restrictions. The data/fitting foundations and scripted interface are implemented;
+the live AI connection and full reviewed email handoff remain pending as tracked in
 [the implementation checklist](docs/yardley-implementation-plan.md).
 
-`/job/` remains mixer-only and English only. Add a visible introduction immediately
+`/job/` remains mixer-only and English only. A shared invitation now sits immediately
 below the homepage hero and on `/starmix/`, plus the mixer quote-form link. Quote
 and Call stay primary; no third hero button. Use quick choices and a persistent
 text box, unknown answers, relevant followups and an editable job summary. Explain
@@ -364,8 +366,9 @@ critical model/spec/option/caveat content from application data. Use a small rev
 FAQ and structured lookup first; no vector RAG or live web search in release 1.
 Keep the scripted path usable when credentials are missing, generation fails or
 the budget is exhausted. Implement real spend/rate controls; budget is not yet set.
-During the rebuild, `/api/guide` is scripted only and supports both the current
-page's legacy request and version-1 job state. Do not restore the old regex-based
+During the rebuild, `/api/guide` is scripted only and supports both the retained
+legacy request and version-1 job state. The stage-3 page computes fit locally and
+makes no AI or guide-network call for a choice or text turn. Do not restore the old regex-based
 rephrase call: it could remove required qualifications. Stage 4 adds bounded,
 grounded conversation using the validated contract.
 
@@ -375,6 +378,15 @@ browser-supplied calculated totals are rejected. Daily quantity is not a peak
 placement quantity. `prepareYardleyBrief` prepares the new reviewed brief; its
 submission integration remains stage 5. Run `npm run check`, `npm test` and the
 build after material changes to these modules.
+
+Stage 3 is explicitly **guided mode**. Bounded text recognition proposes simple
+answers for visitor confirmation; it does not claim arbitrary question answering.
+Other text stays in editable notes for Paul. The summary and review share the same
+validated job state. Daily totals are preserved as notes when peak placement quantity
+is supplied. Back, edit and reset discard pending proposals; no stale request may
+overwrite a newer answer. The review currently offers Copy, Call and Quote, clearly
+stating that nothing has been sent. Do not map this richer brief into the legacy
+five-field payload or show a send success before stage 5 wires the versioned handoff.
 
 No application-side transcript persistence. Review provider logging separately.
 The visitor reviews a job brief before explicitly submitting to `/api/lead` with

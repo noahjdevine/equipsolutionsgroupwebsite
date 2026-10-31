@@ -1,4 +1,5 @@
 ---
+import YardleyEntry from './YardleyEntry.astro';
 import { applications } from '../data/applications';
 import { models } from '../data/models';
 import {
@@ -42,7 +43,7 @@ import {
 
   <fieldset class="branch branch--mixer" data-branch="mixer">
     <legend>The pour</legend>
-    <p class="guide-entry"><a class="card-link" href="/job/">Not sure which model?</a></p>
+    <YardleyEntry compact />
     <div class="form-grid">
       <div class="field field--full">
         <label for="applicationSlug">Type of work</label>

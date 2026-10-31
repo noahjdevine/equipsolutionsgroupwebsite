@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
 import { models, series } from '../data/models';
 import ApplicationsGrid from '../components/ApplicationsGrid.astro';
+import YardleyEntry from '../components/YardleyEntry.astro';
 ---
 
 <BaseLayout
@@ -20,6 +21,8 @@ import ApplicationsGrid from '../components/ApplicationsGrid.astro';
       </div>
     </div>
   </section>
+
+  <YardleyEntry />
 
   <section class="section">
     <div class="wrap">
@@ -47,7 +50,6 @@ import ApplicationsGrid from '../components/ApplicationsGrid.astro';
         <p class="eyebrow">Representative models</p>
         <h2>Output sized to the work</h2>
         <p>Figures below are manufacturer-published for representative units. Configurations vary by chassis, market and options &mdash; every quote confirms the exact build.</p>
-        <p class="guide-entry"><a class="card-link" href="/job/">Not sure which model?</a></p>
       </div>
 
       <div class="plate-grid plate-grid--3">

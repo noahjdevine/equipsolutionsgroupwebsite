@@ -17,18 +17,19 @@ below are intentional and do not imply that those modules already exist.
   project instructions and README.
 - [x] 1. Reconcile model facts, options and manufacturer images.
 - [x] 2. Build validated job state, quantity estimates and deterministic fitting.
-- [ ] 3. Build the Yardley interface and entry points using scripted responses.
+- [x] 3. Build the Yardley interface and entry points using scripted responses.
 - [ ] 4. Connect grounded conversation and enforce spend controls.
 - [ ] 5. Complete the visitor-reviewed handoff to Paul.
 - [ ] 6. Verify the full flow locally and in a Vercel preview, then release.
 
-Stages 1 and 2 are implemented locally: sourced model/options/image data, validated
-version-1 job state, customer-dimension estimates and deterministic fit with option,
-mount and rate constraints. The existing page uses a transitional adapter; the
-new conversation interface, AI connection, budget settings and full reviewed-brief
-submission remain pending. The guide endpoint is deliberately scripted until
-stage 4 so generated prose cannot remove authoritative qualifications. These
-stages form a feature-branch review checkpoint; production release remains pending.
+Stages 1–2 were merged through PR #2 (`c6bda04`). Stage 3 is implemented locally
+on `codex/yardley-interface`: shared entries, the conversational workspace,
+quick choices and text proposals, editable summary, estimates, model comparisons
+and a copyable review brief. The AI connection, budget settings and full reviewed-brief
+submission remain pending. Guided mode uses local deterministic fit and makes
+no AI/network call per turn. The retained guide endpoint is scripted until stage 4
+so generated prose cannot remove authoritative qualifications. Stage 3 has not
+been committed, pushed or deployed by this implementation turn.
 Evidence is recorded in [the verification log](yardley-verification.md).
 
 Work in this order, with a reviewable diff and relevant checks at each stage.
@@ -234,35 +235,48 @@ all fitting and geometry tests pass; the existing quote branch still validates.
 
 ## 3. Yardley interface and discovery
 
-- [ ] **`src/components/YardleyEntry.astro` — new.** One shared, compact intro
+- [x] **`src/components/YardleyEntry.astro` — new.** One shared, compact intro
   module with consistent name, AI label, value statement and `/job/` link. Adapt
   density by placement rather than duplicating copy and markup.
-- [ ] **`src/pages/index.astro` — existing.** Place the approved introduction
+- [x] **`src/pages/index.astro` — existing.** Place the approved introduction
   below the hero, preserving Quote/Call hierarchy and StarMix's visual priority.
-- [ ] **`src/pages/starmix.astro` — existing, entry pass.** Add the matching
+- [x] **`src/pages/starmix.astro` — existing, entry pass.** Add the matching
   visible invitation. Avoid repeating the same invitation several times within
   one viewport.
-- [ ] **`src/components/QuoteForm.astro` — existing.** Update the mixer-only
+- [x] **`src/components/QuoteForm.astro` — existing.** Update the mixer-only
   guide entry to Yardley; preserve parts/sourcing behavior and existing form IDs.
-- [ ] **`src/pages/job.astro` — existing.** Replace the narrow fixed four-beat
+- [x] **`src/pages/job.astro` — existing.** Replace the narrow fixed four-beat
   desk with the conversational workspace, quick choices, persistent text composer,
   editable summary, provisional recommendation/comparison plates, required options,
   unresolved questions, and a review/contact step. Desktop summary beside the
   exchange; mobile summary in an accessible disclosure. Preserve one H1, labels,
   footer disclaimer, phone access and a working scripted path without AI service.
-- [ ] **`src/scripts/job.ts` — existing.** Manage one validated job state shared
+- [x] **`src/scripts/job.ts` — existing.** Manage one validated job state shared
   by choices, typing and summary edits. Ask only useful followups; support back,
   change and reset. Confirm inferred details before relying on them. Cancel or
   invalidate stale requests and prevent duplicate submits. Do not make an AI call
   on every checkbox toggle. Render text safely without arbitrary model HTML.
   Keep answers on recoverable errors and provide an honest retry path.
-- [ ] **`src/styles/site.css` — existing.** Replace the guide block with scoped
+- [x] **`src/styles/site.css` — existing.** Replace the guide block with scoped
   Yardley styles using existing tokens. Handle long messages, plates, summary,
   composer and mobile keyboards at 360px. Keep square corners, readable body
   type, focus rings, reduced-motion behavior and restrained signal accents.
-- [ ] **`src/components/SiteHeader.astro` / `src/styles/site.css` — existing,
+- [x] **`src/styles/site.css` — existing,
   isolated responsive repair.** Fix the observed 360px header overflow without
-  changing nav structure or accidentally enabling the undecided active underline.
+  changing nav structure or its existing active-page behavior. The actual header
+  already carried `nav-link`; this repair changes only mobile sizing in CSS.
+
+Implementation also adds `src/lib/yardley/intake.ts` and `tests/yardley/intake.test.ts`
+for scripted followups, confirmed text proposals, quantity scope and summary rules.
+Guide-only application quantity prompts now address the visitor directly. History
+is bounded and kept in memory. Fits update only from confirmed answers; there are
+no asynchronous guide requests to race in this stage. Clipboard copying takes a
+snapshot, prevents duplicate attempts and reports blocked-copy failures honestly.
+
+The new review is Copy / Call / Quote, with an explicit “not sent” statement.
+It does not send the richer brief through the legacy lead contract. Stage 5 adds
+the actual reviewed-brief submission and receipt; the ordinary quote form continues
+to use its existing Resend endpoint. Do not treat stage 3 as the completed handoff.
 
 **Done when:** a novice can describe a job without knowing yardage, an experienced
 buyer can supply details quickly, both can edit the summary, and all entry paths

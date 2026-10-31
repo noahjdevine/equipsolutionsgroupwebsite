@@ -25,7 +25,7 @@ export const applications: Application[] = [
     guide: {
       subtypes: ['Deck overlay', 'Bridge repair', 'Scattered patches'],
       questions: ['Is this a continuous overlay or separate repairs?', 'Does the specified mix require latex?', 'What placement window and material-replenishment plan apply?'],
-      quantityHelp: 'Use the planned area and specified overlay depth. If either is unknown, keep the quantity open for Paul.',
+      quantityHelp: 'Have the planned area and specified overlay depth? We can estimate from those. If either is unknown, leave the quantity open for Paul.',
     },
   },
   {
@@ -35,7 +35,7 @@ export const applications: Application[] = [
     guide: {
       subtypes: ['Small repairs', 'Continuous placement', 'Lane-closure work'],
       questions: ['What specified mix or repair material will you use?', 'How much must be placed in the available window?', 'Can materials be replenished during placement?'],
-      quantityHelp: 'Use supplied repair dimensions or the plan quantity. Ask about placement time separately from the lane-reopening deadline.',
+      quantityHelp: 'Use the repair dimensions or the quantity on the plans. Next we’ll look at placement time separately from the lane-reopening deadline.',
     },
   },
   {
@@ -45,7 +45,7 @@ export const applications: Application[] = [
     guide: {
       subtypes: ['Pool shells only', 'Pools and flatwork', 'Retaining walls', 'Slope stabilization'],
       questions: ['Will you use wet-mix shotcrete, dry-mix gunite, or are you unsure?', 'What pump or gun/feed setup will the crew use?', 'Are fibers required, and do you need a feeder or chopper?'],
-      quantityHelp: 'Ask for plan quantities and the feed setup. Do not infer pool-shell material from water volume or outside pool dimensions.',
+      quantityHelp: 'For a pool shell, use the material quantity on the plans. Water volume and outside pool dimensions do not tell us how much shell material you need. Unsure? Leave it open for Paul.',
     },
   },
   {
@@ -55,7 +55,7 @@ export const applications: Application[] = [
     guide: {
       subtypes: ['Sidewalks and curbs', 'Road repairs', 'Several small stops'],
       questions: ['What is the largest single stop on a busy day?', 'Is this standard concrete or a specified repair mix?', 'Where can the crew reload between stops?'],
-      quantityHelp: 'Use supplied lengths and cross sections for simple work. Keep per-stop quantity separate from total daily quantity.',
+      quantityHelp: 'Think of your biggest stop, rather than the whole day. For simple curb work, a length and known cross-section area can help estimate the quantity.',
     },
   },
   {
@@ -65,7 +65,7 @@ export const applications: Application[] = [
     guide: {
       subtypes: ['Pads and foundations', 'Road repairs', 'Sprayed concrete'],
       questions: ['What is the largest uninterrupted placement?', 'What placement or feed rate does the crew need?', 'How will aggregates, cement and water reach the site?'],
-      quantityHelp: 'Use supplied plan quantities or simple pad dimensions. A remote location alone does not establish a quantity or require the largest model.',
+      quantityHelp: 'Use the plan quantity or dimensions of a simple pad. We’ll look at the biggest uninterrupted placement and how materials reach the site.',
     },
   },
   {
@@ -75,7 +75,7 @@ export const applications: Application[] = [
     guide: {
       subtypes: ['Driveways', 'Sidewalks', 'Patios', 'Larger slabs and foundations'],
       questions: ['What kind of work will you do most often?', 'What is the largest typical job?', 'Do you prefer a towable unit or a truck-mounted mixer?'],
-      quantityHelp: 'For a rectangular slab, ask for length, width and the specified thickness. Never assume thickness or a waste allowance.',
+      quantityHelp: 'No yardage yet? For a rectangular slab, enter length, width and the specified thickness. If you don’t know the thickness, leave the quantity open for Paul.',
     },
   },
 ];

@@ -1,5 +1,83 @@
 # Yardley verification log
 
+## Stage 3 — October 28, 2026
+
+Story: the visitor can start with the work rather than a model number, use quick
+choices or a persistent text composer, confirm recognized text details, edit the
+same job summary, compare provisional machines and review a copyable brief.
+The interface is explicitly **guided mode** until the live conversation service
+is implemented in stage 4. This is a local implementation checkpoint.
+
+### Checks completed
+
+- `npm test`: **47 passed, 0 failed**. Eight new intake tests cover confirmation,
+  negation/hypotheticals, ambiguous quantities, daily versus placement/rate scope,
+  process/feed/air followups, preserved daily context, unknown answers, calculated
+  summary labels and validation. The existing 39 contract/fit/volume/API tests pass.
+- `npm run check`: passed for strict TS modules/tests. `npm run build`: passed
+  for Astro pages, `/job/`, marketing entries and Vercel server output. The existing
+  local Node 26 / deployment Node 24 warning remains; this does not establish a
+  deployed runtime check.
+- Browser beginner flow: small-pour → patios → standard → dimensions. Supplied
+  18 × 18 feet and specified 4 inches gives **≈ 4 yd³, calculated**, retaining inputs
+  in the summary/review and no added waste allowance. Fit is 327 K / 425 S.
+  Placement time, replenishment, mount, weekly use, timeline and options can all
+  be supplied with controls. No model or email request is made by the intake UI.
+- Browser typed flow: bridge overlays + latex + 8 yd³ per placement first shows
+  a confirmation, with the saved summary still unknown and no machine selected.
+  Confirming yields 750 L / 850 S with latex dosing and chassis qualifications.
+  Discarding a subsequent typed correction preserves the prior fit and retains
+  the visitor’s note for Paul. Enter sends; Shift + Enter adds a line.
+- Unknown/edit/back: changing the calculated placement quantity to unknown
+  removes both picks; Back restores the previous answer and comparison. Reset
+  requires a local confirmation and clears job, notes, recent exchanges and history.
+- Browser quantity scope: **40 yd³/day produces no automatic pick**. Adding a
+  separate 4 yd³ placement produces 327 K / 425 S, while the daily total stays in
+  brief notes. No daily total is silently relabeled as one placement.
+- Browser chopper flow: a small standard placement with required fiber chopper
+  moves both picks to 750 L / 850 S and retains high-volume-air / possible-extra-tank
+  copy. Missing air produces an explicit configuration-review label even when a
+  provisional base machine is shown. Dry-mix gunite produces configuration review
+  without automatically naming a machine.
+- Browser responsive checks at **360 × 800** and default **1280 × 712**: no page
+  horizontal overflow; header brand and Menu fit; mobile summary starts closed,
+  opens with its native disclosure and supports editing. Desktop summary starts
+  open. Actual header links already had `nav-link`; no active-state change was made.
+  Emulation checks layout, not a physical phone or soft keyboard certification.
+- Keyboard checks: mobile Menu opens and Escape closes it; “Type instead” moves
+  focus to the composer with a visible focus ring. Advancing/editing focuses the
+  current question. Disclosure and form controls retain native semantics.
+- Long text: a long unbroken note plus literal `<img ... onerror=...>` remains
+  visible text in the review, creates no injected element and causes no mobile
+  overflow. Visitor text is rendered through `textContent`, never generated HTML.
+- Review copy: the clipboard contains job fields, supplied dimensions/formula,
+  notes, provisional fit, reasons and unresolved questions. Copy is explicit;
+  the UI says details have **not been sent**. Existing Quote / Call links remain.
+- Entry checks: Home and StarMix each render one matching invitation to `/job/`.
+  The compact quote entry appears only for mixers and hides for parts/sourcing;
+  those existing branches are still usable and their validation tests pass.
+- `git diff --check`: passed. PR #2 is verified merged at `c6bda04`; stage 3 was
+  placed on local `codex/yardley-interface` from that identical-content baseline.
+  No stage-3 commit, push, PR or deployment was created.
+
+Screenshots: [desktop workspace](screenshots/yardley-workspace-stage3.jpg),
+[360px workspace](screenshots/yardley-mobile-stage3.jpg), and
+[configuration comparison](screenshots/yardley-comparison-stage3.jpg).
+
+### Remaining scope
+
+Stage 4 supplies grounded free-text interpretation/answers, provider/model
+verification and actual $20 monthly spend controls. This stage uses bounded
+recognition only and retains other text as notes. Stage 5 submits the reviewed
+versioned brief through `/api/lead` and adds the matching receipt; the new review
+does **not** flatten its data into the old five-field payload. It currently offers
+Copy / Call / Quote. The ordinary quote form continues using its existing Resend
+flow; no live test email was sent.
+
+Dependency audit remediation, provider-retention review, hosted-preview checks and
+the final release gate remain pending. No dependencies, secrets, Resend addresses,
+DNS, `noindex`, marketing claims or model figures were changed in stage 3.
+
 ## Stage 2 — October 28, 2026
 
 Story: customer-reported or calculated job details pass through one runtime
