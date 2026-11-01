@@ -1,11 +1,14 @@
 import { applications } from '../data/applications';
 import { fitJob } from '../data/fit';
 import { CAVEAT_COPY, QUESTION_COPY, REASON_COPY } from '../data/guide';
-import { models, modelById, binDisplay, productionDisplay, mountLabel } from '../data/models';
+import { modelById, binDisplay, productionDisplay, mountLabel } from '../data/models';
 import { mixerOptions } from '../data/options';
 import { MIX_TYPES, emptyJob, parseYardleyJob, reported, type YardleyJob } from '../data/yardley-job';
 import { calculateVolume, type VolumeInput } from '../lib/yardley/volume';
-import { applyJobPatch, confirmPatch, formatQuantity, nextStep, proposeFromText, quantityLabel, STEP_TITLES, summaryRows, type IntakeStep, type JobPatch } from '../lib/yardley/intake';
+import { applyJobPatch, confirmPatch, formatQuantity, nextStep, quantityLabel, STEP_TITLES, summaryRows, type IntakeStep, type JobPatch } from '../lib/yardley/intake';
+import { ConversationTransport } from '../lib/yardley/transport';
+import { scriptedConversation } from '../lib/yardley/replies';
+import type { ConversationInput, ConversationResponse } from '../data/yardley-conversation';
 
 // All visitor text is inserted with textContent. No transcript or job storage.
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = ''): HTMLElementTagNameMap[K] {
@@ -35,12 +38,15 @@ export function startGuide(): void {
   const notesInput = get<HTMLTextAreaElement>('[data-notes]');
   const summary = get<HTMLDetailsElement>('[data-summary]');
   const review = get('[data-review-panel]');
+  const transport = new ConversationTransport();
+  const sendButton = composer.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  let retryInput: ConversationInput | undefined;
   let job = emptyJob();
   let skipped = new Set<IntakeStep>();
   let editing: IntakeStep | undefined;
   let pending: JobPatch | undefined;
   let pendingText = '';
-  let messages: { who: 'You' | 'Yardley'; text: string }[] = [];
+  let messages: { who: 'You' | 'Yardley'; text: string; sources?: ConversationResponse['sources'] }[] = [];
   type Checkpoint = { job: YardleyJob; skipped: IntakeStep[]; editing?: IntakeStep; messages: typeof messages };
   const history: Checkpoint[] = [];
   const currentStep = () => editing ?? nextStep(job, skipped);
@@ -48,8 +54,25 @@ export function startGuide(): void {
     history.push({ job: structuredClone(job), skipped: [...skipped], editing, messages: [...messages] });
     if (history.length > 24) history.shift();
   };
-  const say = (who: 'You' | 'Yardley', text: string) => { messages.push({ who, text }); messages = messages.slice(-8); };
+  const say = (who: 'You' | 'Yardley', text: string, sources?: ConversationResponse['sources']) => { messages.push({ who, text, sources }); messages = messages.slice(-8); };
   const announce = (text: string) => { status.textContent = text; };
+
+  function setBusy(busy: boolean): void {
+    sendButton.disabled = busy;
+    composer.setAttribute('aria-busy', String(busy));
+    get('[data-cancel-reply]').hidden = !busy;
+  }
+  function invalidateConversation(): void {
+    transport.cancel(); setBusy(false); retryInput = undefined;
+    get('[data-retry-reply]').hidden = true;
+  }
+  function saveNote(text: string): boolean {
+    if (job.notes.split('\n').includes(text)) return true;
+    const parsed = parseYardleyJob({ ...job, notes: [job.notes, text].filter(Boolean).join('\n') });
+    if (!parsed.ok) { announce('Your notes are full. Shorten them in the summary before saving another note. This message is still in the recent conversation.'); return false; }
+    job = parsed.job; renderSummary();
+    return true;
+  }
 
   function focusQuestion(): void {
     question.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
@@ -58,6 +81,7 @@ export function startGuide(): void {
   function commit(patch: JobPatch, userLine: string, reply: string, markAnswered = true): boolean {
     const parsed = applyJobPatch(job, patch);
     if (!parsed.ok) { announce(parsed.errors.some((e) => e.field === 'notes') ? 'The brief notes are full. Shorten them in your summary so the daily total can be kept alongside this placement quantity.' : 'Please check that answer. Positive quantities and the stated units are required. Your saved details are still here.'); return false; }
+    invalidateConversation();
     checkpoint();
     if (markAnswered && currentStep()) skipped.add(currentStep()!);
     if (patch.quantity && patch.quantity.kind !== 'unknown' && 'scope' in patch.quantity && patch.quantity.scope !== 'placement') skipped.delete('quantity');
@@ -88,6 +112,7 @@ export function startGuide(): void {
     commit(clear[step], 'I’m not sure about that yet.', 'No problem. I’ll leave that open for Paul rather than fill in a guess.');
   }
   function edit(step: IntakeStep): void {
+    invalidateConversation();
     pending = undefined;
     pendingText = '';
     editing = step;
@@ -104,14 +129,26 @@ export function startGuide(): void {
     } else {
       const transcript = node('details', '', 'yardley-earlier');
       transcript.append(node('summary', `Conversation · ${Math.ceil(messages.length / 2)} recent exchanges`));
-      for (const msg of messages.slice(0, -1)) {
+      const messageNode = (msg: typeof messages[number]) => {
         const item = node('div', '', `yardley-message${msg.who === 'You' ? ' yardley-message--you' : ''}`);
         item.append(node('span', msg.who, 'yardley-label'), node('p', msg.text));
-        transcript.append(item);
-      }
-      const latest = node('div', '', 'yardley-message');
-      latest.append(node('span', 'Yardley', 'yardley-label'), node('p', messages.at(-1)!.text));
-      exchange.append(transcript, latest);
+        if (msg.who === 'You') item.append(button('Keep this as a note for Paul', () => { if (saveNote(msg.text)) announce('Message saved to your editable brief notes.'); }));
+        if (msg.sources?.length) {
+          const sources = node('details', '', 'yardley-sources');
+          sources.append(node('summary', 'Sources & configuration notes'));
+          for (const source of msg.sources) {
+            const line = node('p');
+            if (/^https:\/\/(starmixindustries\.com|docs\.google\.com)\//.test(source.url)) {
+              const link = node('a', source.title); link.href = source.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; line.append(link);
+            } else line.textContent = source.title;
+            sources.append(line);
+          }
+          item.append(sources);
+        }
+        return item;
+      };
+      for (const msg of messages.slice(0, -1)) transcript.append(messageNode(msg));
+      exchange.append(transcript, messageNode(messages.at(-1)!));
     }
   }
   function renderSummary(): void {
@@ -181,6 +218,7 @@ export function startGuide(): void {
     group.setAttribute('aria-labelledby', 'yardley-current-question');
     for (const choice of choices) {
       const option = button('', () => {
+        invalidateConversation();
         if (selected.has(choice.value)) selected.delete(choice.value); else selected.add(choice.value);
         option.setAttribute('aria-pressed', String(selected.has(choice.value)));
       }, 'yardley-choice');
@@ -201,7 +239,8 @@ export function startGuide(): void {
     const before = summaryRows(job);
     const list = node('ul', '', 'yardley-proposals');
     for (const row of summaryRows(proposed)) {
-      if (before.find((old) => old.label === row.label)?.value !== row.value && row.value !== 'Not sure yet') list.append(node('li', `${row.label}: ${row.value}`));
+      const old = before.find((entry) => entry.label === row.label);
+      if (old?.value !== row.value && (row.value !== 'Not sure yet' || old !== undefined)) list.append(node('li', `${row.label}: ${row.value}`));
     }
     question.append(list);
     const actions = node('div', '', 'yardley-answer-actions');
@@ -300,7 +339,7 @@ export function startGuide(): void {
       text.maxLength = 200;
       const chips = node('div', '', 'yardley-chips');
       const types = applications.filter((a) => reported(job.workTypes)?.includes(a.slug)).flatMap((a) => [...a.guide.subtypes]);
-      for (const subtype of [...new Set(types)]) chips.append(button(subtype, () => { text.value = subtype; text.focus(); }, 'yardley-chip'));
+      for (const subtype of [...new Set(types)]) chips.append(button(subtype, () => { invalidateConversation(); text.value = subtype; text.focus(); }, 'yardley-chip'));
       form.append(chips);
       formActions(form);
     } else if (step === 'mix') {
@@ -465,8 +504,39 @@ export function startGuide(): void {
     if (!review.hidden) renderReview();
   }
 
+  async function requestReply(input: ConversationInput): Promise<void> {
+    setBusy(true);
+    announce('Checking the job details…');
+    let response: ConversationResponse | undefined;
+    try { response = await transport.send(input); }
+    catch (error) {
+      response = scriptedConversation(input, error instanceof Error && error.message === 'session-limit' ? 'session-limit' : error instanceof Error && error.message === 'rate-limit' ? 'rate-limit' : 'provider');
+    }
+    if (!response) return;
+    setBusy(false);
+    retryInput = ['ok', 'session-limit', 'context-limit'].includes(response.reason) ? undefined : input;
+    get('[data-retry-reply]').hidden = !retryInput;
+    pending = Object.keys(response.proposal).length ? response.proposal : undefined;
+    pendingText = input.message;
+    if (!pending) editing = response.question ?? undefined;
+    say('Yardley', response.reply, response.sources);
+    const saved = !response.saveMessage || saveNote(input.message);
+    review.hidden = true;
+    render();
+    get('[data-ai-mode]').textContent = response.mode === 'ai' ? 'AI mixer guide · connected' : 'AI mixer guide · guided mode';
+    get('[data-connection-note]').textContent = response.mode === 'ai'
+      ? 'AI helps interpret your message. Confirm suggested details before they affect your fit.'
+      : response.reason === 'budget' ? 'AI has reached its spending limit. The guided choices and approved answers still work.'
+        : response.reason === 'session-limit' ? 'This conversation has reached its AI turn limit. Continue with the guided choices or review your brief.'
+          : response.reason === 'context-limit' ? 'The message and job history are too long for an AI reply. Continue with the guided choices or review your brief.'
+          : 'AI is unavailable right now. Your answers are still here; the guided choices and approved answers still work.';
+    focusQuestion();
+    announce(saved ? pending ? 'Check the suggested details before confirming.' : 'Reply ready. Your job details are still editable.' : 'Reply ready. The notes are full; this message is in the recent conversation.');
+  }
+
   composer.addEventListener('submit', (event) => {
     event.preventDefault();
+    if (transport.busy) { announce('A reply is already in progress. You can cancel it or keep answering with the choices.'); return; }
     if (pending) { announce('Confirm or discard the suggested changes before adding another message.'); focusQuestion(); return; }
     const text = messageInput.value.trim();
     if (!text) { announce('Type a question or job detail, or use the quick choices above.'); messageInput.focus(); return; }
@@ -475,44 +545,45 @@ export function startGuide(): void {
       skip();
       return;
     }
-    const notes = [job.notes, text].filter(Boolean).join('\n');
-    if (notes.length > 2000) { announce('Your brief notes are full. Shorten them in the job summary before adding more. Your message is still here.'); return; }
+    invalidateConversation();
     checkpoint();
-    job = { ...job, notes };
-    notesInput.value = notes;
+    const input: ConversationInput = {
+      version: 2, requestId: crypto.randomUUID(), job: structuredClone(job), message: text,
+      history: messages.slice(-6).map((message) => ({ role: message.who === 'You' ? 'user' : 'assistant', text: message.text.slice(0, 900) })),
+      skipped: [...skipped], step: currentStep() ?? null,
+    };
     messageInput.value = '';
     say('You', text);
-    if (/^(?:i\s*(?:don’t|don't|do not)\s*know|not sure|unsure|skip)[.!]?$/i.test(text)) {
-      if (currentStep()) skipped.add(currentStep()!);
-      editing = undefined;
-      say('Yardley', 'That’s fine. I’ll keep it open for Paul. You can change any answer in your summary.');
-    } else {
-      const patch = proposeFromText(text, currentStep());
-      if (Object.keys(patch).length) {
-        pending = patch;
-        pendingText = text;
-        say('Yardley', 'I’ve picked out a few details. Check them before I use them.');
-      } else {
-        const mentioned = models.filter((model) => text.toLowerCase().includes(model.name.toLowerCase()) || text.toLowerCase().includes(model.id.replace('-', '')));
-        const response = mentioned.length ? mentioned.slice(0, 2).map((m) => `${m.name}: ${binDisplay(m)} bin, ${productionDisplay(m)}, ${mountLabel(m).toLowerCase()}.`).join(' ') + ' These are published machine figures; Paul confirms job suitability and options.'
-          : /\b(bin|capacity|production|rate)\b/i.test(text) ? 'Bin capacity describes material carried; production describes mixing pace. Neither alone guarantees placement output. Your crew, mix, feed equipment and replenishment matter too.'
-            : 'I’ve kept that in your notes for Paul. In guided mode I can recognize simple job details, but I may need the choices below to understand the rest. You can leave anything uncertain open.';
-        say('Yardley', response);
-      }
-    }
-    review.hidden = true;
-    render();
-    focusQuestion();
+    renderExchange();
+    void requestReply(input);
+  });
+  const onDraftChange = () => {
+    const wasBusy = transport.busy;
+    invalidateConversation();
+    if (wasBusy) announce('Reply canceled because you’re changing job details. Your draft answer is still here.');
+  };
+  question.addEventListener('input', onDraftChange);
+  question.addEventListener('change', onDraftChange);
+  get('[data-cancel-reply]').addEventListener('click', () => {
+    invalidateConversation();
+    announce('Reply canceled. Your current answers and recent message are still here.');
+  });
+  get('[data-retry-reply]').addEventListener('click', () => {
+    if (transport.busy || !retryInput) return;
+    const input = { ...retryInput, requestId: crypto.randomUUID(), job: structuredClone(job), skipped: [...skipped], step: currentStep() ?? null };
+    void requestReply(input);
   });
   messageInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); composer.requestSubmit(); }
   });
   get('[data-type]').addEventListener('click', (event) => { event.preventDefault(); messageInput.focus(); });
   notesInput.addEventListener('input', () => {
+    invalidateConversation();
     const parsed = parseYardleyJob({ ...job, notes: notesInput.value });
     if (parsed.ok) { job = parsed.job; if (!review.hidden) renderReview(); }
   });
   get('[data-back]').addEventListener('click', () => {
+    invalidateConversation();
     const previous = history.pop();
     if (!previous) return;
     job = previous.job; skipped = new Set(previous.skipped); editing = previous.editing; messages = previous.messages;
@@ -522,6 +593,7 @@ export function startGuide(): void {
   get('[data-reset]').addEventListener('click', () => { get('[data-reset-confirm]').hidden = false; get<HTMLButtonElement>('[data-reset-no]').focus(); });
   get('[data-reset-no]').addEventListener('click', () => { get('[data-reset-confirm]').hidden = true; get('[data-reset]').focus(); });
   get('[data-reset-yes]').addEventListener('click', () => {
+    invalidateConversation();
     job = emptyJob(); skipped = new Set(); editing = undefined; pending = undefined; pendingText = ''; messages = []; history.length = 0;
     notesInput.value = ''; messageInput.value = ''; review.hidden = true; get('[data-reset-confirm]').hidden = true;
     render(); focusQuestion(); announce('Fresh job started.');

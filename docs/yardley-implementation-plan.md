@@ -1,6 +1,6 @@
 # Yardley — implementation checklist
 
-Updated: October 28, 2026. Owner: Equip Solutions Group. Applies to the local
+Updated: November 1, 2026. Owner: Equip Solutions Group. Applies to the local
 Astro repository used by both Codex and Cursor.
 
 ## Status and working order
@@ -18,18 +18,21 @@ below are intentional and do not imply that those modules already exist.
 - [x] 1. Reconcile model facts, options and manufacturer images.
 - [x] 2. Build validated job state, quantity estimates and deterministic fitting.
 - [x] 3. Build the Yardley interface and entry points using scripted responses.
-- [ ] 4. Connect grounded conversation and enforce spend controls.
+- [x] 4. Connect grounded conversation and enforce spend controls.
 - [ ] 5. Complete the visitor-reviewed handoff to Paul.
 - [ ] 6. Verify the full flow locally and in a Vercel preview, then release.
 
-Stages 1–2 were merged through PR #2 (`c6bda04`). Stage 3 is implemented locally
-on `codex/yardley-interface`: shared entries, the conversational workspace,
-quick choices and text proposals, editable summary, estimates, model comparisons
-and a copyable review brief. The AI connection, budget settings and full reviewed-brief
-submission remain pending. Guided mode uses local deterministic fit and makes
-no AI/network call per turn. The retained guide endpoint is scripted until stage 4
-so generated prose cannot remove authoritative qualifications. Stage 3 has not
-been committed, pushed or deployed by this implementation turn.
+Stages 1–2 were merged through PR #2 (`c6bda04`) and stage 3 through PR #3
+(`604908c`). Stage 4 is implemented locally on `codex/yardley-conversation`:
+bounded live planning, approved answer blocks, confirmed proposals, cancellation,
+scripted fallback and the real shared $20/month Gateway budget. Funded live calls
+and the protected Preview browser flow work. The owner reviewed traffic and
+published the Preview rule; a controlled test verified 60 requests admitted and
+the next five returned 429, with no AI calls. Local AI is enabled and verified.
+Stage 4 is the checkpoint on `codex/yardley-conversation`; review and merge its
+PR before starting stage 5. Global Production AI stays disabled until release
+and production rate-rule rollout.
+Reviewed-brief email submission remains stage 5.
 Evidence is recorded in [the verification log](yardley-verification.md).
 
 Work in this order, with a reviewable diff and relevant checks at each stage.
@@ -285,49 +288,58 @@ work. Contact remains available if the guide cannot recommend a configuration.
 
 ## 4. Grounded conversation and the $20 monthly budget
 
-- [ ] **`src/data/knowledge.ts` — new.** Reviewed short answers with stable fact
+- [x] **`src/data/knowledge.ts` — new.** Reviewed short answers with stable fact
   IDs, source references and allowed caveats: bin versus production, replenishment,
   mix/process terminology, wet/dry distinctions, options, model comparisons and
   Paul's role. Reference model/option records rather than copying their figures.
-- [ ] **`src/lib/yardley/conversation.ts` — new, server only.** Bound context and
+- [x] **`src/lib/yardley/conversation.ts` — new, server only.** Bound context and
   output, interpret free text into proposed schema changes, select relevant
   approved facts and next questions, and explain deterministic fit results. Model
   output is untrusted: validate structured fields and confirm uncertain inference.
   Render critical specs, required options and caveats from code, not generated
   prose. Replace the old regex-only “safe paragraph” check with structured
   constraints and approved answer blocks. No autonomous email tool or web search.
-- [ ] **`src/pages/api/guide.ts` — existing.** Replace the rewrite-only endpoint
+- [x] **`src/pages/api/guide.ts` — existing.** Replace the rewrite-only endpoint
   with the versioned conversation contract. Revalidate all inputs, recompute fit
   when needed, enforce body/message/context/output limits, request timeout and
   rate controls, and return a typed result or scripted fallback. Keep
   `prerender = false`. Handle missing key, invalid model output, timeout, budget
   exhaustion and provider failure without blocking the guided inquiry.
-- [ ] **`src/lib/yardley/limits.ts` — new, server only.** Centralize request,
+- [x] **`src/lib/yardley/limits.ts` — new, server only.** Centralize request,
   message and token bounds plus rate-limit policy. Use a deployment-capable shared
   mechanism or platform rule; per-process memory is not a global spend limit on
   serverless. Resolve the smallest suitable mechanism before this stage ships.
   Do not introduce a database just to store conversations. Deduplicate redundant
   client requests and bound model calls per turn/session where enforceable.
-- [ ] **`.env.example` — existing.** Document only server-side placeholders and
+- [x] **`.env.example` — existing.** Document only server-side placeholders and
   supported configuration, including the selected Gateway model and fallback.
   Never use `PUBLIC_` for credentials. Preserve the Resend variable. No secrets
   in source, browser bundles, examples, logs or the checklist.
-- [ ] **Local `.env` and Vercel environment settings — configuration, not tracked
+- [x] **Local `.env` and Vercel environment settings — configuration, not tracked
   source.** Configure the same documented model and required credentials in each
   environment. Verify scope for development/preview/production; do not assume
   local settings automatically propagate to Vercel. Never print credential values.
-- [ ] **Gateway project/key budget — account setting.** Isolate Yardley usage
+- [x] **Gateway project/key budget — account setting.** Isolate Yardley usage
   where supported, configure the approved $20 monthly limit and verify which
   workloads it covers. No unbudgeted paid fallback. Check provider/platform
   behavior: a budget can have a small in-flight overshoot, so describe it honestly.
   Ensure budget rejection reliably activates the scripted path.
-- [ ] **`tests/yardley/conversation.test.ts` — new.** Mock the provider for normal,
+- [x] **`tests/yardley/conversation.test.ts` — new.** Mock the provider for normal,
   malformed, delayed, canceled and over-budget responses. Verify supplied model
   IDs/specs/prices/availability/territory cannot override authoritative data.
-- [ ] **`tests/yardley/evals.json` — new.** Maintain realistic buyer prompts and
+- [x] **`tests/yardley/evals.json` — new.** Maintain realistic buyer prompts and
   required outcomes, including beginners, mixed work, unknown yards, gunite-only,
   latex, chopper, unsupported claims and attempts to override rules. Use the same
   set for a small bounded live-model evaluation; record date/model/spend summary.
+
+Implementation adds `src/data/yardley-conversation.ts` (runtime contracts),
+`src/lib/yardley/replies.ts` (approved answer rendering),
+`src/lib/yardley/transport.ts` (cancelable browser transport), its tests, and
+`scripts/yardley-eval.ts` (bounded paid checks). The limits module and budget are
+implemented; published Preview enforcement was verified with 60 admitted invalid
+requests followed by five 429 responses. Production activation remains stage 6.
+The live fixture run passed 11/12; the per-stop quantity case passed
+after a targeted prompt clarification. See the verification log for exact scope.
 
 **Done when:** conversational answers are useful and grounded; scripted controls
 still work with the model unavailable; the real workload has verified budget
@@ -414,6 +426,5 @@ Localhost reflects source changes through the development server, or after a
 restart if configuration/dependencies change. Preview and production change only
 through their deployment workflow. A checklist update does not publish the site.
 
-Next concrete stage: **section 3 — Yardley interface and discovery**. The new UI
-should consume the validated job state and structured fit reasons, questions and
-caveats, rather than maintaining separate selection rules.
+Next concrete work: **section 5's visitor-reviewed email handoff**. Do not treat Copy / Call / Quote
+as submission of the richer job brief.

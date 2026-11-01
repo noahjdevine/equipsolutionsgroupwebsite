@@ -6,7 +6,7 @@ import CtaBand from '../components/CtaBand.astro';
   <section class="yardley" data-yardley>
     <div class="wrap">
       <div class="yardley-intro">
-        <div class="yardley-identity"><span class="yardley-mark" aria-hidden="true">Y<span>/</span></span><p class="yardley-label">Yardley <span>AI mixer guide · guided mode</span></p></div>
+        <div class="yardley-identity"><span class="yardley-mark" aria-hidden="true">Y<span>/</span></span><p class="yardley-label">Yardley <span data-ai-mode>AI mixer guide</span></p></div>
         <h1>Let’s talk concrete.</h1>
         <p>Tell me what you build. We’ll work out the details, compare a starting point, and get your questions ready for Paul.</p>
         <div class="yardley-intro-meta"><span>No model numbers needed.</span><a href="tel:+15157200800">Rather talk? Call Paul ↗</a></div>
@@ -21,7 +21,9 @@ import CtaBand from '../components/CtaBand.astro';
           <form class="yardley-composer" data-composer>
             <label for="yardley-message">Tell me in your own words</label>
             <div class="yardley-composer-row"><textarea id="yardley-message" name="message" rows="2" maxlength="2000" placeholder="“I’m starting with driveways and patios…”" aria-describedby="yardley-text-help"></textarea><button class="btn" type="submit">Send <span aria-hidden="true">↗</span></button></div>
-            <p id="yardley-text-help">Guided mode recognizes simple job details for you to confirm. Other notes stay in your brief for Paul. Enter sends; Shift + Enter adds a line.</p>
+            <div class="yardley-reply-actions"><button class="yardley-text-button" type="button" data-cancel-reply hidden>Cancel reply</button><button class="yardley-text-button" type="button" data-retry-reply hidden>Retry AI reply</button></div>
+            <p id="yardley-text-help">Ask a question or describe the work. AI uses your messages and job details to help with this conversation. Enter sends; Shift + Enter adds a line.</p>
+            <p data-connection-note>Confirm suggested details before they affect the comparison. Guided choices are always available.</p>
           </form>
           <p class="yardley-status" data-status role="status" aria-live="polite" aria-atomic="true"></p>
         </div>

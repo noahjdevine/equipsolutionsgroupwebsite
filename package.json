@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "tsc --noEmit",
-    "test": "node --import tsx --test tests/yardley/*.test.ts"
+    "test": "node --import tsx --test tests/yardley/*.test.ts",
+    "eval:yardley": "node --env-file=.env --import tsx scripts/yardley-eval.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

@@ -687,6 +687,11 @@ table.specs tbody tr:hover { background: var(--paper-2); }
 .yardley-exchange { padding: 1.3rem 1.5rem 0; }
 .yardley-message { border-left: 2px solid var(--signal); padding-left: 1rem; overflow-wrap: anywhere; }
 .yardley-message p { margin: 0.35rem 0 0; color: var(--graphite); }
+.yardley-message > p { white-space: pre-wrap; }
+.yardley-sources { margin-top: 0.65rem; font-size: 0.8rem; color: var(--steel); }
+.yardley-sources summary { cursor: pointer; }
+.yardley-reply-actions { display: flex; gap: 1rem; }
+.yardley .btn:disabled { cursor: wait; }
 .yardley-message--you { border-left-color: var(--hairline); }
 .yardley-earlier { margin-bottom: 1rem; }
 .yardley-earlier > summary { cursor: pointer; color: var(--steel); font-size: 0.85rem; }
