@@ -290,8 +290,8 @@ src/components/YardleyEntry.astro shared discovery invitation, compact quote var
 src/pages/*.astro                live routes (body content only)
 src/pages/api/lead.ts            Resend POST handler; prerender = false;
                                  From paul@equipsolutionsgroup.com
-src/pages/api/guide.ts           scripted v1/legacy job fit; prerender = false;
-                                 grounded conversation planned for stage 4
+src/pages/api/guide.ts           v2 grounded conversation; v1/legacy scripted fit;
+                                 prerender = false; live activation is gated
 src/pages/job.astro              Yardley conversational workspace, summary and review
 src/archive/swaploader.astro     un-routed; kept for /es/ later
 src/styles/site.css              the one stylesheet, tokens at the top
@@ -302,6 +302,12 @@ src/data/options.ts              sourced options and owner-confirmed candidate c
 src/data/yardley-job.ts           versioned job validation, answer provenance, legacy adapter
 src/lib/yardley/volume.ts         estimates from supplied customer dimensions only
 src/lib/yardley/intake.ts         scripted intake, text proposals, confirmation and summary
+src/data/knowledge.ts             approved answer blocks and source references
+src/data/yardley-conversation.ts  v2 runtime contracts; no SDK/credential imports
+src/lib/yardley/conversation.ts   server-only structured model planner
+src/lib/yardley/limits.ts         server request policy and configuration gate
+src/lib/yardley/replies.ts        application-owned answers and offline fallback
+src/lib/yardley/transport.ts      bounded, cancelable browser requests
 src/data/applications.ts         type-of-work taxonomy (home, /starmix/, quote form, /job/)
 src/data/fit.ts                  deterministic mixer shortlist
 src/data/guide.ts                scripted lines for /job/
@@ -322,7 +328,10 @@ read from it. Do not put a figure on the page that is not in that file or `claim
 The owner approved replacing the fixed four-beat, closing-paragraph-only MVP with
 **Yardley**, a text-first AI mixer guide. These decisions supersede those older
 restrictions. The data/fitting foundations and scripted interface are implemented;
-the live AI connection and full reviewed email handoff remain pending as tracked in
+stage 4's live connection, funding, shared budget and Preview rate enforcement
+are implemented and verified. Local and protected Preview AI calls work;
+Production activation remains a release gate and the reviewed email handoff
+remains stage 5, as tracked in
 [the implementation checklist](docs/yardley-implementation-plan.md).
 
 `/job/` remains mixer-only and English only. A shared invitation now sits immediately
@@ -358,19 +367,26 @@ Owner-confirmed October 28, 2026:
   source URLs; no invented machine imagery.
 
 The approved model connection is `openai/gpt-6-luna` through the existing Gateway,
-subject to availability verification at implementation, with a $20 monthly AI
-budget. `/api/guide` may interpret answers, ask followups and explain deterministic
+verified in the live catalog November 1, 2026, with a $20 monthly AI
+budget on the dedicated shared Gateway key. `/api/guide` may interpret answers, ask followups and explain deterministic
 fit using validated job state and approved facts. The model cannot choose the unit,
 invent specs, prices, availability, lead times or territory, or send email. Render
 critical model/spec/option/caveat content from application data. Use a small reviewed
 FAQ and structured lookup first; no vector RAG or live web search in release 1.
 Keep the scripted path usable when credentials are missing, generation fails or
-the budget is exhausted. Implement real spend/rate controls; budget is not yet set.
-During the rebuild, `/api/guide` is scripted only and supports both the retained
-legacy request and version-1 job state. The stage-3 page computes fit locally and
-makes no AI or guide-network call for a choice or text turn. Do not restore the old regex-based
-rephrase call: it could remove required qualifications. Stage 4 adds bounded,
-grounded conversation using the validated contract.
+the budget is exhausted. The real $20 monthly key budget is set and verified; it
+is a Gateway soft cap and in-flight requests can finish after the threshold.
+The shared key counts local and hosted usage together. No OIDC, direct-provider,
+BYOK or alternate-model fallback may bypass it. Live AI stays disabled until
+billing and published rate controls are verified. See
+[AI operations](docs/yardley-operations.md) for the actual activation state.
+
+`/api/guide` accepts version-2 conversation and retains v1/legacy scripted fit.
+Each submitted text turn makes at most one SDK call (no retries or tools), with
+bounded context/output/deadlines. Choices compute fit locally and do not call AI.
+The model selects approved fact IDs/questions and proposes evidence-backed job
+updates; the application writes the actual answer blocks, model comparisons,
+specifications and critical caveats. Do not restore a regex-only rephrase guard.
 
 Job state distinguishes unknown, customer-reported and proposed answers. Proposed
 answers cannot drive fitting until confirmed. Estimates are computed from inputs;
@@ -379,12 +395,14 @@ placement quantity. `prepareYardleyBrief` prepares the new reviewed brief; its
 submission integration remains stage 5. Run `npm run check`, `npm test` and the
 build after material changes to these modules.
 
-Stage 3 is explicitly **guided mode**. Bounded text recognition proposes simple
-answers for visitor confirmation; it does not claim arbitrary question answering.
-Other text stays in editable notes for Paul. The summary and review share the same
+Guided mode remains the fallback. With AI available, the structured planner can
+interpret free text; it cannot emit arbitrary business claims or select a machine.
+In either mode, suggestions require visitor confirmation. Unrecognized text can
+stay in editable notes for Paul; factual questions and confirmed structured details
+are not automatically a full transcript in the brief. The summary and review share the same
 validated job state. Daily totals are preserved as notes when peak placement quantity
 is supplied. Back, edit and reset discard pending proposals; no stale request may
-overwrite a newer answer. The review currently offers Copy, Call and Quote, clearly
+overwrite a newer answer. Draft changes cancel a pending reply too. The review currently offers Copy, Call and Quote, clearly
 stating that nothing has been sent. Do not map this richer brief into the legacy
 five-field payload or show a send success before stage 5 wires the versioned handoff.
 

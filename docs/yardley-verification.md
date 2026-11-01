@@ -1,5 +1,91 @@
 # Yardley verification log
 
+## Stage 4 — November 1, 2026 — complete locally and in protected Preview
+
+Story: a typed question now reaches a bounded server-side model planner. The
+application renders approved factual answer blocks; proposed job changes still
+require visitor confirmation before deterministic fitting can use them.
+
+### Verified
+
+- `npm run check`, `npm test` and `npm run build` pass: **68 tests, zero failures**.
+  Added checks cover supported provider JSON schemas, grounded comparisons,
+  unconfirmed proposals, invented numeric/text inputs, missing configuration,
+  budget/rate/provider failures, deadlines/cancellation, context bounds and stale
+  browser requests. Ordinary tests inject a fake provider and incur no AI/email use.
+- Exact model `openai/gpt-6-luna` is available in the live Gateway catalog. The
+  dedicated **Yardley shared monthly** key has a verified active **$20 monthly**
+  budget and no direct-provider/BYOK fallback. The owner funded Gateway credits;
+  the initial zero-credit HTTP 403 is resolved. Budget inspection after early
+  evaluations reported $0.009242605 spent; subsequent checks add a small amount.
+- All five AI settings are configured separately for Development, Preview and
+  Production. Local `.env` contains the same dedicated key. Keys are Secret on
+  Vercel and ignored locally; Resend settings are preserved. Global AI switches
+  remain false; the protected test deployment has an enable override. Local AI
+  is enabled after account/rate verification. Production false was independently
+  verified with the hosted environment, outside the local `.env` directory.
+- Twelve synthetic buyer scenarios: **11 passed, one interpretation failure**
+  in the final full run (reported Gateway cost $0.0012919). The chopper case
+  occasionally failed to recognize “at each stop” as placement scope, withholding
+  a pick. A prompt clarification explicitly maps per-stop/per-pour quantities;
+  the targeted rerun passed with 750 L / 850 S, the chopper requirement and air
+  caveat (reported cost $0.0006153). This is not a claim of perfect model accuracy.
+  All extracted answers remain subject to visitor confirmation.
+- Earlier live checks revealed unsupported provider `oneOf` schemas, canonicalized
+  free-text evidence and punctuation-only quote changes. Provider unions now emit
+  `anyOf`; supplied customer words are retained; punctuation-tolerant matches map
+  back to actual quotes. Independently valid fields survive a rejected optional
+  update. Added unit regressions pass. No transcript was persisted by the app.
+- Protected Preview: [stage-4 test snapshot](https://equipsolutionsgroupwebsite-dvx7w4gvl-noah-devines-projects.vercel.app/job/),
+  deployment `dpl_HDdFNK5BLJgrsE9Jbc29hj4akdxk`, Ready on Vercel's Node 24 runtime.
+  This deploy uses the uncommitted worktree; its Git SHA still identifies the
+  stage-3 base and must not be described as a stage-4 commit.
+- A normal authenticated Chrome flow submitted supplied 18 × 18 ft / 4 in patio
+  dimensions, received a connected AI reply and a **≈ 4 yd³ calculated** proposal.
+  The saved summary stayed unknown until explicit confirmation, then retained
+  the inputs and asked for mix requirements. A followup comparing 850 S / 750 L
+  correctly showed 60 yd³/hr for both and their distinct bin capacities.
+- Preview at **360 × 800**: no horizontal document overflow; existing responsive
+  header, composer and summary remain usable. No captured browser errors.
+  [Desktop conversation](screenshots/yardley-conversation-stage4.jpg) and
+  [mobile check](screenshots/yardley-conversation-stage4-mobile.jpg).
+- The owner reviewed logging traffic and published Preview enforcement. The active
+  rule is valid, with no remaining draft: POST `/api/guide` or `/api/guide/`,
+  `environment = preview`, fixed-window **60 requests / 60 seconds / IP**.
+  An authenticated short-lived project identity sent 65 invalid empty jobs:
+  **60 API validation responses (400), then five rate-limit responses (429)**.
+  Firewall traffic independently attributed all five blocks to the Yardley rule.
+  No AI generation was requested. Unauthenticated attempts returned 401 before
+  reaching the rule, so those were not counted as enforcement evidence.
+- The refreshed Preview recognized the small driveway / required chopper case as
+  3 yd³ per placement, retained the high-volume-air / possible-extra-tank caveat,
+  and required confirmation before changing the saved job. Normal connected AI
+  replies work after the rate window resets.
+- Localhost initially retained disabled settings. The server now reads explicit
+  private Astro env fields with runtime overrides; fully restarting the background
+  dev server cleared its old process environment. The local end-to-end smoke
+  returned HTTP 200, mode `ai`, reason `ok`, and the correct equal-rate comparison.
+  Type checking, 68 tests and the build passed again after this route correction.
+- Final browser checking caught a misleading acknowledgement when a model selected
+  “details” but proposed no actual changes. The renderer now uses a question
+  acknowledgement in that case; the comparison regression covers it. The final
+  checks still pass and all ten browser assets have zero actual credential matches.
+- A deployment dry-run exposed that CLI source upload does not automatically
+  exclude all ignored build/env files. Added `.vercelignore` before any upload;
+  the reviewed upload manifest excluded `.env`, `.vercel`, build output and
+  dependencies. The browser asset scan found no actual API-key matches.
+
+### Still pending
+
+Stage 4 is complete locally with a protected Preview, verified account budget and
+verified Preview rate enforcement. Production AI is disabled and production code
+was not deployed. Production rate enforcement/activation remain release checks;
+do not enable public AI without them. Stage 4 is the checkpoint on
+`codex/yardley-conversation`, prepared for PR review before stage 5.
+Stage 5 must connect the versioned reviewed
+brief to email; Copy / Call / Quote does not send it. No test email was sent.
+The previously recorded dependency advisories remain a release check in stage 6.
+
 ## Stage 3 — October 28, 2026
 
 Story: the visitor can start with the work rather than a model number, use quick

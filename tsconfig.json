@@ -4,6 +4,6 @@
     "strict": true,
     "types": ["astro/client", "node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", ".astro/types.d.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", ".astro/types.d.ts"],
   "exclude": ["node_modules", "dist", ".vercel"]
 }

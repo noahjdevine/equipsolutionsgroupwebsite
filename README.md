@@ -7,10 +7,16 @@ parts sourcing. Astro 7 prerenders marketing pages; Vercel runs /api/lead and
 Read [AGENTS.md](AGENTS.md) before changes. It defines source, design, content and
 working rules. The [Yardley implementation checklist](docs/yardley-implementation-plan.md)
 records the approved mixer-guide enhancement, file-by-file tasks and completion
-status. Stages 1–2 are merged in PR #2. Stage 3 adds the local Yardley workspace:
-quick choices, a persistent text composer, confirmed text proposals, editable job
-summary, estimates, comparisons and a copyable review brief. The live AI connection,
-spend controls and reviewed-brief email submission remain pending (stages 4–5).
+status. Stages 1–2 are merged in PR #2 and stage 3 in PR #3. Stage 4 adds the local
+grounded conversation implementation, validated proposals and approved answer
+blocks. The dedicated $20/month Gateway budget and server settings are configured;
+funded live evaluation and a protected Preview browser flow are verified. The
+Preview-only rate limit is published and verified: 60 requests per minute per IP.
+Live AI works on localhost and the protected Preview. Production AI remains
+disabled until release verification. Stage 4 is the checkpoint on
+`codex/yardley-conversation`; review and merge it before starting stage 5. See
+[AI operations](docs/yardley-operations.md). Reviewed-brief
+email submission remains stage 5.
 
 ## Local development
 
@@ -38,7 +44,8 @@ workflow; saving a local file does not publish it.
 
 - `src/pages/`: Home, StarMix, Parts, Sourcing, About, Contact and /job/ guide.
 - `src/pages/api/lead.ts`: shared quote/guide email endpoint.
-- `src/pages/api/guide.ts`: bounded, scripted fit endpoint; planned grounded conversation.
+- `src/pages/api/guide.ts`: bounded v2 grounded conversation with scripted fallback;
+  legacy/v1 scripted fit requests remain supported.
 - `src/components/`: shared header, footer, CTA, applications and quote form.
 - `src/data/models.ts`: model specs and attributed manufacturer claims.
 - `src/data/options.ts`: sourced option catalog and confirmed compatibility rules.
@@ -47,6 +54,14 @@ workflow; saving a local file does not publish it.
 - `src/lib/yardley/intake.ts`: scripted followups, bounded text recognition,
   confirmation and summary presentation. Unrecognized text is retained as notes;
   guided mode does not claim general conversational understanding.
+- `src/data/knowledge.ts`, `src/data/yardley-conversation.ts`: approved facts and
+  browser/server conversation contracts.
+- `src/lib/yardley/conversation.ts`, `limits.ts`: server-only model planning and
+  request policy; `replies.ts`, `transport.ts`: safe shared answers and cancelable
+  browser requests.
+- `scripts/yardley-eval.ts`, `tests/yardley/evals.json`: bounded, explicit live
+  evaluation after account controls are verified. Ordinary `npm test` never uses
+  real model credentials or sends email.
 - `src/data/applications.ts`: shared work-type taxonomy.
 - `src/data/fit.ts`, `src/data/guide.ts`, `src/scripts/job.ts`: current guide behavior.
 - `src/data/lead.ts`: validation and formatting for submitted inquiries.
