@@ -656,10 +656,14 @@ table.specs tbody tr:hover { background: var(--paper-2); }
    -------------------------------------------------------------------------- */
 .yardley [hidden] { display: none !important; }
 .yardley-entry { border-bottom: 1px solid var(--hairline); background: var(--paper-2); }
-.yardley-entry-inner { display: flex; gap: 1.5rem; align-items: center; padding-block: 1.6rem; }
-.yardley-entry-inner > div { flex: 1; }
-.yardley-entry p { margin: 0.15rem 0 0; max-width: 70ch; }
-.yardley-entry .card-link { flex: none; }
+.yardley-entry-inner { padding-block: clamp(2.25rem, 5vw, 3.75rem); }
+.yardley-entry-lead { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.25rem 1.5rem; align-items: start; max-width: 78ch; }
+.yardley-entry .eyebrow { margin-bottom: 0.55rem; }
+.yardley-entry h2 { font-size: var(--step-3); text-transform: uppercase; letter-spacing: 0.01em; margin: 0; max-width: 16ch; }
+.yardley-entry .lede { margin: 0.9rem 0 0; }
+.yardley-entry .btn { margin-top: 1.5rem; }
+.yardley-entry .yardley-mark { width: 4.75rem; height: 4.75rem; font-size: 2.55rem; }
+.yardley-entry-steps { list-style: none; padding: 0; margin-top: 2.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .yardley-label { font-family: var(--display); font-weight: 600; font-size: 0.875rem; letter-spacing: 0.11em; text-transform: uppercase; }
 .yardley-label > span { font-weight: 500; color: var(--steel); font-size: 0.75rem; letter-spacing: 0.09em; margin-left: 0.75rem; }
 .yardley-mark { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; flex: none; color: var(--paper); background: var(--ink); font-family: var(--display); font-size: 1.7rem; font-weight: 600; }
@@ -783,9 +787,7 @@ table.specs tbody tr:hover { background: var(--paper-2); }
   .yardley-summary > summary { padding-block: 0.8rem; }
   .yardley-text-button { min-height: 2.75rem; display: inline-flex; align-items: center; }
   .yardley-paul { display: none; }
-  .yardley-entry-inner { flex-wrap: wrap; gap: 0.75rem 1rem; }
-  .yardley-entry-inner > div { flex-basis: calc(100% - 4rem); }
-  .yardley-entry .card-link { margin-left: 4rem; }
+  .yardley-entry-steps { grid-template-columns: 1fr; gap: 1.25rem; }
 }
 @media (max-width: 620px) {
   .yardley { padding-top: 1.5rem; }
@@ -808,8 +810,9 @@ table.specs tbody tr:hover { background: var(--paper-2); }
   .yardley-review-row { grid-template-columns: minmax(0, 1fr) auto; gap: 0 0.75rem; }
   .yardley-review-row dt { grid-column: 1 / -1; }
   .yardley-review-actions { padding: 1.25rem; }
-  .yardley-entry-inner { padding-block: 1.25rem; }
-  .yardley-entry .yardley-label > span { display: block; margin-left: 0; }
+  .yardley-entry-lead { grid-template-columns: auto minmax(0, 1fr); }
+  .yardley-entry h2 { font-size: var(--step-2); }
+  .yardley-entry .btn { width: 100%; justify-content: center; }
   /* Keep the original navigation and active-page behavior; let the brand fit beside Menu. */
   .site-header .header-inner { gap: 0.75rem; }
   .site-header .brand { min-width: 0; flex: 1; gap: 0.65rem; }

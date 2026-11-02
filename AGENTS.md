@@ -220,7 +220,8 @@ Items 1–3 and 5–7 are still open. Item 4 is settled.
 2. **Editorial photos remain placeholders.** Model photos are installed in
    `public/assets/img/starmix/` and reused by the lineup and guide. Remaining `.ph`
    divs are dashed boxes labeled with recommended dimensions. Priority
-   order: plant discharging (`starmix` + home), portrait of Paul (`about` + home).
+   order: plant discharging (home only; `/starmix/` leads with the model lineup),
+   portrait of Paul (`about` + home).
    No hoist shot on this site.
 
 3. **The logo is a stand-in.** The header uses an inline SVG monogram — `E/S` in a
