@@ -129,7 +129,8 @@
       (errors || []).forEach(function (err) {
         var el = null;
         Array.prototype.forEach.call(form.querySelectorAll('[data-error-for="' + err.field + '"]'), function (node) {
-          if (!node.closest('[hidden]')) el = node;
+          // The message itself starts hidden; only hidden parent branches exclude it.
+          if (!node.parentElement.closest('[hidden]')) el = node;
         });
         if (el) {
           el.hidden = false;

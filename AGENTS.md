@@ -333,11 +333,21 @@ restrictions. The data/fitting foundations and scripted interface are implemente
 stage 4's live connection, funding, shared budget and Preview rate enforcement
 are implemented and verified. Local and protected Preview AI calls work;
 Production activation remains a release gate. Stage 5's reviewed email handoff
-is implemented locally. The approved synthetic email was accepted in protected
+is implemented and merged. The approved synthetic email was accepted in protected
 Preview, including exact receipt, safe replay and immutable receipt after edits.
 On November 2, the owner confirmed Paul received the full test brief, completing
 Stage 5. Stage 6 release verification remains as tracked in
 [the implementation checklist](docs/yardley-implementation-plan.md).
+Stage 5 is merged through PR #5. Stage 6 local/Preview checks pass on
+`codex/yardley-release-verification`: Astro 7.4.5 / adapter 11.0.18 and scoped
+transitive patches clear the audit; all 83 tests/check/build pass. The shared
+quote form now excludes hidden parent branches when showing errors, rather than
+excluding its own initially hidden error messages. Production rate enforcement
+is published and verified: 60 admitted invalid jobs, five 429 responses and
+normal validation after reset. The owner approved the brief/recommendations and
+authorized the Stage 6 PR. Merge and final production activation remain open;
+Production AI stays disabled. Never infer
+published firewall enforcement from a draft rule or its configured ID.
 
 `/job/` remains mixer-only and English only. A shared invitation now sits immediately
 below the homepage hero and on `/starmix/`, plus the mixer quote-form link. Quote

@@ -1,5 +1,146 @@
 # Yardley verification log
 
+## Stage 6 — November 2, 2026 — local and Preview checks complete; release pending
+
+Base: merged Stage 5 PR #5, main `611d9f0`. Work is on
+`codex/yardley-release-verification`. The owner approved the brief/recommendations
+and authorized committing/pushing this release checkpoint and opening its PR.
+No Stage 6 production deployment or AI activation has been performed.
+
+### Dependency remediation
+
+- Initial audit: **18 findings: 1 critical, 14 high, 3 moderate**. Updated Astro
+  7.2.4 → **7.4.5** and adapter 11.0.16 → **11.0.18**, preserving Astro 7 static
+  marketing pages and server API routes. No forced adapter downgrade.
+- Ten transitive findings remained after compatible updates. Scoped overrides
+  now use `glob` **14.0.3** beneath `@vercel/nft`, `path-to-regexp` **6.3.0** beneath
+  `@vercel/routing-utils`, and the project's Zod constraint beneath
+  `@vercel/cli-config`. The glob major change was reviewed for Node 24 support
+  and the asynchronous glob API used by tracing; local and hosted Vercel builds
+  exercise that tracing. Other package trees are not globally overridden.
+- The completed install reports **zero vulnerabilities**. Sources:
+  [Astro AVIF advisory](https://github.com/advisories/GHSA-26w7-cxv4-gfx2),
+  [Astro/adapter releases](https://github.com/withastro/astro/releases),
+  [glob advisory](https://github.com/advisories/GHSA-3g3m-2fjr-6pw4),
+  [glob changelog](https://github.com/isaacs/node-glob/blob/main/changelog.md),
+  [route parser advisory](https://github.com/advisories/GHSA-9wv6-86v2-598j), and
+  [Zod advisory](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5).
+  This supersedes the earlier unresolved dependency audit below, as of this run.
+
+### Application and integration checks
+
+- `npm run check`: passed. `npm test`: **83 passed, zero failed** after the
+  dependency updates. These cover capacity/rate boundaries, large placements and
+  replenishment, small rapid-set work, frequent small municipal work, wet/dry
+  sprayed process, latex/chopper constraints in both recommendation slots,
+  invalid/forged input, missing credentials, rate/budget/provider failure,
+  cancellation, stale replies, email failure, uncertain retries and receipts.
+- `npm run build`: passed after dependency updates and again after the quote-form
+  fix below. Adapter output uses **nodejs24.x**; the actual protected hosted
+  deployment is Ready. Local Node 26 still produces the known version warning;
+  local/hosted Node version parity is not claimed.
+- Live evaluation: **10 of 12 passed in the full run**. Mixed work fell back on
+  rejected output; missing thickness fell back on a provider failure. Both
+  preserved guided operation and neither fabricated a machine or thickness.
+  Each failed case was rerun exactly once; both targeted reruns passed. Full-run
+  reported cost $0.003074335; targeted reruns $0.00012047 and $0.00011046. This is
+  not a 12/12 first-run or perfect-interpretation claim.
+- Local browser: supplied patio dimensions 18 × 18 ft / specified 4 in produced
+  a proposed ≈4 yd³ estimate, while saved answers stayed unknown. Keyboard
+  confirmation saved the inputs and selected provisional 327 K / 425 S; the
+  followup asked for placement pace. It did not invent thickness or waste.
+- Protected Preview: confirmed latex + required chopper + trailer-only produced
+  configuration review with no forced machine. Editing mount to truck produced
+  qualified 750 L / 850 S, equal 60 yd³/hr explanation, latex dosing/chopper air
+  caveats and chassis review. [Desktop comparison](screenshots/yardley-preview-stage6.png).
+- Final Preview: an unknown-size pool/gunite-only buyer received process/feed
+  guidance and no invented shell estimate. Confirming the supplied work/mix
+  asked wet shotcrete versus dry gunite, with quantity still unknown. Starting
+  fresh while a subsequent request was pending cleared the synthetic draft and
+  canceled the reply. A later browser check still showed the fresh work question,
+  empty composer and no pending proposal (also covered by transport tests).
+- At **360 × 800**, document width was **345px**, without horizontal overflow.
+  The typed composer stays usable, its focus outline is 2px, Shift+Enter inserts
+  a line break, and the mobile menu opens with Enter and closes with Escape.
+  Default viewport restored. [Mobile composer](screenshots/yardley-mobile-stage6.png).
+  DOM/AX checks show one H1, polite live regions, loaded model images, retained
+  disclaimer and `noindex, nofollow`. These are browser/semantics checks, not a
+  physical-device keyboard or screen-reader certification.
+- Home and StarMix invitations reach `/job/`; the quote invitation is visible
+  only for the mixer branch. A shared quote-form bug was found: `showErrors`
+  excluded each initially hidden error node itself, suppressing field messages
+  and focus. It now excludes hidden parent branches instead. Local and final
+  Preview empty submits show **10 mixer / 7 parts / 8 sourcing** field errors,
+  focusing Name. These requests failed validation; no additional email was sent.
+- Hosted v1 job fitting returned HTTP 200 with 750 L / 850 S and provisional,
+  rate, latex, chopper-air and chassis caveats, matching browser/local policy.
+  An incomplete version-2 `/api/lead` request returned **400** before sending.
+  `/swaploader.html` returns **301** to `/`, exercising the updated route tooling.
+- Final Preview runtime-error query: **zero error records** in the inspected
+  15-minute window. Browser console inspection found no errors on the quote test.
+- Ten generated browser HTML/JS/CSS assets: **zero actual credential matches**.
+  No `localStorage`, `sessionStorage`, IndexedDB or `console.log` use was found
+  in `src/`. Provider processing/retention remains as described in operations;
+  there is no claim that external providers retain no metadata.
+- The Stage 5 approved live email and owner-confirmed full brief receipt remain
+  the handoff integration evidence; no second message was sent in Stage 6.
+
+Final protected Preview:
+[Stage 6 verification snapshot](https://equipsolutionsgroupwebsite-13tjfkumx-noah-devines-projects.vercel.app/job/),
+deployment `dpl_BGfXNZbZYTto2aWBdR25JNWjqiWH`, Ready, Vercel Authentication retained.
+The earlier comparison/mobile screenshots use the first Stage 6 Preview
+`dpl_7WgqTQgJdrx8uEQwbkpQ1PDAvNhm`; only the shared quote error fix differs.
+Both are uncommitted-worktree snapshots based on main `611d9f0`, not Stage 6 Git
+commits. AI is enabled by deployment-only overrides.
+
+### Account controls and remaining release gates
+
+- Dedicated Gateway budget re-inspected: **active, $20 monthly**, spend
+  **$0.01783327**, BYOK spend 0 at inspection. No alternate key/provider route or
+  automatic top-up was added. Production comparison smoke returned HTTP 200,
+  `mode: guided`, `reason: not-configured`, retaining the correct equal-rate
+  explanation. Production AI is still disabled.
+- Existing published Preview rule still limits both guide POST path variants to
+  **60 requests / 60 seconds / IP**. There were no existing drafts before work.
+- The owner published the **logging-only production** rule on November 2:
+  `rule_yardley_production_traffic_review_D84EDG`. It matches only POST
+  `/api/guide` and `/api/guide/` in Production, action Log. Published state was
+  verified with no remaining draft; Preview enforcement is unchanged.
+  An authenticated CLI comparison returned HTTP 200 in guided mode, but did not
+  appear in the initial firewall query. A subsequent normal authenticated Chrome
+  comparison produced **one logged event**: the dashboard shows `/api/guide`, the
+  intended Production deployment host and a normal Chrome user agent. The CLI
+  rule-traffic inspection independently returned `total: 1`, `log: 1`. This
+  verifies logging, not rate enforcement. No model or email call was made.
+- The owner reviewed the production logging event and replied **“Looks right.”**
+  The production rule was staged as **60 requests / 60 seconds / IP**,
+  fixed-window, excess action `rate_limit` (429). Inspection retained only
+  Production POST `/api/guide` and `/api/guide/`. The complete draft contains one
+  `rules.update` for that rule; Preview and other rules are unchanged. The owner
+  published it; inspection confirms the production limit is active and there is
+  no remaining draft.
+- Rate-test access preparation: the unique production deployment URL returns
+  **401** without authentication. Its primary alias, independently verified by
+  deployment inspection, is `https://equipsolutionsgroupwebsite.vercel.app` and
+  returns **400** for an ordinary unauthenticated invalid job POST. This gives
+  a normal production firewall test path without exporting browser cookies,
+  changing Trusted Sources or using the CLI's protection bypass. An ignored,
+- Production enforcement test, November 2 at 21:55 UTC: **65 invalid JSON jobs**
+  across both exact POST paths completed in 2.001 seconds. **60 returned 400**
+  from API validation; **five returned 429** from rate enforcement. No
+  authentication bypass, model request or email request was used. Rule traffic
+  independently attributed **five `rate-limit` events** to the Production rule.
+  An ordinary invalid POST **80 seconds after the test** returned 400 again,
+  confirming recovery after the minute window. The ignored script/results do
+  not contain credentials, customer details or transcripts.
+- The owner answered **“Approved—create the PR”** to final signoff of the reviewed
+  job brief and provisional recommendations, explicitly authorizing the Stage 6
+  commit, push and PR while keeping AI off until merge/final release checks.
+- Remaining: publish the Stage 6 checkpoint through the authorized PR workflow;
+  owner merges the PR; test the production build and
+  activate only after these gates. See operations for rollback. Public-launch
+  changes (DNS, `noindex`, editorial placeholders, fonts) remain separate.
+
 ## Stage 5 — November 1–2, 2026 — complete; full brief receipt confirmed
 
 Story: the visitor reviews a complete job brief and contact details, explicitly
