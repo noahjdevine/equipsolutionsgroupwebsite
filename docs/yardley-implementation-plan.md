@@ -20,7 +20,7 @@ below are intentional and do not imply that those modules already exist.
 - [x] 3. Build the Yardley interface and entry points using scripted responses.
 - [x] 4. Connect grounded conversation and enforce spend controls.
 - [x] 5. Complete the visitor-reviewed handoff to Paul.
-- [ ] 6. Verify the full flow locally and in a Vercel preview, then release.
+- [x] 6. Verify the full flow locally and in a Vercel preview, then release.
 
 Stages 1–2 were merged through PR #2 (`c6bda04`) and stage 3 through PR #3
 (`604908c`). Stage 4 merged through PR #4 (`233310e`):
@@ -35,15 +35,18 @@ receipt, retry protection and 83 passing tests are in place. The browser review
 works at desktop and 360px. The single approved synthetic email was accepted
 from protected Preview; its exact receipt, same-reference provider replay and
 unchanged receipt after mix edits are verified. On November 2, the owner confirmed
-Paul received the full brief. Stage 5 is complete; Stage 6 remains open.
+Paul received the full brief. Stage 5 is complete.
 Stage 6 local/Preview verification is complete on `codex/yardley-release-verification`:
 dependency audit is clear, 83 tests/check/build pass, and a shared quote-field
 error bug is fixed. The owner reviewed production logging and published the
 Production 60/min/IP limit. A bounded test verified 60 admitted invalid jobs and
 five 429 responses; normal validation resumed after reset. The owner also
 approved the brief/recommendations and authorized committing, pushing and opening
-the Stage 6 PR. Merge and final production release/activation remain open.
-Global Production AI stays disabled until final release verification.
+the Stage 6 PR. PR #6 merged as `eb2da41`; production activation was then
+explicitly approved, staged, tested and promoted. The live Vercel guide returns
+real AI replies and supports confirmation, qualified fit and review. Production
+uses its own enabled switch and rate-rule ID; global Preview/Development remain
+disabled. All six approved stages are complete.
 Evidence is recorded in [the verification log](yardley-verification.md).
 
 Work in this order, with a reviewable diff and relevant checks at each stage.
@@ -426,7 +429,7 @@ with Paul on November 2; see the verification log for the evidence.
   implementation status and actual module paths at each stage. Record verification
   evidence beside checked tasks. Keep one authoritative checklist, not separate
   conflicting instructions for Cursor and Codex.
-- [ ] **Git/Vercel — release actions.** Review the full diff including preexisting
+- [x] **Git/Vercel — release actions.** Review the full diff including preexisting
   work; commit/push and deploy in the normal project workflow when authorized.
   Test the preview before production. No DNS, territory, `noindex`, language,
   footer-disclaimer or unrelated site changes as a side effect of Yardley.
@@ -444,10 +447,10 @@ field-error selector is corrected and verified in all three branches. The
 protected Stage 6 Preview is Ready; the Stage 5 approved email receipt is confirmed.
 The full live AI run passed 10/12 initially; both failed cases passed one targeted
 rerun, with honest fallback retained. Production rate-rule rollout/enforcement
-and final owner fit/brief signoff are verified. Remaining release work: merge the
-authorized Stage 6 PR, then final production build/release/activation checks.
-Do not mark the entire stage complete
-from these local and Preview checks alone.
+and final owner fit/brief signoff are verified. PR #6 merged; explicit activation
+approval was obtained; the tested Node 24 production build of `eb2da41` was
+promoted and the live browser/API flow verified. Stage 6 is complete. The
+verification log records the release ID, alias, account controls and limitations.
 
 ## Local files and Cursor continuity
 
@@ -458,6 +461,7 @@ Localhost reflects source changes through the development server, or after a
 restart if configuration/dependencies change. Preview and production change only
 through their deployment workflow. A checklist update does not publish the site.
 
-Next concrete work: review/merge the authorized Stage 6 release checkpoint on
-`codex/yardley-release-verification`, then verify and activate the production
-build. The protected Preview does not imply a production release.
+No approved Yardley implementation stage remains. Monitor normal usage and Paul's
+lead quality during owner testing; future functionality enhancements are separate
+scope. Production is live on the Vercel alias. Custom-domain/public-launch work,
+including DNS and removal of `noindex`, is separate and was not performed here.

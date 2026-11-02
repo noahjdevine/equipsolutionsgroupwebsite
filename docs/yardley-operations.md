@@ -75,8 +75,11 @@ silently publish a draft or enable a team-wide block.
 ## Activation gate and current state
 
 `YARDLEY_AI_ENABLED=true` is set in the ignored local `.env` after account and
-Preview rate-control verification. Global hosted settings remain false; the tested
-Preview uses a deployment-only true override. Nonempty budget/rule IDs merely
+Preview rate-control verification. Production is now enabled after explicit owner
+activation approval and full release verification. Global Preview/Development
+remain false; test Previews use deployment-only true overrides. Production has
+its own rate-rule setting; Preview/Development retain the Preview rule ID.
+Nonempty budget/rule IDs merely
 identify the verified account resources; they cannot establish that a draft rule
 has been published. Before enabling any public environment, inspect the actual
 published rule and scope. Keep Production disabled while Preview rollout or
@@ -90,7 +93,8 @@ spent; later bounded tests add a small amount. Credits fund requests separately
 from the $20 monthly key cap. No automatic top-up was configured by this work.
 
 The protected stage-4 Preview linked in the verification log has a deployment-only
-AI enable override. Global hosted switches remain false. The Preview is a test
+AI enable override. At that stage's checkpoint, all global hosted switches were
+false. The Preview is a test
 snapshot of the uncommitted stage-4 worktree, not a
 production release. Deployment protection remains enabled. Its normal authenticated
 browser request produced a matching Log event for the guide rule. The owner
@@ -100,8 +104,8 @@ rule to 60 POST requests / 60 seconds / IP, fixed-window, with an explicit
 draft changes were present. A controlled authenticated test sent 65 invalid jobs:
 60 returned API validation errors (400), then five returned 429. Firewall traffic
 attributed the five blocks to this rule. No generation was requested by this test.
-Normal browser AI replies work after the rate window resets. Production AI must
-stay disabled until production rate enforcement and release verification are done.
+Normal browser AI replies work after the rate window resets. Production rate
+enforcement and release verification were subsequently completed before activation.
 
 Astro local server settings use explicit `import.meta.env` reads with runtime
 environment overrides. Fully stop/start an existing dev server after changing the
@@ -179,7 +183,8 @@ remain in force.
 
 Stage 5 merged through PR #5 (`611d9f0`). Stage 6 verification is on
 `codex/yardley-release-verification`, authorized by the owner for commit/push/PR.
-Owner merge and final production activation remain pending. The final
+PR #6 merged as `eb2da41`; the owner explicitly approved production activation,
+and the tested production build is now promoted. The final
 [protected Preview](https://equipsolutionsgroupwebsite-13tjfkumx-noah-devines-projects.vercel.app/job/)
 is Ready on the Node 24 function runtime with a deployment-only AI override.
 It includes Astro 7.4.5 / adapter 11.0.18 and scoped security overrides; the
@@ -225,17 +230,19 @@ Release in this order:
    final signoff of the reviewed brief and provisional-fit behavior. Paul still
    confirms each customer's final equipment/configuration; this is release
    signoff, not blanket certification of every setup.
-5. **Authorized November 2:** commit/push Stage 6 and create its PR. Let the owner merge in
+5. **Completed November 2:** Stage 6 was committed/pushed, PR #6 opened and the
+   owner merged it as `eb2da41`. For future application changes, let the owner merge in
    the normal workflow. Git integration deploys `main`; it does not enable AI
    while the hosted switch remains false. Keep `noindex`, DNS and the legal
    disclaimer unchanged. Review the exact commit/environment before release.
-6. After published Production enforcement is verified, set the Production
+6. **Completed November 2 after explicit activation approval:** set the Production
    `YARDLEY_RATE_LIMIT_ID` to the production rule ID and enable only the intended
    Production AI switch. Secrets stay unchanged. Stage a production build without
    assigning domains (`vercel deploy --prod --skip-domain`), verify that build,
    then promote the tested production deployment. Do not promote a Preview and
    assume the same tested build was released: its Production env rebuild differs.
-7. Check one synthetic conversation, confirmation, qualified fit and review on
+7. **Completed November 2:** checked a synthetic conversation, confirmation,
+   qualified fit and review on
    the released host; inspect deployment-specific errors. Reuse the approved
    Stage 5 email evidence unless a changed handoff requires another explicitly
    approved message. Keep the filtered traffic view handy for the first 24h.
@@ -258,3 +265,21 @@ rollback affects automatic domain assignment, which requires a later explicit
 promotion to restore. For a false-positive rate rule, stage its action back to
 Log and have the owner publish, keeping AI disabled if enforcement is absent.
 No new monitoring service or transcript analytics is required for this release.
+
+Current live release: `dpl_6CcGHvoDwX77agt43GP1emqfkhQm`, merged Git `main`
+`eb2da4132513ae068c3992b23f770f10b38b244c`, Node 24.x. Primary URL:
+https://equipsolutionsgroupwebsite.vercel.app/job/ . Staged and live requests
+returned real AI responses; normal browser confirmation/fit/review passed.
+Final runtime-error scan returned zero records. Shared key spend at the final
+inspection was $0.018932575 against the active $20 monthly budget.
+
+The enable switch and rate-rule setting now have separate Production versus
+Preview/Development entries. `vercel env update --environment production` updates
+the entire matching entry; preserve this separation. Verify hosted settings from
+outside the checkout because `vercel env run` loads local `.env` values first in
+this repository. Never print actual credential values during that verification.
+
+The previous Ready production build is `dpl_GLJTeYu8KUoRnBfonK8ShBxiH418`, the
+same merged application with its prior disabled AI snapshot. Retain it as the
+immediate rollback target. Broader custom-domain/public launch is separate:
+DNS and `noindex, nofollow` were intentionally unchanged.

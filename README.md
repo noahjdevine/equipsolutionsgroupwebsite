@@ -17,16 +17,21 @@ verified. On November 2, the owner confirmed the full brief arrived with Paul.
 Stage 5 is complete and merged through PR #5 (`611d9f0`).
 A [protected Stage 5 preview](https://equipsolutionsgroupwebsite-9j2pkvgyt-noah-devines-projects.vercel.app/job/)
 is retained as Stage 5 evidence.
-Stage 6's release checkpoint is on `codex/yardley-release-verification`.
+Stage 6 merged through PR #6 (`eb2da41`) and production activation is complete.
 Astro/adapter updates and scoped dependency fixes bring
 the audit to zero findings; all 83 tests, checks and the build pass. A shared quote
 field-error display bug is corrected and verified across mixer/parts/sourcing.
 [Final protected Stage 6 Preview](https://equipsolutionsgroupwebsite-13tjfkumx-noah-devines-projects.vercel.app/job/)
-is ready. The owner approved the brief/recommendations and authorized the Stage 6
-PR. Production rate enforcement is published and verified: 60 admitted invalid
+is retained as verification evidence. The owner approved the brief/recommendations
+and explicitly approved production activation. Production rate enforcement is
+published and verified: 60 admitted invalid
 jobs, five 429 responses, then normal validation after reset. The $20/month
-Gateway budget and separate Preview limit remain in place. PR merge and final
-production release/activation remain open; Production AI stays disabled. See
+Gateway budget and separate Preview limit remain in place.
+[Live Yardley](https://equipsolutionsgroupwebsite.vercel.app/job/) serves the tested
+production build from merged commit `eb2da41`, with real AI replies, confirmation,
+qualified fit and reviewed brief verified. Production AI is enabled; global
+Preview/Development remain disabled, while local AI stays enabled. All six approved
+implementation stages are complete. Custom-domain/public-launch work is separate. See
 [operations](docs/yardley-operations.md) and [verification](docs/yardley-verification.md).
 
 ## Local development

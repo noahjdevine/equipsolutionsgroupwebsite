@@ -332,11 +332,12 @@ The owner approved replacing the fixed four-beat, closing-paragraph-only MVP wit
 restrictions. The data/fitting foundations and scripted interface are implemented;
 stage 4's live connection, funding, shared budget and Preview rate enforcement
 are implemented and verified. Local and protected Preview AI calls work;
-Production activation remains a release gate. Stage 5's reviewed email handoff
+Production activation was explicitly approved and verified November 2, 2026.
+Stage 5's reviewed email handoff
 is implemented and merged. The approved synthetic email was accepted in protected
 Preview, including exact receipt, safe replay and immutable receipt after edits.
 On November 2, the owner confirmed Paul received the full test brief, completing
-Stage 5. Stage 6 release verification remains as tracked in
+Stage 5. All six implementation stages are complete as tracked in
 [the implementation checklist](docs/yardley-implementation-plan.md).
 Stage 5 is merged through PR #5. Stage 6 local/Preview checks pass on
 `codex/yardley-release-verification`: Astro 7.4.5 / adapter 11.0.18 and scoped
@@ -345,8 +346,12 @@ quote form now excludes hidden parent branches when showing errors, rather than
 excluding its own initially hidden error messages. Production rate enforcement
 is published and verified: 60 admitted invalid jobs, five 429 responses and
 normal validation after reset. The owner approved the brief/recommendations and
-authorized the Stage 6 PR. Merge and final production activation remain open;
-Production AI stays disabled. Never infer
+authorized the Stage 6 PR. PR #6 merged as `eb2da41`; the explicitly approved
+production build was staged, tested and promoted as
+`dpl_6CcGHvoDwX77agt43GP1emqfkhQm`. Production AI is enabled and uses the
+Production rate-rule ID; global Preview/Development settings remain disabled.
+Local AI remains enabled. The live Vercel `/job/` flow is verified; DNS, `noindex`
+and broader public-launch placeholders remain separate. Never infer
 published firewall enforcement from a draft rule or its configured ID.
 
 `/job/` remains mixer-only and English only. A shared invitation now sits immediately
