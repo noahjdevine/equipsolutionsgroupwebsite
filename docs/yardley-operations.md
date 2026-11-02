@@ -1,6 +1,6 @@
 # Yardley — AI operation and rollout
 
-Updated November 1, 2026. Project: `equipsolutionsgroupwebsite`, team:
+Updated November 2, 2026. Project: `equipsolutionsgroupwebsite`, team:
 `noah-devines-projects`. Never put a credential value in this document or Git.
 
 ## Account configuration
@@ -64,8 +64,12 @@ The published rule is `rule_yardley_guide_request_control_KTBjqS`, matching only
 per 60 seconds per IP**, fixed-window, returning 429 on excess. Counters are per
 Vercel region; this is an abuse control, not the dollar-spend mechanism. Logging,
 owner traffic review, owner publication and Preview enforcement checks are complete.
-Production enforcement remains a release step before enabling Production AI. Preserve other
-project rules/drafts. Follow the Firewall skill's user-published rollout; never
+Production now has a separate published rule,
+`rule_yardley_production_traffic_review_D84EDG`, with the same path/method match
+and 60/min/IP limit, restricted to Production. The owner reviewed logging and
+published enforcement. A bounded test verified 60 admitted invalid jobs, five
+429s and recovery after reset. Preserve other project rules/drafts. Follow the
+Firewall skill's user-published rollout; never
 silently publish a draft or enable a team-wide block.
 
 ## Activation gate and current state
@@ -170,3 +174,87 @@ The existing API key is sending-only; a delivery lookup returns
 Do not send another test merely to resolve dashboard access or repeat acceptance
 checks. The Stage 5 checkpoint is on `codex/yardley-handoff`; release controls
 remain in force.
+
+## Stage 6 release procedure and rollback
+
+Stage 5 merged through PR #5 (`611d9f0`). Stage 6 verification is on
+`codex/yardley-release-verification`, authorized by the owner for commit/push/PR.
+Owner merge and final production activation remain pending. The final
+[protected Preview](https://equipsolutionsgroupwebsite-13tjfkumx-noah-devines-projects.vercel.app/job/)
+is Ready on the Node 24 function runtime with a deployment-only AI override.
+It includes Astro 7.4.5 / adapter 11.0.18 and scoped security overrides; the
+install audit reports zero findings. Local Node 26 still warns; prefer Node 24
+for development parity. No `hybrid` output or adapter downgrade is involved.
+The shared quote-form error selector correction was verified locally and hosted.
+The owner published the production logging rule on November 2. Published state
+has no pending drafts; the normal browser comparison recorded one logged guide
+request, independently confirmed in the dashboard and CLI. The owner approved
+the traffic review and published the Production 60/min/IP rule. Normal HTTP
+testing verified 60 admitted invalid jobs and five 429s, independently attributed
+to that rule; normal validation resumed 80 seconds after the test. No model or
+email call was made. No draft remains.
+
+The budget was re-inspected on November 2: active $20/month, spend $0.01783327
+and no BYOK spend. The 12-case live run initially passed 10 cases; the rejected
+mixed-work output and provider-failed missing-thickness case each passed one
+targeted rerun. Keep fallback and explicit confirmation; do not imply perfect AI
+interpretation from a successful retry.
+
+Release in this order:
+
+1. **Completed November 2:** the owner published the logging-only production rule
+   `rule_yardley_production_traffic_review_D84EDG`. It matches only Production
+   POST `/api/guide` and `/api/guide/`; it blocks nothing. The inspected draft
+   contained only that insertion. Preserve unrelated drafts if any appear later.
+2. **Completed November 2; owner replied “Looks right”:** a synthetic normal
+   browser comparison, with Production AI disabled, recorded one logged event.
+   Have the owner review the [filtered traffic view](https://vercel.com/noah-devines-projects/equipsolutionsgroupwebsite/firewall/traffic?filter=rule_yardley_production_traffic_review_D84EDG)
+   before tightening. The authenticated CLI smoke did not appear in the initial
+   rule query, so it is not used as firewall-match evidence.
+3. **Completed November 2:** the owner published that production rule
+   as 60 requests / 60 seconds / IP, fixed-window,
+   returning 429. Keep its Production condition and both exact POST paths; leave
+   the existing Preview rule intact. Inspect the complete diff and have the
+   owner publish. Verify enforcement with bounded invalid JSON jobs, no paid
+   generation and no email; confirm normal access after the window resets.
+   Use the verified primary alias `https://equipsolutionsgroupwebsite.vercel.app`
+   for ordinary unauthenticated HTTP tests. The unique Production deployment URL
+   requires authentication, and `vercel curl` does not establish normal WAF
+   matching. Do not export browser cookies or widen access for a rate test.
+4. **Completed November 2:** the owner answered “Approved—create the PR” to
+   final signoff of the reviewed brief and provisional-fit behavior. Paul still
+   confirms each customer's final equipment/configuration; this is release
+   signoff, not blanket certification of every setup.
+5. **Authorized November 2:** commit/push Stage 6 and create its PR. Let the owner merge in
+   the normal workflow. Git integration deploys `main`; it does not enable AI
+   while the hosted switch remains false. Keep `noindex`, DNS and the legal
+   disclaimer unchanged. Review the exact commit/environment before release.
+6. After published Production enforcement is verified, set the Production
+   `YARDLEY_RATE_LIMIT_ID` to the production rule ID and enable only the intended
+   Production AI switch. Secrets stay unchanged. Stage a production build without
+   assigning domains (`vercel deploy --prod --skip-domain`), verify that build,
+   then promote the tested production deployment. Do not promote a Preview and
+   assume the same tested build was released: its Production env rebuild differs.
+7. Check one synthetic conversation, confirmation, qualified fit and review on
+   the released host; inspect deployment-specific errors. Reuse the approved
+   Stage 5 email evidence unless a changed handoff requires another explicitly
+   approved message. Keep the filtered traffic view handy for the first 24h.
+
+The Firewall skill requires owner publication between rollout stages. Example
+command, from this repository's terminal:
+
+```powershell
+npm exec --yes --package=vercel -- vercel firewall publish --scope noah-devines-projects --project equipsolutionsgroupwebsite --yes
+```
+
+Before publication, inspect the current complete diff; the command publishes
+all pending drafts, not only Yardley's rule. Never auto-publish another person's
+changes. The logging draft and its URL are not proof of live enforcement.
+
+For an AI-only problem, retain the firewall/budget and disable Production AI,
+then redeploy. For a broken application build, use the recorded previous Ready
+production deployment as the rollback target. Inspect target team/project first;
+rollback affects automatic domain assignment, which requires a later explicit
+promotion to restore. For a false-positive rate rule, stage its action back to
+Log and have the owner publish, keeping AI disabled if enforcement is absent.
+No new monitoring service or transcript analytics is required for this release.

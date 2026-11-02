@@ -29,14 +29,21 @@ scripted fallback and the real shared $20/month Gateway budget. Funded live call
 and the protected Preview browser flow work. The owner reviewed traffic and
 published the Preview rule; a controlled test verified 60 requests admitted and
 the next five returned 429, with no AI calls. Local AI is enabled and verified.
-Stage 5 is implemented locally on `codex/yardley-handoff`, based on that merge.
+Stage 5 merged through PR #5 (`611d9f0`).
 Its runtime contract, reviewed contact form, bounded Resend handler, immutable
 receipt, retry protection and 83 passing tests are in place. The browser review
 works at desktop and 360px. The single approved synthetic email was accepted
 from protected Preview; its exact receipt, same-reference provider replay and
 unchanged receipt after mix edits are verified. On November 2, the owner confirmed
 Paul received the full brief. Stage 5 is complete; Stage 6 remains open.
-Global Production AI stays disabled until release and production rate-rule rollout.
+Stage 6 local/Preview verification is complete on `codex/yardley-release-verification`:
+dependency audit is clear, 83 tests/check/build pass, and a shared quote-field
+error bug is fixed. The owner reviewed production logging and published the
+Production 60/min/IP limit. A bounded test verified 60 admitted invalid jobs and
+five 429 responses; normal validation resumed after reset. The owner also
+approved the brief/recommendations and authorized committing, pushing and opening
+the Stage 6 PR. Merge and final production release/activation remain open.
+Global Production AI stays disabled until final release verification.
 Evidence is recorded in [the verification log](yardley-verification.md).
 
 Work in this order, with a reviewable diff and relevant checks at each stage.
@@ -391,31 +398,31 @@ with Paul on November 2; see the verification log for the evidence.
 
 ## 6. Verification, deployment and continuing work
 
-- [ ] **`docs/yardley-verification.md` — new.** Record checks, fixtures, screenshots
+- [x] **`docs/yardley-verification.md` — new.** Record checks, fixtures, screenshots
   or preview links, failures/fixes and remaining limitations. Test a small patio,
   large driveway, beginner with dimensions, unknown-size pool/gunite-only buyer,
   wet shotcrete, bridge latex, chopper with air caveat, conflicting trailer need,
   and frequent small municipal repairs. Test edits after recommendation, stale
   responses, back/reset, no key, timeout, invalid output and exhausted budget.
-- [ ] **Browser checks — local and preview.** Verify actual page → API → validated
+- [x] **Browser checks — local and preview.** Verify actual page → API → validated
   result → reviewed brief → email/receipt behavior, rather than only mocking
   individual functions. Check keyboard, focus, screen-reader announcements,
   reduced motion, mobile keyboard, 360px and desktop layouts. Test all shared
   entry points and unchanged quote branches. Keep protected previews protected.
-- [ ] **Live email/model smoke tests — controlled integration checks.** Use the
+- [x] **Live email/model smoke tests — controlled integration checks.** Use the
   intended recipient and bounded model calls; label test leads clearly. Confirm
   Paul receives the actual job information, not just a generic test message.
   Inspect delivery status separately from HTTP success; never log full personal
   payloads or keys. Document the verified configuration without its secrets.
-- [ ] **Build/type/test checks.** Run the project build and the new meaningful
+- [x] **Build/type/test checks.** Run the project build and the new meaningful
   checks after application stages. Address deployment-runtime compatibility;
   a successful local development page is not evidence that Vercel server routes work.
-- [ ] **`docs/yardley-operations.md` — new.** Document model/key configuration,
+- [x] **`docs/yardley-operations.md` — new.** Document model/key configuration,
   monthly budget scope/reset behavior, rate controls, provider logging, safe
   fallback, evaluation command, preview/release procedure and rollback. If
   anonymous metrics are added, limit them to events such as start/complete/error;
   do not add transcript analytics or a new service just for this release.
-- [ ] **`AGENTS.md` / `README.md` / this file — existing documentation.** Update
+- [x] **`AGENTS.md` / `README.md` / this file — existing documentation.** Update
   implementation status and actual module paths at each stage. Record verification
   evidence beside checked tasks. Keep one authoritative checklist, not separate
   conflicting instructions for Cursor and Codex.
@@ -431,6 +438,17 @@ sales brief and provisional recommendations; preview integration checks pass.
 Review and remediate the dependency advisories recorded in the verification log
 before release; do not apply an unreviewed forced adapter downgrade.
 
+November 2 verification: Astro 7.4.5 / adapter 11.0.18 plus scoped patched
+transitive dependencies produce zero audit findings. The shared quote form's
+field-error selector is corrected and verified in all three branches. The
+protected Stage 6 Preview is Ready; the Stage 5 approved email receipt is confirmed.
+The full live AI run passed 10/12 initially; both failed cases passed one targeted
+rerun, with honest fallback retained. Production rate-rule rollout/enforcement
+and final owner fit/brief signoff are verified. Remaining release work: merge the
+authorized Stage 6 PR, then final production build/release/activation checks.
+Do not mark the entire stage complete
+from these local and Preview checks alone.
+
 ## Local files and Cursor continuity
 
 Codex edits the actual files in this folder. Cursor sees those same saved files
@@ -440,6 +458,6 @@ Localhost reflects source changes through the development server, or after a
 restart if configuration/dependencies change. Preview and production change only
 through their deployment workflow. A checklist update does not publish the site.
 
-Next concrete work: section 6's release checks after the Stage 5 checkpoint on
-`codex/yardley-handoff` is reviewed and merged. The protected Preview does not
-imply a production release.
+Next concrete work: review/merge the authorized Stage 6 release checkpoint on
+`codex/yardley-release-verification`, then verify and activate the production
+build. The protected Preview does not imply a production release.

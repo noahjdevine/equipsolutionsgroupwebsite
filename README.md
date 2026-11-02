@@ -7,19 +7,26 @@ parts sourcing. Astro 7 prerenders marketing pages; Vercel runs /api/lead and
 Read [AGENTS.md](AGENTS.md) before changes. It defines source, design, content and
 working rules. The [Yardley implementation checklist](docs/yardley-implementation-plan.md)
 records the approved mixer-guide enhancement, file-by-file tasks and completion
-status. Stages 1–4 are merged through PRs #2, #3 and #4. Stage 5 is implemented
-locally on `codex/yardley-handoff`: reviewed contact details and the complete job
+status. Stages 1–4 are merged through PRs #2, #3 and #4. Stage 5 adds
+reviewed contact details and the complete job
 brief, server-recomputed fit, explicit email submission, safe retries and an
 immutable submitted receipt. Type checks, 83 tests and the build pass. The single
 approved synthetic test was accepted by Resend from the protected Preview;
 the exact receipt, same-reference retry and receipt stability after edits are
 verified. On November 2, the owner confirmed the full brief arrived with Paul.
-Stage 5 is complete; Stage 6 release verification remains.
+Stage 5 is complete and merged through PR #5 (`611d9f0`).
 A [protected Stage 5 preview](https://equipsolutionsgroupwebsite-9j2pkvgyt-noah-devines-projects.vercel.app/job/)
-is available for review. The Stage 5 checkpoint is on `codex/yardley-handoff`;
-production release remains part of Stage 6.
-The dedicated $20/month Gateway budget and Preview-only rate limit remain in
-place. Production AI stays disabled until release verification. See
+is retained as Stage 5 evidence.
+Stage 6's release checkpoint is on `codex/yardley-release-verification`.
+Astro/adapter updates and scoped dependency fixes bring
+the audit to zero findings; all 83 tests, checks and the build pass. A shared quote
+field-error display bug is corrected and verified across mixer/parts/sourcing.
+[Final protected Stage 6 Preview](https://equipsolutionsgroupwebsite-13tjfkumx-noah-devines-projects.vercel.app/job/)
+is ready. The owner approved the brief/recommendations and authorized the Stage 6
+PR. Production rate enforcement is published and verified: 60 admitted invalid
+jobs, five 429 responses, then normal validation after reset. The $20/month
+Gateway budget and separate Preview limit remain in place. PR merge and final
+production release/activation remain open; Production AI stays disabled. See
 [operations](docs/yardley-operations.md) and [verification](docs/yardley-verification.md).
 
 ## Local development
