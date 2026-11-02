@@ -126,4 +126,47 @@ redeploy. Keep the budget in place. Missing credentials, wrong model, disabled
 switch, budget rejection, rate limit, malformed output and timeout all retain
 guided choices, approved answers, editing and Call/Quote access.
 
-The reviewed-brief email handoff remains stage 5. No AI route can send email.
+## Reviewed brief email — stage 5
+
+Only the visitor's explicit Send action posts a version-2 `mixer-guide` submission
+to `/api/lead`. No AI route can send email. The server validates contact details
+and versioned job inputs, rejects unconfirmed proposals or supplied fit/calculated
+totals, and recomputes fit and geometric estimates. The exact-email disclosure,
+provider text and receipt use the same formatter. Mail is plain text; visitor
+markup cannot become HTML. Existing quote/mixer/parts/sourcing payloads remain valid.
+
+The request body is bounded to 32 KiB, the provider send to 12 seconds and browser
+confirmation to 19 seconds. A missing key, rejection, exception, timeout or missing
+provider ID cannot create a success receipt. On an uncertain result keep the brief
+and retry its unchanged snapshot. The receipt is checked against the submitted
+reference, subject and exact text and remains independent from later edits.
+
+Each reviewed attempt uses `yardley/<submission UUID>` as its Resend idempotency
+key. [Resend keeps idempotency keys for 24 hours](https://resend.com/docs/dashboard/emails/idempotency-keys).
+The browser refuses an uncertain retry after 23 hours; contact Paul before creating
+another inquiry in that case. A changed job or contact snapshot gets a new UUID.
+Reloading the page discards application memory, including references and receipts;
+there is no claim of deduplication across a new page or indefinitely. No full
+transcript storage was added. Resend necessarily processes the reviewed email.
+
+From remains `Equip Solutions Group <paul@equipsolutionsgroup.com>`; To and Reply-To
+remain `paul@equipsolutionsgroup.com`. No DNS change is part of this handoff.
+Guide phone/WhatsApp contact can omit email; the chosen contact method must have
+its required contact detail. English/Spanish is a preference for Paul's response,
+not a translated guide. Existing ordinary quote contact rules are unchanged.
+
+Actual sending to Paul during agent verification requires explicit approval for
+the concrete test message. A provider acceptance receipt is separate from a
+verified `delivered` event or Paul's confirmation. Do not describe either mocked
+sends or HTTP 200 alone as confirmed inbox delivery.
+
+On November 2, the single owner-approved TEST ONLY stage-5 message was accepted
+from protected Preview. The exact browser receipt, same-reference replay and
+receipt stability after draft edits are verified in the verification log. On
+November 2, the owner confirmed the full brief arrived with Paul, closing Stage 5.
+No provider delivery event is claimed as inspected.
+The existing API key is sending-only; a delivery lookup returns
+`restricted_api_key`. Keep that key's scope unchanged for application operation.
+Do not send another test merely to resolve dashboard access or repeat acceptance
+checks. The Stage 5 checkpoint is on `codex/yardley-handoff`; release controls
+remain in force.

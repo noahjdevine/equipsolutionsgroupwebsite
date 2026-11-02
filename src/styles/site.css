@@ -769,6 +769,13 @@ table.specs tbody tr:hover { background: var(--paper-2); }
 .yardley-review-actions { padding: 1.5rem; background: var(--paper-2); align-self: start; border-top: 2px solid var(--signal); }
 .yardley-review-actions > p:first-child { margin-top: 0; }
 .yardley-review-actions .btn { display: flex; justify-content: center; margin-bottom: 0.8rem; width: 100%; }
+.yardley-review-actions fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
+.yardley-review-actions .yardley-status { padding: 0; }
+.yardley-email-preview { margin-top: 1.5rem; }
+.yardley-email-preview summary, .yardley-receipt summary { cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+.yardley-email-preview pre, .yardley-receipt pre { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--body); font-size: 0.9rem; line-height: 1.6; padding: 1rem; border: 1px solid var(--hairline); background: var(--paper-2); }
+.yardley-receipt { margin-top: 2rem; border-top: 2px solid var(--signal); padding-top: 1.5rem; }
+.yardley-receipt h2 { scroll-margin-top: calc(var(--header-h) + 1rem); }
 @media (max-width: 900px) {
   .yardley-workspace, .yardley-review-grid { grid-template-columns: minmax(0, 1fr); }
   .yardley-sidebar { position: static; grid-row: 1; }

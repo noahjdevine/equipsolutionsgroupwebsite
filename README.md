@@ -7,16 +7,20 @@ parts sourcing. Astro 7 prerenders marketing pages; Vercel runs /api/lead and
 Read [AGENTS.md](AGENTS.md) before changes. It defines source, design, content and
 working rules. The [Yardley implementation checklist](docs/yardley-implementation-plan.md)
 records the approved mixer-guide enhancement, file-by-file tasks and completion
-status. Stages 1–2 are merged in PR #2 and stage 3 in PR #3. Stage 4 adds the local
-grounded conversation implementation, validated proposals and approved answer
-blocks. The dedicated $20/month Gateway budget and server settings are configured;
-funded live evaluation and a protected Preview browser flow are verified. The
-Preview-only rate limit is published and verified: 60 requests per minute per IP.
-Live AI works on localhost and the protected Preview. Production AI remains
-disabled until release verification. Stage 4 is the checkpoint on
-`codex/yardley-conversation`; review and merge it before starting stage 5. See
-[AI operations](docs/yardley-operations.md). Reviewed-brief
-email submission remains stage 5.
+status. Stages 1–4 are merged through PRs #2, #3 and #4. Stage 5 is implemented
+locally on `codex/yardley-handoff`: reviewed contact details and the complete job
+brief, server-recomputed fit, explicit email submission, safe retries and an
+immutable submitted receipt. Type checks, 83 tests and the build pass. The single
+approved synthetic test was accepted by Resend from the protected Preview;
+the exact receipt, same-reference retry and receipt stability after edits are
+verified. On November 2, the owner confirmed the full brief arrived with Paul.
+Stage 5 is complete; Stage 6 release verification remains.
+A [protected Stage 5 preview](https://equipsolutionsgroupwebsite-9j2pkvgyt-noah-devines-projects.vercel.app/job/)
+is available for review. The Stage 5 checkpoint is on `codex/yardley-handoff`;
+production release remains part of Stage 6.
+The dedicated $20/month Gateway budget and Preview-only rate limit remain in
+place. Production AI stays disabled until release verification. See
+[operations](docs/yardley-operations.md) and [verification](docs/yardley-verification.md).
 
 ## Local development
 
@@ -65,6 +69,8 @@ workflow; saving a local file does not publish it.
 - `src/data/applications.ts`: shared work-type taxonomy.
 - `src/data/fit.ts`, `src/data/guide.ts`, `src/scripts/job.ts`: current guide behavior.
 - `src/data/lead.ts`: validation and formatting for submitted inquiries.
+- `src/lib/yardley/lead-route.ts`: bounded server mail handler and Resend retry key.
+- `src/lib/yardley/handoff.ts`: immutable browser send attempts and receipt validation.
 - `tests/yardley/`: job, volume, fit, intake, lead-contract and API regression tests.
 - `src/styles/site.css`: design tokens and site styles.
 - `public/assets/img/`: local image assets.

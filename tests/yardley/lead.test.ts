@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseLead, formatLeadEmail, prepareYardleyBrief } from '../../src/data/lead';
+import { parseLead, formatLeadEmail, prepareYardleyBrief, parseGuideSubmission, formatGuideEmail } from '../../src/data/lead';
+import { randomUUID } from 'node:crypto';
 import { contact, legacyMixer, knownJob } from './fixtures';
 
 test('ordinary mixer, parts and sourcing leads retain their existing validation contracts', () => {
@@ -49,4 +50,33 @@ test('client-supplied calculated totals are rejected; the trusted brief retains 
   const parsed = prepareYardleyBrief({ version: 1, job });assert(parsed.ok);
   assert.equal(parsed.brief.fit.demand.quantity.yd3, 4);
   assert.equal(prepareYardleyBrief({ version: 1, job: { ...job, quantity: { ...job.quantity, yd3: 1 } } }).ok, false);
+});
+
+const submission = (job = knownJob()) => ({ version: 2, source: 'mixer-guide', submissionId: randomUUID(), contact, brief: { version: 1, job } });
+test('reviewed guide permits unknowns and validates the offered contact method without changing legacy rules', () => {
+  const phone = { name: 'Buyer', preferredContact: 'whatsapp', preferredLanguage: 'es', phone: '+1 555 555 5555' };
+  assert(parseGuideSubmission({ ...submission(), contact: phone }).ok);
+  for (const c of [{ ...phone, phone: '' }, { ...phone, email: 'wrong' }, { ...contact, name: 'Header\nBcc: stranger' }, { ...contact, name: 'x'.repeat(101) }]) {
+    assert(!parseGuideSubmission({ ...submission(), contact: c }).ok);
+  }
+  const empty = parseGuideSubmission({ ...submission(), brief: { version: 1, job: { version: 1 } } });
+  assert(empty.ok);assert.match(formatGuideEmail(empty.submission).text, /Not sure yet/);
+});
+test('reviewed guide rejects proposed answers, forged fits and calculated totals', () => {
+  const raw = submission();
+  assert(!parseGuideSubmission({ ...raw, brief: { ...raw.brief, fit: { primaryId: '880-s' } } }).ok);
+  assert(!parseGuideSubmission({ ...raw, brief: { version: 1, job: knownJob({ mixTypes: { state: 'proposed', value: ['latex-modified'] } }) } }).ok);
+  assert(!parseGuideSubmission({ ...raw, brief: { version: 1, job: knownJob({ quantity: { kind: 'proposed', yd3: 3, scope: 'placement' } }) } }).ok);
+  assert(!parseGuideSubmission({ ...raw, brief: { version: 1, job: { ...knownJob(), quantity: { kind: 'dimensions', scope: 'placement', inputs: { shape: 'slab', lengthFt: 18, widthFt: 18, thicknessIn: 4 }, yd3: 1 } } } }).ok);
+});
+test('exact email contains inputs, estimates, options, qualified fit, known latent fields and open questions as plain text', () => {
+  const parsed = parseGuideSubmission(submission(knownJob({
+    quantity: { kind: 'dimensions', scope: 'placement', inputs: { shape: 'slab', lengthFt: 18, widthFt: 18, thicknessIn: 4 } },
+    requiredOptions: { state: 'reported', value: ['fiber-chopper'] },
+    feedSetup: { state: 'reported', value: 'Existing feed setup to review' },
+    notes: '<img src=x onerror=alert(1)>', openQuestions: ['Can Paul review this chassis?'],
+  })));
+  assert(parsed.ok);const mail = formatGuideEmail(parsed.submission);
+  for (const expected of ['≈ 4 yd³', '18 ft × 18 ft × 4 in', 'no waste allowance', '750 L', '850 S', 'high-volume air', 'Existing feed setup', 'Can Paul review', '<img src=x onerror=alert(1)>']) assert(mail.text.includes(expected), expected);
+  assert.equal('html' in mail, false);assert.doesNotMatch(mail.text, /Nothing has been sent/);
 });

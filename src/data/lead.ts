@@ -7,8 +7,10 @@ import { applications } from './applications';
 import { fitModel, fitJob, type FitResult } from './fit';
 import { modelById, models } from './models';
 import { z } from 'zod';
-import { explainFit } from './guide';
+import { explainFit, REASON_COPY, CAVEAT_COPY, QUESTION_COPY } from './guide';
 import { MIX_TYPES, yardleyJobSchema, type MixType, type YardleyJob, type JobError } from './yardley-job';
+import { summaryRows, type SummaryRow } from '../lib/yardley/intake';
+import { calculateVolume } from '../lib/yardley/volume';
 
 export { MIX_TYPES, type MixType } from './yardley-job';
 
@@ -396,3 +398,90 @@ export function prepareYardleyBrief(input: unknown):
   };
   return { ok: true, brief: { version: 1, job: parsed.data.job, fit: fitJob(parsed.data.job) } };
 }
+
+const singleLine = (max: number) => z.string().trim().max(max).refine((s) => !/[\u0000-\u001f\u007f]/.test(s), 'Use one line without control characters.');
+export const guideContactSchema = z.strictObject({
+  name: singleLine(100).refine(Boolean, 'Enter your name.'),
+  company: singleLine(160).default(''),
+  email: singleLine(254).transform((s) => s.toLowerCase()).default(''),
+  phone: singleLine(40).default(''),
+  state: singleLine(80).default(''),
+  preferredContact: z.enum(['phone', 'email', 'whatsapp']),
+  preferredLanguage: z.enum(['en', 'es']),
+}).superRefine((contact, ctx) => {
+  if ((contact.email && !EMAIL_RE.test(contact.email)) || (contact.preferredContact === 'email' && !contact.email)) {
+    ctx.addIssue({ code: 'custom', path: ['email'], message: 'Enter a valid email address for email contact.' });
+  }
+  if ((contact.phone && (!/^[+\d() .\-x#]+$/i.test(contact.phone) || contact.phone.replace(/\D/g, '').length < 7)) || (contact.preferredContact !== 'email' && !contact.phone)) {
+    ctx.addIssue({ code: 'custom', path: ['phone'], message: 'Enter a phone number for phone or WhatsApp contact.' });
+  }
+});
+export type GuideContact = z.infer<typeof guideContactSchema>;
+export const guideSubmissionSchema = z.strictObject({
+  version: z.literal(2), source: z.literal('mixer-guide'),
+  submissionId: z.string().uuid(),
+  contact: guideContactSchema,
+  brief: yardleyBriefInputSchema,
+  website: z.string().max(300).default(''),
+}).superRefine((submission, ctx) => {
+  for (const [field, answer] of Object.entries(submission.brief.job)) {
+    if (answer && typeof answer === 'object' && (('state' in answer && answer.state === 'proposed') || ('kind' in answer && answer.kind === 'proposed'))) {
+      ctx.addIssue({ code: 'custom', path: ['brief', 'job', field], message: 'Confirm or discard suggested answers before sending.' });
+    }
+  }
+});
+export type GuideSubmission = z.infer<typeof guideSubmissionSchema>;
+export function parseGuideSubmission(input: unknown): { ok: true; submission: GuideSubmission } | { ok: false; errors: FieldError[] } {
+  const parsed = guideSubmissionSchema.safeParse(input);
+  return parsed.success ? { ok: true, submission: parsed.data } : {
+    ok: false, errors: parsed.error.issues.map((issue) => ({ field: issue.path.join('.'), message: issue.message })),
+  };
+}
+
+/** Every supplied detail remains visible even if another answer changes its relevance. */
+export function briefRows(job: YardleyJob): SummaryRow[] {
+  const rows = summaryRows(job);
+  const extras: SummaryRow[] = [
+    { label: 'Process', value: job.process.state === 'reported' ? ({ conventional: 'Conventional', 'wet-shotcrete': 'Wet-mix shotcrete', 'dry-gunite': 'Dry-mix gunite' })[job.process.value] : 'Not sure yet', step: 'process' },
+    { label: 'Feed equipment', value: job.feedSetup.state === 'reported' ? job.feedSetup.value : 'Not sure yet', step: 'feed' },
+    { label: 'Mix specification', value: job.mixSpecification.state === 'reported' ? job.mixSpecification.value : 'Not sure yet', step: 'specification' },
+    { label: 'High-volume air', value: job.highVolumeAir.state === 'reported' ? job.highVolumeAir.value ? 'Available · integration to review' : 'Not available' : 'Not sure yet', step: 'air' },
+  ];
+  const answers = { Process: job.process, 'Feed equipment': job.feedSetup, 'Mix specification': job.mixSpecification, 'High-volume air': job.highVolumeAir };
+  return [...rows, ...extras.filter((extra) => answers[extra.label as keyof typeof answers].state === 'reported' && !rows.some((row) => row.label === extra.label))];
+}
+export function formatYardleyBrief(brief: YardleyBrief): string {
+  const { job } = brief;
+  const fit = fitJob(job);
+  const lines = ['Yardley — job brief for Paul', 'Provisional discussion; Paul confirms the final machine and configuration.', '', ...briefRows(job).map((row) => `${row.label}: ${row.value}`)];
+  if (job.quantity.kind === 'dimensions') {
+    const result = calculateVolume(job.quantity.inputs);
+    if (result.ok) lines.push(`Estimate: ${result.estimate.label}`, `Calculation: ${result.estimate.formula}; no waste allowance added.`);
+  }
+  lines.push('', `Notes: ${job.notes || 'None'}`, '', `Fit status: ${fit.status}`,
+    `Provisional machine: ${fit.primaryId ? modelById(fit.primaryId)!.name : 'Pending clarification / configuration review'}`,
+    `Alternate: ${fit.alternateId ? modelById(fit.alternateId)!.name : 'None yet'}`,
+    '', 'Reasons:', ...fit.reasonIds.map((id) => REASON_COPY[id]),
+    '', 'Qualifications:', ...fit.caveatIds.map((id) => CAVEAT_COPY[id]),
+    '', 'Open questions:', ...fit.questionIds.map((id) => QUESTION_COPY[id]), ...job.openQuestions);
+  if (!fit.questionIds.length && !job.openQuestions.length) lines.push('Confirm machine, usable yield, chassis and options on the written quote.');
+  lines.push('', 'Known answers are customer-reported; dimension-based quantities are labeled estimates. Unknown answers remain open.');
+  return lines.join('\n');
+}
+/** Shared by the exact-send preview, server mail and immutable receipt. Plain text only. */
+export function formatGuideEmail(submission: GuideSubmission): { subject: string; text: string } {
+  const c = submission.contact;
+  return {
+    subject: `Quote request — Yardley mixer guide — ${c.name}`,
+    text: [`Source: mixer-guide`, `Reference: ${submission.submissionId}`, '', `Name: ${c.name}`, `Company: ${c.company || 'Not supplied'}`,
+      `Email: ${c.email || 'Not supplied'}`, `Phone: ${c.phone || 'Not supplied'}`, `State: ${c.state || 'Not supplied'}`,
+      `Preferred contact: ${PREFERRED_CONTACT.find((entry) => entry.value === c.preferredContact)!.label}`,
+      `Preferred language: ${c.preferredLanguage === 'es' ? 'Spanish' : 'English'}`, '',
+      formatYardleyBrief({ ...submission.brief, fit: fitJob(submission.brief.job) })].join('\n'),
+  };
+}
+export const guideReceiptSchema = z.strictObject({
+  version: z.literal(1), submissionId: z.string().uuid(), messageId: z.string().min(1).max(200),
+  subject: z.string().max(300), text: z.string().max(24000),
+});
+export type GuideReceipt = z.infer<typeof guideReceiptSchema>;

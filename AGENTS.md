@@ -288,8 +288,10 @@ src/components/WhatsAppLink.astro official glyph + generic wa.me href
 src/components/QuoteForm.astro   branched quote form (mixer / parts / sourcing)
 src/components/YardleyEntry.astro shared discovery invitation, compact quote variant
 src/pages/*.astro                live routes (body content only)
-src/pages/api/lead.ts            Resend POST handler; prerender = false;
-                                 From paul@equipsolutionsgroup.com
+src/pages/api/lead.ts            private Resend configuration and POST entry;
+                                 prerender = false; delegates to lead-route.ts
+src/lib/yardley/lead-route.ts    bounded quote/guide mail route; stable retry keys
+src/lib/yardley/handoff.ts       browser snapshots, deduplication and checked receipt
 src/pages/api/guide.ts           v2 grounded conversation; v1/legacy scripted fit;
                                  prerender = false; live activation is gated
 src/pages/job.astro              Yardley conversational workspace, summary and review
@@ -330,8 +332,11 @@ The owner approved replacing the fixed four-beat, closing-paragraph-only MVP wit
 restrictions. The data/fitting foundations and scripted interface are implemented;
 stage 4's live connection, funding, shared budget and Preview rate enforcement
 are implemented and verified. Local and protected Preview AI calls work;
-Production activation remains a release gate and the reviewed email handoff
-remains stage 5, as tracked in
+Production activation remains a release gate. Stage 5's reviewed email handoff
+is implemented locally. The approved synthetic email was accepted in protected
+Preview, including exact receipt, safe replay and immutable receipt after edits.
+On November 2, the owner confirmed Paul received the full test brief, completing
+Stage 5. Stage 6 release verification remains as tracked in
 [the implementation checklist](docs/yardley-implementation-plan.md).
 
 `/job/` remains mixer-only and English only. A shared invitation now sits immediately
@@ -391,8 +396,9 @@ specifications and critical caveats. Do not restore a regex-only rephrase guard.
 Job state distinguishes unknown, customer-reported and proposed answers. Proposed
 answers cannot drive fitting until confirmed. Estimates are computed from inputs;
 browser-supplied calculated totals are rejected. Daily quantity is not a peak
-placement quantity. `prepareYardleyBrief` prepares the new reviewed brief; its
-submission integration remains stage 5. Run `npm run check`, `npm test` and the
+placement quantity. `prepareYardleyBrief` prepares the reviewed brief. Stage 5
+adds the version-2 `mixer-guide` submission envelope, bounded contact validation,
+canonical plain-text email and server-computed fit. Run `npm run check`, `npm test` and the
 build after material changes to these modules.
 
 Guided mode remains the fallback. With AI available, the structured planner can
@@ -402,9 +408,22 @@ stay in editable notes for Paul; factual questions and confirmed structured deta
 are not automatically a full transcript in the brief. The summary and review share the same
 validated job state. Daily totals are preserved as notes when peak placement quantity
 is supplied. Back, edit and reset discard pending proposals; no stale request may
-overwrite a newer answer. Draft changes cancel a pending reply too. The review currently offers Copy, Call and Quote, clearly
-stating that nothing has been sent. Do not map this richer brief into the legacy
-five-field payload or show a send success before stage 5 wires the versioned handoff.
+overwrite a newer answer. Draft changes cancel a pending reply too. Review now
+offers explicit submission of the complete brief, plus Copy and Call. The exact
+email preview, provider payload and submitted receipt share one formatter. Never
+map the richer brief into the legacy five-field payload. Require confirmed answers
+and preserve unknowns. Phone/WhatsApp guide contact requires a phone number;
+email is optional for those methods, but must be valid if supplied. The ordinary
+quote form retains its existing validation contract.
+
+Guide submissions use a stable UUID and Resend idempotency key for identical
+retries; no server transcript database or per-process deduplication is introduced.
+The provider's retry window is 24 hours; browser retries stop after 23 hours.
+Do not regenerate references on an unchanged failed attempt or add changing
+timestamps to the mail body. A revised job/contact snapshot gets a new reference.
+Freeze edits while sending; keep the accepted receipt independent from live job
+state. A receipt says the service accepted the email, never that inbox delivery
+was guaranteed. Live test mail requires explicit approval to email Paul.
 
 No application-side transcript persistence. Review provider logging separately.
 The visitor reviews a job brief before explicitly submitting to `/api/lead` with

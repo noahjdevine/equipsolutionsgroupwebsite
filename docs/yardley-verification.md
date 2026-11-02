@@ -1,5 +1,94 @@
 # Yardley verification log
 
+## Stage 5 — November 1–2, 2026 — complete; full brief receipt confirmed
+
+Story: the visitor reviews a complete job brief and contact details, explicitly
+sends that snapshot to Paul, and receives an immutable record of the accepted
+email. Server fitting and estimates are recalculated from validated job inputs.
+
+### Verified so far
+
+- Branch `codex/yardley-handoff` starts at the merged PR #4 main commit `233310e`.
+  The owner authorized committing/pushing this completed checkpoint and opening a
+  PR before Stage 6. No production deployment or settings change was made during
+  Stage 5 verification.
+- `npm run check`, `npm test` and `npm run build` pass: **83 tests, zero failures**.
+  Fifteen new cases cover contact methods, unknowns, proposed/forged input,
+  estimate inputs and labels, provider payload/addresses, stable idempotency keys,
+  old quote branches including URL-encoded/multipart requests, body/origin bounds,
+  honeypot, provider conflicts/failure/timeout, duplicate clicks, uncertain retry,
+  same-reference text mismatch, old attempts and immutable receipts after edits.
+- Local Chrome browser: supplied 18 × 18 ft patio / specified 4 in thickness,
+  standard mix and required chopper. Proposed details, including a supplied mix
+  specification, are visible before confirmation. Confirmed state produces a
+  calculated ≈4 yd³ placement, 750 L / 850 S, chopper air caveat and open air/chassis
+  questions. Unknown fields remain explicit; no small chopper machine is named.
+- Review displays the same full job and offers contact fields, an exact-email
+  disclosure and an explicit Send button. Empty contact submission shows inline
+  errors and focuses Name before any mail request. WhatsApp with phone and no
+  email produces a valid preview; switching to email changes the required fields.
+- A synthetic test contact and clearly labeled TEST ONLY note produce a full
+  canonical email preview. A separately validated synthetic packet matched that
+  visible text exactly. The owner approved one actual test message; the live
+  browser submission below used that approved content, with only a regenerated
+  reference after reopening the test page.
+- **360 × 800** browser check: document width 345px within the 360px viewport;
+  contact fields and long exact-email text do not cause horizontal overflow.
+  Default viewport restored. No captured browser errors.
+  [Desktop review](screenshots/yardley-review-stage5.jpg),
+  [mobile contact form](screenshots/yardley-review-stage5-mobile.jpg).
+- All ten generated browser HTML/JS/CSS assets scanned: zero matches for either
+  actual API credential. `.env`, `.vercel` test artifacts and build output remain
+  ignored; no new dependency, sender, recipient, DNS or model was introduced.
+- Protected Node 24 Preview is Ready:
+  [stage-5 reviewed handoff](https://equipsolutionsgroupwebsite-9j2pkvgyt-noah-devines-projects.vercel.app/job/),
+  deployment `dpl_AwMRZcX6zthSPGpv4yPaEz1ViVd3`. It is an uncommitted worktree
+  snapshot, not a stage-5 Git commit or production release. Normal authenticated
+  Chrome opens the new review/contact form. An authenticated incomplete v2 POST
+  returns HTTP 400 with validation errors before any send. Deployment protection
+  remains enabled; the AI switch override applies to this Preview only.
+- A final send-lock review also disables the older receipt's Revise button while
+  a new send is pending and guards programmatic review/edit paths. Checks, all
+  83 tests and the build pass after that fix.
+
+### Approved live handoff — November 2
+
+- A normal authenticated Chrome Send action on the protected Preview submitted
+  the approved synthetic 18 × 18 ft patio at specified 4 in thickness, standard
+  mix, required fiber chopper, provisional 750 L / 850 S and open air/chassis
+  questions. The exact visible email was checked against the approved message
+  before sending. No real customer data was used.
+- Resend accepted the message. Submission reference:
+  `afea1005-da44-4d21-88af-97252ac5cec6`; provider message ID:
+  `01a19dfb-bd13-763a-9640-e3ccfa4b55ac`. The browser displayed the submitted
+  snapshot, byte-for-byte equal to the reviewed email, and disabled sending that
+  unchanged brief again. [Submitted receipt](screenshots/yardley-receipt-stage5.png).
+- One authenticated same-reference API replay returned HTTP 200 and the same
+  provider receipt/text, using the original idempotency key. No new inquiry or
+  independently keyed second test email was sent.
+- In the actual browser, adding latex to the draft produced a revised inquiry
+  with a new reference and dosing caveat while the original receipt stayed
+  unchanged. The revised draft was never sent. Restoring Standard alone restored
+  the accepted reference and disabled Send again; the receipt still matched.
+
+### Receipt confirmation
+
+On November 2, the owner answered “Yes, the full brief arrived” when asked whether
+Paul received the TEST ONLY message with patio dimensions, fiber chopper
+requirement, model comparison and open questions. This closes Stage 5's actual
+receipt criterion. Receipt confirmation comes from the owner; no provider
+`delivered` event is claimed as inspected.
+
+The existing Resend key is sending-only: reading this message's delivery event
+returned 401 `restricted_api_key`. No credential permissions were expanded,
+password reset requested or additional email sent. Further dashboard access is
+not required to close this verified handoff.
+
+Synthetic packets and provider responses remain in ignored `.vercel` test files.
+Ordinary unit tests use injected mail functions and make no external sends.
+Stage 6 remains the broader release/runtime/dependency gate; Production AI stays
+disabled and no full launch is implied by this handoff implementation.
+
 ## Stage 4 — November 1, 2026 — complete locally and in protected Preview
 
 Story: a typed question now reaches a bounded server-side model planner. The

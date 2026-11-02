@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CtaBand from '../components/CtaBand.astro';
+import { PREFERRED_CONTACT, PREFERRED_LANGUAGE } from '../data/lead';
 ---
 <BaseLayout title="Yardley — work out your mixer fit | Equip Solutions Group" description="Talk through the work, compare provisional StarMix options and prepare a job brief for Paul. No yardage? Start with what you know.">
   <section class="yardley" data-yardley>
@@ -41,7 +42,34 @@ import CtaBand from '../components/CtaBand.astro';
       </section>
       <section class="yardley-review" data-review-panel hidden aria-labelledby="yardley-review-title">
         <div class="yardley-section-head"><div><p class="eyebrow">Ready for a conversation</p><h2 id="yardley-review-title" tabindex="-1">Here’s what Paul should know.</h2></div><button class="yardley-text-button" type="button" data-return>Edit my answers ↑</button></div>
-        <div class="yardley-review-grid"><div><dl data-review-rows></dl><div class="yardley-review-notes"><h3>Your notes & questions</h3><p data-review-notes></p></div><div data-review-questions></div></div><div class="yardley-review-actions"><p class="yardley-label">Take the next step</p><p>Your details have not been sent. Copy this brief to keep it, then call Paul or request a quote to start the conversation.</p><button class="btn btn-ghost" type="button" data-copy>Copy my job brief</button><p class="small" data-copy-status role="status" aria-live="polite"></p><a class="btn" href="/contact/">Request a quote</a><a class="card-link" href="tel:+15157200800">Call +1 515 720 0800 ↗</a></div></div>
+        <div class="yardley-review-grid"><div><dl data-review-rows></dl><div class="yardley-review-notes"><h3>Your notes & questions</h3><p data-review-notes></p></div><div data-review-questions></div><details class="yardley-email-preview"><summary>Exact email to Paul</summary><p data-email-preview-help>Add your contact details to preview the complete email.</p><pre data-email-preview hidden></pre></details></div>
+          <div class="yardley-review-actions"><p class="yardley-label">How should Paul reach you?</p><p>Review the brief and add your contact details. Send it when you’re ready—even if some answers are still open.</p>
+            <form data-handoff-form novalidate>
+              <p class="hp" aria-hidden="true"><label for="yardley-website">Website</label><input id="yardley-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" /></p>
+              <fieldset data-contact-fields>
+                <legend class="sr-only">Contact details for this brief</legend>
+                <div class="yardley-field"><label for="yardley-contact-name">Name</label><input id="yardley-contact-name" name="name" autocomplete="name" maxlength="100" required /><p class="field-error" data-handoff-error="contact.name" hidden></p></div>
+                <div class="yardley-field"><label for="yardley-contact-company">Company (optional)</label><input id="yardley-contact-company" name="company" autocomplete="organization" maxlength="160" /><p class="field-error" data-handoff-error="contact.company" hidden></p></div>
+                <div class="yardley-field"><label for="yardley-preferred-contact">Preferred contact</label><select id="yardley-preferred-contact" name="preferredContact">{PREFERRED_CONTACT.map((entry) => <option value={entry.value} selected={entry.value === 'email'}>{entry.label}</option>)}</select><p class="field-error" data-handoff-error="contact.preferredContact" hidden></p></div>
+                <div class="yardley-field"><label for="yardley-contact-email">Email <span data-email-optional></span></label><input id="yardley-contact-email" name="email" type="email" autocomplete="email" maxlength="254" /><p class="field-error" data-handoff-error="contact.email" hidden></p></div>
+                <div class="yardley-field"><label for="yardley-contact-phone">Phone <span data-phone-optional>(optional)</span></label><input id="yardley-contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" /><p class="field-error" data-handoff-error="contact.phone" hidden></p></div>
+                <div class="yardley-field"><label for="yardley-contact-state">State (optional)</label><input id="yardley-contact-state" name="state" autocomplete="address-level1" maxlength="80" /><p class="field-error" data-handoff-error="contact.state" hidden></p></div>
+                <div class="yardley-field"><label for="yardley-preferred-language">Preferred language</label><select id="yardley-preferred-language" name="preferredLanguage">{PREFERRED_LANGUAGE.map((entry) => <option value={entry.value}>{entry.label}</option>)}</select></div>
+              </fieldset>
+              <p class="small" data-handoff-state>Your brief has not been sent.</p>
+              <p class="yardley-status" data-handoff-status role="status" aria-live="polite" aria-atomic="true"></p>
+              <button class="btn" type="submit" data-send-brief>Send my reviewed brief</button>
+              <p class="small muted">Sends the contact details and reviewed brief shown here to paul@equipsolutionsgroup.com.</p>
+            </form>
+            <button class="btn btn-ghost" type="button" data-copy>Copy my job brief</button><p class="small" data-copy-status role="status" aria-live="polite"></p><a class="card-link" href="tel:+15157200800">Call +1 515 720 0800 ↗</a>
+          </div>
+        </div>
+      </section>
+      <section class="yardley-receipt" data-receipt-panel hidden aria-labelledby="yardley-receipt-title">
+        <p class="eyebrow">Your submitted snapshot</p><h2 id="yardley-receipt-title" tabindex="-1">Your brief is submitted.</h2>
+        <p>The email service accepted this brief for sending to Paul. This receipt does not confirm inbox delivery.</p>
+        <p class="small" data-receipt-reference></p><details><summary>Read the submitted brief</summary><pre data-receipt-text></pre></details>
+        <p data-revision-note>Changes to your answers will start a revised inquiry; this submitted snapshot stays the same.</p><button class="yardley-text-button" type="button" data-revise>Prepare a revised inquiry ↑</button>
       </section>
     </div>
   </section>
