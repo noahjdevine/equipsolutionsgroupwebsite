@@ -1,5 +1,59 @@
 # Yardley verification log
 
+## Production activation — November 2, 2026 — all six stages complete
+
+- The owner merged PR #6 as **`eb2da4132513ae068c3992b23f770f10b38b244c`** and
+  explicitly answered **“Approve production activation”** for enabling production
+  AI, testing and promoting the merged build under the existing budget/rate
+  controls. The initial automatic review required that exact approval; no
+  production mutation ran before it was supplied.
+- Local `main` was fast-forwarded to that merge, keeping Cursor on the same
+  saved source. No application code changed during activation.
+- Actual published Production rate enforcement and the active **$20 monthly**
+  key budget were re-inspected before enabling calls. The two non-secret config
+  variables were split by environment: Production has `YARDLEY_AI_ENABLED=true`
+  and `YARDLEY_RATE_LIMIT_ID=rule_yardley_production_traffic_review_D84EDG`;
+  Preview/Development retain their disabled switch and Preview rule ID. Resend,
+  Gateway credentials, model, budget, alerts and protections were unchanged.
+  Hosted values were independently checked outside the checkout so local `.env`
+  could not override the inspection. Local AI remains enabled.
+- Staged production deployment **`dpl_6CcGHvoDwX77agt43GP1emqfkhQm`**:
+  [unique build](https://equipsolutionsgroupwebsite-kj9wmarkc-noah-devines-projects.vercel.app/job/),
+  Ready, target Production, project `prj_Ka0mos1l5vZXbxhKbRE4QcstiiHE`, Git `main`
+  at the exact merge above, Node **24.x**. The primary alias still pointed to the
+  previous merge deployment during staging; protection remained enabled.
+- Staged API comparison returned **HTTP 200, mode `ai`, reason `ok`**, correctly
+  explaining equal published 750 L / 850 S production rates. Staged normal
+  Chrome accepted supplied 18 × 18 ft / specified 4 in dimensions plus required
+  chopper as a proposal. Answers stayed unknown until confirmation; confirmation
+  produced ≈4 yd³ and provisional 750 L / 850 S with air/chassis caveats. The
+  canonical email preview included dimensions, option, models and caveats; its
+  state remained **“Your brief has not been sent.”** No extra email was sent.
+- The staged error scan returned zero records. The same tested Production
+  deployment was promoted successfully, without rebuilding a Preview. Primary
+  alias verification points to the exact release ID above:
+  [live Yardley](https://equipsolutionsgroupwebsite.vercel.app/job/).
+- Ordinary unauthenticated live API request, with no protection bypass: **HTTP
+  200, mode `ai`, reason `ok`**, correct equal-rate comparison and no proposed job
+  changes. Normal live Chrome completed interpretation → confirmation → qualified
+  fit → reviewed job brief for the synthetic dimension/chopper case. Required
+  air/chassis questions remained open, no small machine was selected, and no
+  inquiry was sent. [Live review screenshot](screenshots/yardley-production-live.png).
+- Final deployment error query: **zero error records** in the inspected 15-minute
+  window; live browser console: no errors. Final budget inspection: active
+  **$20 monthly**, reported spend **$0.018932575**. This is cumulative shared
+  usage at inspection, not a promise of zero later costs or perfect AI accuracy.
+- Application release is complete. The earlier 83 tests/type checks/build and
+  zero-finding dependency audit apply to the unchanged merged code. Stage 5's
+  owner-confirmed full email remains the real handoff evidence. No new SMTP test,
+  DNS edit, `noindex` removal, transcript persistence, credential expansion or
+  unrelated website/public-launch change was made during activation.
+- Previous ready rollback target:
+  `dpl_GLJTeYu8KUoRnBfonK8ShBxiH418`
+  (`equipsolutionsgroupwebsite-hp7iemaq8-noah-devines-projects.vercel.app`), the
+  merged Stage 6 build with AI still disabled. See operations for disablement and
+  rollback; keep budget and firewall controls in place.
+
 ## Stage 6 — November 2, 2026 — local and Preview checks complete; release pending
 
 Base: merged Stage 5 PR #5, main `611d9f0`. Work is on
