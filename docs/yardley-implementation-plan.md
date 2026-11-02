@@ -1,6 +1,6 @@
 # Yardley — implementation checklist
 
-Updated: November 1, 2026. Owner: Equip Solutions Group. Applies to the local
+Updated: November 2, 2026. Owner: Equip Solutions Group. Applies to the local
 Astro repository used by both Codex and Cursor.
 
 ## Status and working order
@@ -19,20 +19,24 @@ below are intentional and do not imply that those modules already exist.
 - [x] 2. Build validated job state, quantity estimates and deterministic fitting.
 - [x] 3. Build the Yardley interface and entry points using scripted responses.
 - [x] 4. Connect grounded conversation and enforce spend controls.
-- [ ] 5. Complete the visitor-reviewed handoff to Paul.
+- [x] 5. Complete the visitor-reviewed handoff to Paul.
 - [ ] 6. Verify the full flow locally and in a Vercel preview, then release.
 
 Stages 1–2 were merged through PR #2 (`c6bda04`) and stage 3 through PR #3
-(`604908c`). Stage 4 is implemented locally on `codex/yardley-conversation`:
+(`604908c`). Stage 4 merged through PR #4 (`233310e`):
 bounded live planning, approved answer blocks, confirmed proposals, cancellation,
 scripted fallback and the real shared $20/month Gateway budget. Funded live calls
 and the protected Preview browser flow work. The owner reviewed traffic and
 published the Preview rule; a controlled test verified 60 requests admitted and
 the next five returned 429, with no AI calls. Local AI is enabled and verified.
-Stage 4 is the checkpoint on `codex/yardley-conversation`; review and merge its
-PR before starting stage 5. Global Production AI stays disabled until release
-and production rate-rule rollout.
-Reviewed-brief email submission remains stage 5.
+Stage 5 is implemented locally on `codex/yardley-handoff`, based on that merge.
+Its runtime contract, reviewed contact form, bounded Resend handler, immutable
+receipt, retry protection and 83 passing tests are in place. The browser review
+works at desktop and 360px. The single approved synthetic email was accepted
+from protected Preview; its exact receipt, same-reference provider replay and
+unchanged receipt after mix edits are verified. On November 2, the owner confirmed
+Paul received the full brief. Stage 5 is complete; Stage 6 remains open.
+Global Production AI stays disabled until release and production rate-rule rollout.
 Evidence is recorded in [the verification log](yardley-verification.md).
 
 Work in this order, with a reviewable diff and relevant checks at each stage.
@@ -347,26 +351,26 @@ controls; no transcript storage or unsupported commercial promise is introduced.
 
 ## 5. Visitor review, email and receipt
 
-- [ ] **`src/data/lead.ts` — existing, handoff pass.** Validate and format the
+- [x] **`src/data/lead.ts` — existing, handoff pass.** Validate and format the
   reviewed brief with work/mix/process, known and estimated quantities and their
   inputs, placement/logistics, chassis preference, required options, timeline,
   deterministic primary/alternate and reasons, unresolved questions, and contact
   preferences. Preserve `source: mixer-guide`. Retain existing quote-form,
   parts and sourcing contracts. Keep unknowns explicit. Make contact validation
   consistent with the offered contact methods.
-- [ ] **`src/pages/api/lead.ts` — existing.** Revalidate the schema, recalculate
+- [x] **`src/pages/api/lead.ts` — existing.** Revalidate the schema, recalculate
   estimates and fit on the server, and ignore browser-supplied model IDs/reasons.
   Apply honeypot, input bounds, duplicate-submit safeguards and actionable error
   handling. Preserve confirmed Resend From/To/Reply-To addresses. Do not change
   DNS or replace `paul@equipsolutionsgroup.com` with the Resend test sender.
-- [ ] **`src/pages/job.astro` / `src/scripts/job.ts` — existing, submission pass.**
+- [x] **`src/pages/job.astro` / `src/scripts/job.ts` — existing, submission pass.**
   Show exactly what will be sent and let the visitor correct it. Submit only
   after their explicit action. On success show an immutable submitted snapshot;
   subsequent edits must clearly start a revised inquiry. Fix the current issue
   where mix/timeline controls can change the displayed result after submission.
   On failure keep the brief, show the inline error and Paul's phone; never show
   fake success. Do not label provider acceptance as guaranteed inbox delivery.
-- [ ] **`tests/yardley/lead.test.ts` — new.** Exercise forged candidate IDs,
+- [x] **`tests/yardley/lead.test.ts` — new.** Exercise forged candidate IDs,
   tampered calculations, missing/unknown data, contact validation, escaping,
   duplicate submission handling and Resend failure. Regression-test ordinary
   mixer, parts and sourcing inquiries as well as guide inquiries.
@@ -374,6 +378,16 @@ controls; no transcript storage or unsupported commercial promise is introduced.
 **Done when:** Paul receives a useful foundation for the sales conversation and
 can distinguish known facts, estimates and unanswered questions. The visitor's
 receipt matches the submitted brief; email failure cannot produce success UI.
+
+Implementation adds `src/lib/yardley/lead-route.ts` (injectable, bounded server
+handler), `src/lib/yardley/handoff.ts` (browser attempt/receipt state) and
+`tests/yardley/lead-api.test.ts` / `handoff.test.ts`. No new package, database,
+email service, sender identity or DNS change is needed. Code/type/build checks
+and mocked failure tests pass. Protected Preview accepted the approved test,
+returned the exact receipt and reused it for the same-reference replay. A later
+mix edit left that receipt unchanged; restoring the original answers disabled
+sending the accepted snapshot again. The owner confirmed the full brief arrived
+with Paul on November 2; see the verification log for the evidence.
 
 ## 6. Verification, deployment and continuing work
 
@@ -426,5 +440,6 @@ Localhost reflects source changes through the development server, or after a
 restart if configuration/dependencies change. Preview and production change only
 through their deployment workflow. A checklist update does not publish the site.
 
-Next concrete work: **section 5's visitor-reviewed email handoff**. Do not treat Copy / Call / Quote
-as submission of the richer job brief.
+Next concrete work: section 6's release checks after the Stage 5 checkpoint on
+`codex/yardley-handoff` is reviewed and merged. The protected Preview does not
+imply a production release.

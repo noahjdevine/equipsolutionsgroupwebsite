@@ -9,6 +9,8 @@ import { applyJobPatch, confirmPatch, formatQuantity, nextStep, quantityLabel, S
 import { ConversationTransport } from '../lib/yardley/transport';
 import { scriptedConversation } from '../lib/yardley/replies';
 import type { ConversationInput, ConversationResponse } from '../data/yardley-conversation';
+import { briefRows, formatYardleyBrief } from '../data/lead';
+import { YardleyHandoff, HandoffError, type HandoffDraft } from '../lib/yardley/handoff';
 
 // All visitor text is inserted with textContent. No transcript or job storage.
 function node<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className = ''): HTMLElementTagNameMap[K] {
@@ -38,6 +40,10 @@ export function startGuide(): void {
   const notesInput = get<HTMLTextAreaElement>('[data-notes]');
   const summary = get<HTMLDetailsElement>('[data-summary]');
   const review = get('[data-review-panel]');
+  const handoff = new YardleyHandoff();
+  const contactForm = get<HTMLFormElement>('[data-handoff-form]');
+  const contactFields = get<HTMLFieldSetElement>('[data-contact-fields]');
+  const sendBrief = get<HTMLButtonElement>('[data-send-brief]');
   const transport = new ConversationTransport();
   const sendButton = composer.querySelector<HTMLButtonElement>('button[type="submit"]')!;
   let retryInput: ConversationInput | undefined;
@@ -112,6 +118,7 @@ export function startGuide(): void {
     commit(clear[step], 'I’m not sure about that yet.', 'No problem. I’ll leave that open for Paul rather than fill in a guess.');
   }
   function edit(step: IntakeStep): void {
+    if (handoff.busy) return;
     invalidateConversation();
     pending = undefined;
     pendingText = '';
@@ -236,9 +243,9 @@ export function startGuide(): void {
     question.append(node('p', 'Only the details below will change. Confirm them before they affect the comparison.'));
     const proposed = confirmPatch(job, pending!);
     if (!proposed) { pending = undefined; renderQuestion(); announce('Those suggested changes could not be saved. Check the values and leave space in your notes for both daily and placement quantities. Your current answers are still here.'); return; }
-    const before = summaryRows(job);
+    const before = briefRows(job);
     const list = node('ul', '', 'yardley-proposals');
-    for (const row of summaryRows(proposed)) {
+    for (const row of briefRows(proposed)) {
       const old = before.find((entry) => entry.label === row.label);
       if (old?.value !== row.value && (row.value !== 'Not sure yet' || old !== undefined)) list.append(node('li', `${row.label}: ${row.value}`));
     }
@@ -457,7 +464,9 @@ export function startGuide(): void {
     qualifications.append(node('p', CAVEAT_COPY['published-rate'], 'small muted'));
   }
   function showReview(): void {
+    if (handoff.busy) { get('[data-handoff-status]').textContent = 'Wait for the current send to finish before revising the brief.'; return; }
     if (pending) { announce('Confirm or discard the suggested changes first.'); focusQuestion(); return; }
+    invalidateConversation();
     review.hidden = false;
     renderReview();
     renderResults();
@@ -466,7 +475,7 @@ export function startGuide(): void {
   function renderReview(): void {
     const rows = get('[data-review-rows]');
     rows.replaceChildren();
-    for (const row of summaryRows(job)) {
+    for (const row of briefRows(job)) {
       const group = node('div', '', 'yardley-review-row');
       group.append(node('dt', row.label), node('dd', row.value), button('Edit', () => edit(row.step)));
       group.querySelector('button')!.setAttribute('aria-label', `Change ${row.label.toLowerCase()} in brief`);
@@ -481,16 +490,41 @@ export function startGuide(): void {
     for (const text of job.openQuestions) list.append(node('li', text));
     if (!list.children.length) list.append(node('li', 'Confirm the machine, usable yield, chassis and configuration on the written quote.'));
     questions.append(list);
+    renderHandoff();
   }
   function briefText(): string {
-    const fit = fitJob(job);
-    const lines = ['Yardley — job brief for Paul', 'Provisional discussion only. Nothing has been sent.', '', ...summaryRows(job).map((row) => `${row.label}: ${row.value}`)];
-    if (job.quantity.kind === 'dimensions') {
-      const estimate = calculateVolume(job.quantity.inputs);
-      if (estimate.ok) lines.push(`Dimensions: ${JSON.stringify(estimate.estimate.inputs)}`, `Calculation: ${estimate.estimate.formula}; no waste allowance added.`);
-    }
-    lines.push('', `Notes: ${job.notes || 'None'}`, '', `Status: ${fit.status}`, `Provisional machine: ${fit.primaryId ? modelById(fit.primaryId)!.name : 'Pending clarification / configuration review'}`, `Compare: ${fit.alternateId ? modelById(fit.alternateId)!.name : 'None yet'}`, ...fit.reasonIds.map((id) => REASON_COPY[id]), ...fit.caveatIds.map((id) => CAVEAT_COPY[id]), ...fit.questionIds.map((id) => `Open: ${QUESTION_COPY[id]}`), ...job.openQuestions.map((text) => `Open: ${text}`));
-    return lines.join('\n');
+    const prepared = handoff.prepare(handoffDraft());
+    return prepared.ok ? prepared.attempt.mail.text : formatYardleyBrief({ version: 1, job, fit: fitJob(job) });
+  }
+  function handoffDraft(): HandoffDraft {
+    const fields = Object.fromEntries(new FormData(contactForm));
+    const { website, ...contact } = fields;
+    return { contact, brief: { version: 1, job: structuredClone(job) }, website: typeof website === 'string' ? website : '' };
+  }
+  function renderHandoff(): void {
+    if (handoff.busy) return;
+    const preferred = get<HTMLSelectElement>('#yardley-preferred-contact').value;
+    get('[data-email-optional]').textContent = preferred === 'email' ? '' : '(optional)';
+    get('[data-phone-optional]').textContent = preferred === 'email' ? '(optional)' : '';
+    get<HTMLInputElement>('#yardley-contact-email').required = preferred === 'email';
+    get<HTMLInputElement>('#yardley-contact-phone').required = preferred !== 'email';
+    const prepared = handoff.prepare(handoffDraft());
+    const alreadyAccepted = prepared.ok && prepared.alreadyAccepted;
+    sendBrief.disabled = alreadyAccepted;
+    sendBrief.textContent = alreadyAccepted ? 'This brief is submitted' : handoff.receipt ? 'Send my revised brief' : 'Send my reviewed brief';
+    get('[data-handoff-state]').textContent = alreadyAccepted ? 'The submitted snapshot is in your receipt below.' : handoff.receipt ? 'You’re preparing a revised inquiry. The earlier submitted snapshot stays in your receipt below.' : 'Your brief has not been sent.';
+    get('[data-email-preview]').hidden = !prepared.ok;
+    get('[data-email-preview-help]').hidden = prepared.ok;
+    get('[data-email-preview]').textContent = prepared.ok ? `Subject: ${prepared.attempt.mail.subject}\n\n${prepared.attempt.mail.text}` : '';
+  }
+  function setHandoffBusy(busy: boolean): void {
+    get('[data-workspace]').inert = busy;
+    contactFields.disabled = busy;
+    for (const element of review.querySelectorAll<HTMLButtonElement>('[data-review-rows] button, [data-return], [data-copy]')) element.disabled = busy;
+    sendBrief.disabled = busy;
+    get<HTMLButtonElement>('[data-revise]').disabled = busy;
+    contactForm.setAttribute('aria-busy', String(busy));
+    if (busy) sendBrief.textContent = 'Sending your brief…';
   }
   function render(): void {
     announce('');
@@ -502,6 +536,7 @@ export function startGuide(): void {
     get('[data-copy]').textContent = 'Copy my job brief';
     get('[data-copy-status]').textContent = '';
     if (!review.hidden) renderReview();
+    else renderHandoff();
   }
 
   async function requestReply(input: ConversationInput): Promise<void> {
@@ -581,6 +616,7 @@ export function startGuide(): void {
     invalidateConversation();
     const parsed = parseYardleyJob({ ...job, notes: notesInput.value });
     if (parsed.ok) { job = parsed.job; if (!review.hidden) renderReview(); }
+    renderHandoff();
   });
   get('[data-back]').addEventListener('click', () => {
     invalidateConversation();
@@ -600,6 +636,49 @@ export function startGuide(): void {
   });
   get('[data-review]').addEventListener('click', showReview);
   get('[data-return]').addEventListener('click', () => { review.hidden = true; focusQuestion(); });
+  get('[data-revise]').addEventListener('click', () => { showReview(); get('[data-handoff-status]').textContent = 'Change your job or contact details, then review the revised email before sending.'; });
+  contactForm.addEventListener('input', () => {
+    get('[data-handoff-status]').textContent = '';
+    for (const element of contactForm.querySelectorAll<HTMLElement>('[data-handoff-error]')) { element.hidden = true; element.textContent = ''; }
+    for (const element of contactForm.querySelectorAll('[aria-invalid]')) { element.removeAttribute('aria-invalid'); element.removeAttribute('aria-describedby'); }
+    renderHandoff();
+  });
+  contactForm.addEventListener('change', renderHandoff);
+  contactForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (handoff.busy) return;
+    if (pending) { get('[data-handoff-status]').textContent = 'Confirm or discard the suggested job details before sending.'; return; }
+    const draft = handoffDraft();
+    const prepared = handoff.prepare(draft);
+    if (!prepared.ok) {
+      get('[data-handoff-status]').textContent = 'Check the highlighted contact details before sending.';
+      let first: HTMLElement | undefined;
+      for (const element of contactForm.querySelectorAll<HTMLElement>('[data-handoff-error]')) {
+        const error = prepared.errors.find((entry) => entry.field === element.dataset.handoffError);
+        element.hidden = !error; element.textContent = error?.message ?? '';
+        const input = element.previousElementSibling as HTMLInputElement | null;
+        if (input && error) {
+          element.id = `yardley-error-${element.dataset.handoffError!.replace('.', '-')}`;
+          input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', element.id); first ??= input;
+        }
+      }
+      first?.focus(); return;
+    }
+    invalidateConversation();
+    setHandoffBusy(true);
+    get('[data-handoff-status]').textContent = 'Sending the reviewed snapshot to Paul…';
+    try {
+      const receipt = await handoff.submit(draft);
+      if (!receipt) return;
+      get('[data-receipt-panel]').hidden = false;
+      get('[data-receipt-reference]').textContent = `Reference: ${receipt.submissionId}`;
+      get('[data-receipt-text]').textContent = `Subject: ${receipt.subject}\n\n${receipt.text}`;
+      get('[data-handoff-status]').textContent = 'The email service accepted your reviewed brief. Your submitted snapshot is below.';
+      get('#yardley-receipt-title').focus();
+    } catch (error) {
+      get('[data-handoff-status]').textContent = error instanceof HandoffError ? error.message : 'We could not confirm the send. Retry the same brief or call Paul.';
+    } finally { setHandoffBusy(false); renderHandoff(); }
+  });
   let copying = false;
   get('[data-copy]').addEventListener('click', async () => {
     if (copying) return;
@@ -611,7 +690,7 @@ export function startGuide(): void {
     const copiedJob = job;
     try {
       await navigator.clipboard.writeText(brief);
-      get('[data-copy-status]').textContent = job === copiedJob ? 'Job brief copied. Your details have not been sent.' : 'An earlier version was copied. Copy again to include your latest changes.';
+      get('[data-copy-status]').textContent = job === copiedJob ? 'Current job brief copied.' : 'An earlier version was copied. Copy again to include your latest changes.';
       if (job === copiedJob) copyButton.textContent = 'Brief copied ✓';
     }
     catch { get('[data-copy-status]').textContent = 'Copy was blocked by your browser. Your brief is still here; select and copy the review text, or call Paul.'; }
