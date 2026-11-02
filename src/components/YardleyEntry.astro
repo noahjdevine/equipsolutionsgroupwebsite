@@ -5,14 +5,34 @@ const { compact = false } = Astro.props;
 {compact ? (
   <p class="yardley-entry-compact">Still working out the details? <a class="card-link" href="/job/">Meet Yardley, your AI mixer guide →</a></p>
 ) : (
-  <aside class="yardley-entry" aria-label="Meet Yardley">
+  <aside class="yardley-entry" aria-label="Meet Yardley, the AI mixer guide">
     <div class="wrap yardley-entry-inner">
-      <span class="yardley-mark" aria-hidden="true">Y<span>/</span></span>
-      <div>
-        <p class="yardley-label">Meet Yardley <span>AI mixer guide</span></p>
-        <p>Know the job, but not the mixer? Start there. We’ll work through the details for Paul.</p>
+      <div class="yardley-entry-lead">
+        <span class="yardley-mark" aria-hidden="true">Y<span>/</span></span>
+        <div>
+          <p class="eyebrow">AI mixer guide</p>
+          <h2>Yardley works out which mixer fits.</h2>
+          <p class="lede">Yardley is the AI guide for this lineup. Tell it the work, the pour, and whether a chassis is already in hand. It asks what is still missing, then names one or two StarMix units from published specs. You review the brief. Paul confirms the machine.</p>
+          <a class="btn" href="/job/">Work out my fit</a>
+        </div>
       </div>
-      <a class="card-link" href="/job/">Work out my fit <span aria-hidden="true">↗</span></a>
+      <ol class="steps yardley-entry-steps">
+        <li class="step">
+          <span class="step-n">01</span>
+          <h3>Tell it the job</h3>
+          <p>A sentence is enough. The choices are there when you would rather tap than type.</p>
+        </li>
+        <li class="step">
+          <span class="step-n">02</span>
+          <h3>Get a shortlist</h3>
+          <p>One primary unit and, at most, one alternate. Figures come from the published lineup.</p>
+        </li>
+        <li class="step">
+          <span class="step-n">03</span>
+          <h3>Review, then send</h3>
+          <p>Nothing goes to Paul until you submit. He confirms the machine and the configuration.</p>
+        </li>
+      </ol>
     </div>
   </aside>
 )}
